@@ -68,9 +68,11 @@ func IssueToken(req *http.Request, expiry time.Duration, audience string) securi
 	t := time.Now()
 	e := t.Add(expiry * time.Minute)
 
+	//assign the claims to our customer model
 	token := &security.TokenClaims{
 		Issuer:     configs.SERVICE_ID,
 		Subject:    configs.SUBJECT,
+		//treat audience as scope(permissions the token has access to)
 		Audience:   audience,
 		IssuedAt:   t.Unix(),
 		Expiration: e.Unix(),
@@ -79,15 +81,18 @@ func IssueToken(req *http.Request, expiry time.Duration, audience string) securi
 	}
 
 	tr := security.TokenResponse{
+		//GenerateToken is a our security library
 		AccessToken:  security.GenerateToken(token),
 		TokenType:    configs.BEARER,
 		ExpiresIn:    configs.EXPIRY,
+		//No support for refresh tokens as of yet
 		RefreshToken: "N/A",
 	}
 
 	return tr
 }
 
+//Response for testing purposes
 func MockResponse(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("OK"))
 	w.WriteHeader(http.StatusOK)

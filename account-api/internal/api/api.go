@@ -14,6 +14,10 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+//We check for the recaptcha response and proceed
+//Covert the response body into appropriate models
+//Create a new user using our dynamodb adapter
+//A event message it sent to the queues which are consumed by the relevant services
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: reCaptcha check, 30ms average
@@ -30,6 +34,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(json))
 			w.WriteHeader(http.StatusOK)
 
+			//triggers email confirmation e-mail
 			go event.BroadcastUserCreatedEvent(json)
 		}
 	}
@@ -67,6 +72,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//Creating a new user with same ID replaces the record
+//Temporary solution
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: Change to UpdateItem
@@ -86,6 +93,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	emailFromBody := StringFromMap(bodyMap, configs.UNIQUE_IDENTIFIER)
 	passwordFromBody := StringFromMap(bodyMap, configs.PW)
 
+	//response from dynamodb
 	result, error := dynamodb.GetItem(emailFromBody)
 
 	// if there is an error or record not found
@@ -96,6 +104,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	u := dynamodb.Unmarshal(result, models.Credentials{})
 	passwordFromDB := StringFromMap(u, configs.PW)
 
+	//validation, hash matches
 	if passwordFromBody == passwordFromDB {
 		w.WriteHeader(http.StatusAccepted)
 	}
@@ -103,10 +112,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
+//Get the string value of a kay
 func StringFromMap(m map[string]interface{}, p string) string {
 	return fmt.Sprintf("%v", m[p])
 }
 
+//to avoid duplication, this method is re-used
+//Gets the unique identifier from the response body
+//This unique identifier is set under the API configs
+//For this context, it would be mail
+//TODO: move to dynamodb library?
 func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
 	v, err := dynamodb.GetParameterValue(r.Body, models.User{})

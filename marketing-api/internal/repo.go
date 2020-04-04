@@ -2,8 +2,8 @@ package internal
 
 import (
 	"encoding/json"
-	"github.com/ProjectReferral/Get-me-in/marketing-service/configs"
-	"github.com/ProjectReferral/Get-me-in/marketing-service/internal/models"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"net/http"
@@ -13,6 +13,7 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+//will be deleted and handled by connections.go
 func ConnectToInstance(w http.ResponseWriter, r *http.Request) {
 
 	c := credentials.NewSharedCredentials("", "default")
@@ -27,6 +28,10 @@ func ConnectToInstance(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+//We check for the recaptcha response and proceed
+//Covert the response body into appropriate models
+//Create a new user using our dynamodb adapter
+//A event message it sent to the queues which are consumed by the relevant services
 func CreateAdvert(w http.ResponseWriter, r *http.Request) {
 
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(r.Body, models.Advert{})
@@ -36,6 +41,7 @@ func CreateAdvert(w http.ResponseWriter, r *http.Request) {
 		err := dynamodb.CreateItem(dynamoAttr)
 
 		if !HandleError(err, w, false){
+			//TODO: send event to queue
 			w.WriteHeader(http.StatusOK)
 		}
 	}
@@ -74,12 +80,19 @@ func GetAdvert(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//Creating a new user with same ID replaces the record
+//Temporary solution
 func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: Change to UpdateItem
 	CreateAdvert(w,r)
 }
 
+//to avoid duplication, this method is re-used
+//Gets the unique identifier from the response body
+//This unique identifier is set under the API configs
+//For this context, it would be id
+//TODO: move to dynamodb library?
 func ExtractValue(w http.ResponseWriter, r *http.Request) string{
 
 	v, err := dynamodb.GetParameterValue(r.Body, models.Advert{})

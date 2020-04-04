@@ -4,11 +4,9 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/streadway/amqp"
 )
 
-var RabbitMQConn *amqp.Connection
-
+//Create a single instance of DynamoDB connection
 func ConnectToDynamoDB(){
 
 	c := credentials.NewSharedCredentials("", "default")

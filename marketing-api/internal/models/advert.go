@@ -1,5 +1,7 @@
 package models
 
+//'json:' is the value that will be picked up from the JSON body
+//JSON must contain the value after 'json:...'  instead of the attribute name
 type Advert struct {
 	Uuid      	string `json:"id"`
 	AccountId	string `json:"account_id"`

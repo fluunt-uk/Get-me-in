@@ -30,6 +30,7 @@ func GenerateToken(claim *TokenClaims) string{
 	return tokenString
 }
 
+//Verify the token signature and expire dates without any explicit claims
 func VerifyToken(tokenString string) bool {
 
 	// Initialize a new instance of `Claims`
@@ -56,6 +57,7 @@ func VerifyToken(tokenString string) bool {
 	return false
 }
 
+//Verify the token signature and expire dates with a claim
 func VerifyTokenWithClaim(tokenString string, claim string) bool {
 
 	// Initialize a new instance of `Claims`

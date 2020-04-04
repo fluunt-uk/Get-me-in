@@ -29,6 +29,9 @@ func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]
 
 }
 
+/**
+* Convert type interface to dynamodb readable object and JSON
+**/
 func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error, string){
 
 	bodyMap, err := DecodeToMap(readBody, m)
@@ -46,24 +49,6 @@ func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[
 
 	return av, nil, string(jsonString)
 
-}
-
-
-func DecodeToDynamoAttributeFromByte(jsonData []byte, m interface{}) (map[string]*dynamodb.AttributeValue, error){
-
-	err := json.Unmarshal(jsonData, &m)
-
-	if err != nil {
-		panic(err)
-	}
-
-	av, errM := dynamodbattribute.MarshalMap(m)
-
-	if errM != nil {
-		return nil, errM
-	}
-
-	return av, nil
 }
 
 /**
@@ -110,7 +95,7 @@ func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interfa
 }
 
 /**
-* Get the specific value from the unique identifier
+* Get the specific value query by the unique identifier
 **/
 func GetParameterValue(r io.ReadCloser, m interface{}) (string,error){
 	bodyMap, err := DecodeToMap(r, m)

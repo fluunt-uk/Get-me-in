@@ -5,9 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-/*
-* Item created using AttributeValue which is decoded by modeldecoding
-*/
+
+//Item created using AttributeValue which is decoded by modeldecoding
 func CreateItem(av map[string]*dynamodb.AttributeValue) error{
 
 	// translate into a compatible object

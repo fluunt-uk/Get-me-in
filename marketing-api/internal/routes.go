@@ -20,6 +20,8 @@ func SetupEndpoints() *mux.Router{
 	return _router
 }
 
+//Parses the authentication token and validates against the @claim
+//Some tokens can only authenticate with specific endpoints
 func wrapHandlerWithAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")

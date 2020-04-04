@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+//Parses the authentication token and validates against the @claim
+//Some tokens can only authenticate with specific endpoints
 func wrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")

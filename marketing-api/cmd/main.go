@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/marketing-service/configs"
-	"github.com/ProjectReferral/Get-me-in/marketing-service/internal"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/internal"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"log"
 	"net/http"
@@ -15,7 +15,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(configs.PORT, internal.SetupEndpoints()))
 }
 
-//TODO: improve workflow
+//service specific configs are loaded at runtime
 func loadEnvConfigs() {
 
 	fmt.Print("Running on ")
