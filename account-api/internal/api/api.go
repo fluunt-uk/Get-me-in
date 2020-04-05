@@ -21,21 +21,27 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: reCaptcha check, 30ms average
+	if r.ContentLength < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("No body error!"))
+	} else {
 
-	body := r.Body
-	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
+		body := r.Body
 
-	if !HandleError(errDecode, w, false) {
+		dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
 
-		err := dynamodb.CreateItem(dynamoAttr)
+		if !HandleError(errDecode, w, false) {
 
-		if !HandleError(err, w, false) {
-			//JSON format of the newly created user
-			w.Write([]byte(json))
-			w.WriteHeader(http.StatusOK)
+			err := dynamodb.CreateItem(dynamoAttr)
 
-			//triggers email confirmation e-mail
-			go event.BroadcastUserCreatedEvent(json)
+			if !HandleError(err, w, false) {
+				//JSON format of the newly created user
+				w.Write([]byte(json))
+				w.WriteHeader(http.StatusOK)
+
+				//triggers email confirmation e-mail
+				go event.BroadcastUserCreatedEvent(json)
+			}
 		}
 	}
 }
