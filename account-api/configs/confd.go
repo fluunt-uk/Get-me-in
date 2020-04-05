@@ -19,5 +19,5 @@ const (
 )
 
 var (
-	BrokerUrl = "amqp://admin:admin@35.178.93.43:5672/"
+	BrokerUrl = ""
 )
