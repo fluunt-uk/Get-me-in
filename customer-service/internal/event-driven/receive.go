@@ -5,6 +5,7 @@ import (
 
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-service/internal/smtp"
+	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
 	"github.com/streadway/amqp"
 )
 
@@ -41,7 +42,7 @@ func ReceiveFromAllQs() {
 			smtp.SendEmail(
 				[]string{"sharjeel50@hotmail.co.uk", "sumite3117@hotmail.com", "hamza_razeq@hotmail.co.uk", "0101hamza@gmail.com"},
 				"Verify your email - TESTING",
-				"Please verify your email - TESTING")
+				"Please verify your email - TESTING", configs.EmailVerification)
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 
