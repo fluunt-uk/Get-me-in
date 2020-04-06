@@ -17,6 +17,7 @@ func SetupEndpoints(){
 	_router.HandleFunc("/mock", MockResponse).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
+
 }
 
 

@@ -24,26 +24,26 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if r.ContentLength < 1 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("No body error!"))
-	} else {
+		return
+	}
+	body := r.Body
 
-		body := r.Body
+	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
 
-		dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
+	if !HandleError(errDecode, w, false) {
 
-		if !HandleError(errDecode, w, false) {
+		err := dynamodb.CreateItem(dynamoAttr)
 
-			err := dynamodb.CreateItem(dynamoAttr)
+		if !HandleError(err, w, false) {
+			//JSON format of the newly created user
+			w.Write([]byte(json))
+			w.WriteHeader(http.StatusOK)
 
-			if !HandleError(err, w, false) {
-				//JSON format of the newly created user
-				w.Write([]byte(json))
-				w.WriteHeader(http.StatusOK)
-
-				//triggers email confirmation e-mail
-				go event.BroadcastUserCreatedEvent(json)
-			}
+			//triggers email confirmation e-mail
+			go event.BroadcastUserCreatedEvent(json)
 		}
 	}
+
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +112,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	//validation, hash matches
 	if passwordFromBody == passwordFromDB {
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusOK)
 	}
 
 	w.WriteHeader(http.StatusUnauthorized)
