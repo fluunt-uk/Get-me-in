@@ -15,7 +15,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(configs.PORT, internal.SetupEndpoints()))
 }
 
-//service specific configs are loaded at runtime
+//internal specific configs are loaded at runtime
 func loadEnvConfigs() {
 
 	fmt.Print("Running on ")

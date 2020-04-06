@@ -17,7 +17,7 @@ func main() {
 	api.SetupEndpoints()
 }
 
-//service specific configs are loaded at runtime
+//internal specific configs are loaded at runtime
 func loadEnvConfigs() {
 
 	var env = ""
