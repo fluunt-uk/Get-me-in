@@ -1,12 +1,12 @@
 package event_driven
 
 import (
-	"log"
 	"encoding/json"
+	"log"
 
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/customer-service/notification-service/smtp"
 	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
+	"github.com/ProjectReferral/Get-me-in/customer-service/notification-service/smtp"
 	"github.com/streadway/amqp"
 )
 
@@ -35,29 +35,18 @@ func ReceiveFromAllQs() {
 	failOnError(err, "Failed to register a consumer")
 
 	forever := make(chan string)
-
-	type User struct {
-        Name  string
-        Order string
-    }
-
+	
 	go func() {
-		// Will ne
 		for d := range msgsCreateUser {
 
-			err := json.Unmarshal(User, &animals)
-    		if err != nil {
-				fmt.Println("error:", err)
-			}
-			
 			// name string, intro string, instruc string, buttonText string, buttonColor string, buttonLink string, outro string
-			smtp.SendEmail("to", "subject", smtp.ActionEmail("name", 
-															"Welcome to Get-me-in",
-															"To get started applying, please click here:",
-															"Verify Email",
-															"#22BC66",
-															"LinkTing",
-															"Safesafesafe"))
+			smtp.SendEmail("sumite3117@hotmail.com", "Please verify your email", smtp.ActionEmail("Sumite",
+				"Welcome to Get-me-in",
+				"To get started applying, please click here:",
+				"Verify Email",
+				"#22BC66",
+				"LinkTing",
+				"safeeeeeeeeee"))
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 			d.Ack(true)

@@ -5,6 +5,5 @@ import (
 )
 
 func main() {
-	// smtp.SendEmail()
 	event_driven.ReceiveFromAllQs()
 }
