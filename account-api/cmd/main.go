@@ -41,4 +41,3 @@ func loadEnvConfigs() {
 
 	log.Println("Environment:" + env)
 }
-

@@ -51,7 +51,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 
 //A temporary token can be requested for registration
 //This token will only allow the user to access the /PUT endpoint for the Account-API
-func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request){
+func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
 	token := IssueToken(req, configs.TEMP_EXPIRY, configs.AUTH_REGISTER)
 
 	b, err := json.Marshal(token)
@@ -64,14 +64,14 @@ func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request){
 	w.Write(b)
 }
 
-func IssueToken(req *http.Request, expiry time.Duration, audience string) security.TokenResponse{
+func IssueToken(req *http.Request, expiry time.Duration, audience string) security.TokenResponse {
 	t := time.Now()
 	e := t.Add(expiry * time.Minute)
 
 	//assign the claims to our customer model
 	token := &security.TokenClaims{
-		Issuer:     configs.SERVICE_ID,
-		Subject:    configs.SUBJECT,
+		Issuer:  configs.SERVICE_ID,
+		Subject: configs.SUBJECT,
 		//treat audience as scope(permissions the token has access to)
 		Audience:   audience,
 		IssuedAt:   t.Unix(),
@@ -82,9 +82,9 @@ func IssueToken(req *http.Request, expiry time.Duration, audience string) securi
 
 	tr := security.TokenResponse{
 		//GenerateToken is a our security library
-		AccessToken:  security.GenerateToken(token),
-		TokenType:    configs.BEARER,
-		ExpiresIn:    configs.EXPIRY,
+		AccessToken: security.GenerateToken(token),
+		TokenType:   configs.BEARER,
+		ExpiresIn:   configs.EXPIRY,
 		//No support for refresh tokens as of yet
 		RefreshToken: "N/A",
 	}

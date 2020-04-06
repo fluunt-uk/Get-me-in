@@ -1,6 +1,7 @@
 package smtp
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/smtp"
@@ -8,14 +9,14 @@ import (
 	"github.com/matcornic/hermes"
 )
 
-func SendEmail(to []string, subject string, emailTemplate func) {
+func SendEmail(to []string, subject string, html_template string) {
 
-	t, errr := template.ParseFiles(emailTemplate)
+	t, errr := template.ParseFiles(html_template)
 	if errr != nil {
 		log.Fatal(errr)
 	}
 
-	var body btyes.Buffer
+	var body bytes.Buffer
 
 	auth := smtp.PlainAuth(
 				"",
@@ -26,7 +27,7 @@ func SendEmail(to []string, subject string, emailTemplate func) {
 
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 
-	body.write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, mime)))
+	body.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, mime)))
 
 
 	err := smtp.SendMail(
@@ -34,7 +35,7 @@ func SendEmail(to []string, subject string, emailTemplate func) {
 		auth,
 		"project181219@gmail.com",
 		to,
-		body.Bytes()
+		body.Bytes(),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func SetupEndpoints(){
+func SetupEndpoints() {
 	_router := mux.NewRouter()
 
 	_router.HandleFunc("/auth", VerifyCredentials).Methods("GET")
@@ -19,7 +19,6 @@ func SetupEndpoints(){
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }
 
-
 //Not needed at the current stage, endpoints open to everyone
 //Credentials validator and recaptcha already in place on endpoint
 func wrapHandlerWithAuth(handler http.HandlerFunc) http.HandlerFunc {
@@ -27,7 +26,7 @@ func wrapHandlerWithAuth(handler http.HandlerFunc) http.HandlerFunc {
 		a := req.Header.Get("Authorization")
 
 		if a != "" && security.VerifyToken(a) {
-			handler(w,req)
+			handler(w, req)
 		}
 
 		w.WriteHeader(http.StatusUnauthorized)

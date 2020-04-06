@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
+	email_configs "github.com/ProjectReferral/Get-me-in/customer-service/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-service/notification-service/smtp"
 	"github.com/streadway/amqp"
 )
@@ -39,14 +39,13 @@ func ReceiveFromAllQs() {
 	go func() {
 		for d := range msgsCreateUser {
 
-			// name string, intro string, instruc string, buttonText string, buttonColor string, buttonLink string, outro string
-			smtp.SendEmail("sumite3117@hotmail.com", "Please verify your email", smtp.ActionEmail("Sumite",
-				"Welcome to Get-me-in",
-				"To get started applying, please click here:",
-				"Verify Email",
-				"#22BC66",
-				"LinkTing",
-				"safeeeeeeeeee"))
+			smtp.SendEmail([]string{"sumite3117@hotmail.com"}, "Please verify your email", smtp.ActionEmail(email_configs.ActionEmail{Name: "",
+				Intro: "Intro test",
+				Instruct: "Please click on the button below to get started",
+				ButtonText: "Verify Email",
+				ButtonColor: "#22BC66",
+				ButtonLink: "LIIIINKKKKK",
+				Outro: "Thank you :)"}))
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 			d.Ack(true)

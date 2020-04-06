@@ -5,9 +5,8 @@ import (
 	"net/http"
 )
 
-
 //Custom made error
-func HandleError(err error, w http.ResponseWriter, isCustom bool) bool{
+func HandleError(err error, w http.ResponseWriter, isCustom bool) bool {
 
 	if err != nil {
 		//we can return the error with specific response code and reason

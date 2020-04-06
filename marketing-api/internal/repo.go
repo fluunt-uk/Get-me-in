@@ -36,11 +36,11 @@ func CreateAdvert(w http.ResponseWriter, r *http.Request) {
 
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(r.Body, models.Advert{})
 
-	if !HandleError(errDecode, w, false){
+	if !HandleError(errDecode, w, false) {
 
 		err := dynamodb.CreateItem(dynamoAttr)
 
-		if !HandleError(err, w, false){
+		if !HandleError(err, w, false) {
 			//TODO: send event to queue
 			w.WriteHeader(http.StatusOK)
 		}
@@ -72,7 +72,7 @@ func GetAdvert(w http.ResponseWriter, r *http.Request) {
 	if !HandleError(err, w, true) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.Advert{}))
 
-		if !HandleError(err, w, false){
+		if !HandleError(err, w, false) {
 
 			w.Write([]byte(b))
 			w.WriteHeader(http.StatusOK)
@@ -85,7 +85,7 @@ func GetAdvert(w http.ResponseWriter, r *http.Request) {
 func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: Change to UpdateItem
-	CreateAdvert(w,r)
+	CreateAdvert(w, r)
 }
 
 //to avoid duplication, this method is re-used
@@ -93,7 +93,7 @@ func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 //This unique identifier is set under the API configs
 //For this context, it would be id
 //TODO: move to dynamodb library?
-func ExtractValue(w http.ResponseWriter, r *http.Request) string{
+func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
 	v, err := dynamodb.GetParameterValue(r.Body, models.Advert{})
 	HandleError(err, w, false)

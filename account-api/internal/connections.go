@@ -7,7 +7,7 @@ import (
 )
 
 //Create a single instance of DynamoDB connection
-func ConnectToDynamoDB(){
+func ConnectToDynamoDB() {
 
 	c := credentials.NewSharedCredentials("", "default")
 

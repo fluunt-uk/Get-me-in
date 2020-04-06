@@ -6,29 +6,28 @@ import (
 	"net/http"
 )
 
-
-func Post(url string, body []byte, headers map[string]string) (*http.Response, error){
+func Post(url string, body []byte, headers map[string]string) (*http.Response, error) {
 	return HttpRequest(url, body, headers, "POST")
 }
 
-func Get(url string, body []byte, headers map[string]string) (*http.Response, error){
+func Get(url string, body []byte, headers map[string]string) (*http.Response, error) {
 	return HttpRequest(url, body, headers, "GET")
 }
 
-func Put(url string, body []byte, headers map[string]string) (*http.Response, error){
+func Put(url string, body []byte, headers map[string]string) (*http.Response, error) {
 	return HttpRequest(url, body, headers, "PUT")
 }
 
-func Patch(url string, body []byte, headers map[string]string) (*http.Response, error){
+func Patch(url string, body []byte, headers map[string]string) (*http.Response, error) {
 	return HttpRequest(url, body, headers, "PATCH")
 }
 
-func Delete(url string, body []byte, headers map[string]string) (*http.Response, error){
+func Delete(url string, body []byte, headers map[string]string) (*http.Response, error) {
 	return HttpRequest(url, body, headers, "DELETE")
 }
 
 //to avoid duplication in other functions
-func HttpRequest(url string, body []byte, headers map[string]string, method string) (*http.Response, error){
+func HttpRequest(url string, body []byte, headers map[string]string, method string) (*http.Response, error) {
 	post, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 
 	if headers != nil && len(headers) > 0 {

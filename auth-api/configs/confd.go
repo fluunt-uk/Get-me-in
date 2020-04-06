@@ -10,14 +10,13 @@ const (
 
 	/*********** Authentication configs **********/
 	SERVICE_ID = "auth"
-	SUBJECT = "authentication"
-	BEARER = "Bearer"
+	SUBJECT    = "authentication"
+	BEARER     = "Bearer"
 	//2.5 days
 	EXPIRY = 3600
 	//5 minutes
-	TEMP_EXPIRY = 5
-	AUTH_REGISTER = "register_user"
+	TEMP_EXPIRY        = 5
+	AUTH_REGISTER      = "register_user"
 	AUTH_AUTHENTICATED = "crud"
 	/*********************************************/
 )
-

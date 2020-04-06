@@ -5,7 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateToken(claim *TokenClaims) string{
+func GenerateToken(claim *TokenClaims) string {
 
 	claims := &jwt.StandardClaims{
 		Audience:  claim.Audience,

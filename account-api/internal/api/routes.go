@@ -15,7 +15,7 @@ func wrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.Han
 		a := req.Header.Get("Authorization")
 
 		if a != "" && security.VerifyTokenWithClaim(a, claim) {
-			handler(w,req)
+			handler(w, req)
 		}
 
 		w.WriteHeader(http.StatusUnauthorized)

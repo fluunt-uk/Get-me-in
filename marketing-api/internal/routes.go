@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func SetupEndpoints() *mux.Router{
+func SetupEndpoints() *mux.Router {
 	_router := mux.NewRouter()
 
 	_router.HandleFunc("/test", wrapHandlerWithAuth(TestFunc))
@@ -26,12 +26,10 @@ func wrapHandlerWithAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")
 
-		if a != "" && security.VerifyToken(a)  {
-			handler(w,req)
+		if a != "" && security.VerifyToken(a) {
+			handler(w, req)
 		}
 
 		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
-
-

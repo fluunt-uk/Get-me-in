@@ -12,17 +12,17 @@ import (
 var DynamoTable string
 var SearchParam string
 var GenericModel interface{}
+
 /*******************************************************************/
 
 var DynamoConnection *dynamodb.DynamoDB
-
 
 //Create a connection to DB and assign the session to DynamoConnection variable
 //DynamoConnection variable is shared by other resources(CRUD)
 func Connect(c *credentials.Credentials, region string) error {
 
 	//defensive coding, checking for empty values
-	if DynamoTable == "" && SearchParam == "" && GenericModel == nil{
+	if DynamoTable == "" && SearchParam == "" && GenericModel == nil {
 		return &ErrorString{
 			Reason: "Injected values are empty or nil",
 			Code:   http.StatusBadRequest,

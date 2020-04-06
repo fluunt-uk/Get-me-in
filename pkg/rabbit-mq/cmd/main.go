@@ -15,12 +15,10 @@ func main() {
 
 	rabbit_mq.SendTest("test", "custom message from GOlang", configs.TESTQ, "test.direct")
 
-
 	forever := make(chan string)
 
 	rabbit_mq.ReceiveFromQ(configs.TESTQ)
 	rabbit_mq.ReceiveFromQ(configs.TESTQ1)
-
 
 	<-forever
 }
