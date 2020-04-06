@@ -7,6 +7,7 @@ import (
 
 /**
 TODO: not working as expected yet
+***** NOT IN USE, under implementation ****
 **/
 func UpdateItem(updatingField string, identifier string, updateVal string) (bool, error) {
 
