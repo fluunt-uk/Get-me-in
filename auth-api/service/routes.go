@@ -1,4 +1,4 @@
-package internal
+package service
 
 import (
 	"github.com/ProjectReferral/Get-me-in/auth-api/configs"
