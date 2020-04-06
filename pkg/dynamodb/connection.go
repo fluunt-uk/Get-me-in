@@ -8,22 +8,39 @@ import (
 	"net/http"
 )
 
+/*** Values injected from main service that imports this library ***/
 var DynamoTable string
-//search by specific item paramater
 var SearchParam string
-var DynamoConnection *dynamodb.DynamoDB
 var GenericModel interface{}
+/*******************************************************************/
 
-func Connect(w http.ResponseWriter, c *credentials.Credentials, r string) {
+var DynamoConnection *dynamodb.DynamoDB
 
+
+//Create a connection to DB and assign the session to DynamoConnection variable
+//DynamoConnection variable is shared by other resources(CRUD)
+func Connect(c *credentials.Credentials, region string) error {
+
+	//defensive coding, checking for empty values
+	if DynamoTable == "" && SearchParam == "" && GenericModel == nil{
+		return &ErrorString{
+			Reason: "Injected values are empty or nil",
+			Code:   http.StatusBadRequest,
+		}
+	}
+
+	//creating the object
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(r),
+		Region:      aws.String(region),
 		Credentials: c,
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 
+	//creating the actual session
 	DynamoConnection = dynamodb.New(sess)
+
+	return nil
 }
