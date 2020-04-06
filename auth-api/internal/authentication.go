@@ -25,7 +25,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	resp, err := request.Get(configs.LOGIN_ENDPOINT, body, nil)
+	resp, err := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")} )
 
 	if err != nil {
 		e := err.(*request.ErrorString)
