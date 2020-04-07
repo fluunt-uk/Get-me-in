@@ -45,11 +45,11 @@ func HttpRequest(url string, body []byte, headers map[string]string, method stri
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		return nil, &ErrorString{
-			Reason: resp.Status,
-			Code:   resp.StatusCode,
-		}
-	}
+	//if resp.StatusCode != 200 {
+	//	return nil, &ErrorString{
+	//		Reason: resp.Status,
+	//		Code:   resp.StatusCode,
+	//	}
+	//}
 	return resp, nil
 }
