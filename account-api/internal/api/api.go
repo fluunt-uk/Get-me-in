@@ -92,27 +92,36 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	bodyMap, err := dynamodb.DecodeToMap(r.Body, models.Credentials{})
 
 	if err != nil {
-		HandleError(err, w, false)
+		http.Error(w, err.Error(), 400)
+		return
 	}
 
-	//get the values
-	emailFromBody := StringFromMap(bodyMap, configs.UNIQUE_IDENTIFIER)
-	passwordFromBody := StringFromMap(bodyMap, configs.PW)
+	if bodyMap != nil {
+		//get the values
+		emailFromBody := StringFromMap(bodyMap, configs.UNIQUE_IDENTIFIER)
+		passwordFromBody := StringFromMap(bodyMap, configs.PW)
 
-	//response from dynamodb
-	result, error := dynamodb.GetItem(emailFromBody)
+		if isEmpty(emailFromBody, passwordFromBody) {
+			http.Error(w, "Invalid input", 400)
+			return
+		}
+		//response from dynamodb
+		result, error := dynamodb.GetItem(emailFromBody)
 
-	// if there is an error or record not found
-	if error != nil {
-		HandleError(error, w, true)
-	}
+		// if there is an error or record not found
+		if error != nil {
+			HandleError(error, w, true)
+			return
+		}
 
-	u := dynamodb.Unmarshal(result, models.Credentials{})
-	passwordFromDB := StringFromMap(u, configs.PW)
+		u := dynamodb.Unmarshal(result, models.Credentials{})
+		passwordFromDB := StringFromMap(u, configs.PW)
 
-	//validation, hash matches
-	if passwordFromBody == passwordFromDB {
-		w.WriteHeader(http.StatusOK)
+		//validation, hash matches
+		if passwordFromBody == passwordFromDB {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusUnauthorized)
@@ -120,7 +129,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 //Get the string value of a kay
 func StringFromMap(m map[string]interface{}, p string) string {
-	return fmt.Sprintf("%v", m[p])
+	value := m[p]
+
+	if value != nil {
+		return fmt.Sprintf("%v", m[p])
+	}
+
+	return ""
+}
+
+func isEmpty(a string, b string) bool{
+	return a == "" || b == ""
 }
 
 //to avoid duplication, this method is re-used

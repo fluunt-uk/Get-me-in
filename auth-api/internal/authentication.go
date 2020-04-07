@@ -22,19 +22,28 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
 	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-	}
-
-	resp, err := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")} )
-
-	if err != nil {
-		e := err.(*request.ErrorString)
-		http.Error(w, e.Reason, e.Code)
+		http.Error(w, "Error parsing body", http.StatusBadRequest)
 		return
 	}
 
+	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")} )
+
+	if errPost != nil {
+		http.Error(w, errPost.Error(), 400)
+		return
+	}
+
+
+
 	if resp.StatusCode != 200 {
-		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		errorBody, errParse := ioutil.ReadAll(resp.Body)
+
+		if errParse != nil {
+			http.Error(w, "Error parsing body", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, string(errorBody), resp.StatusCode)
 		return
 	}
 
