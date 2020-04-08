@@ -48,6 +48,9 @@ func VerifyToken(tokenString string) bool {
 		return []byte("this is the sample key"), nil
 	})
 
+	//TODO: security flow: this needs to be used in the future otherwise same token without exp date can be used eternally
+	//claims.Valid()
+
 	// token.valid checks for expiry date too on top of signature
 	if token.Valid && err == nil {
 		fmt.Println(claims.Audience)
@@ -75,6 +78,9 @@ func VerifyTokenWithClaim(tokenString string, claim string) (bool, *jwt.Standard
 		return []byte("this is the sample key"), nil
 	})
 
+	//TODO: security flow: this needs to be used in the future otherwise same token without exp date can be used eternally
+	//claims.Valid()
+	
 	// token.valid checks for expiry date too on top of signature
 	if token.Valid && claims.Audience == claim && err == nil {
 		return true, claims

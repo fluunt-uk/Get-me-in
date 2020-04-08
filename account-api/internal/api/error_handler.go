@@ -7,12 +7,13 @@ import (
 
 
 //Custom made error
-func HandleError(err error, w http.ResponseWriter, isCustom bool) bool{
+func HandleError(err error, w http.ResponseWriter) bool{
 
 	if err != nil {
 		//we can return the error with specific response code and reason
-		if isCustom {
-			e := err.(*dynamodb.ErrorString)
+		e, isCustom := err.(*dynamodb.ErrorString)
+
+		if isCustom  {
 			http.Error(w, e.Reason, e.Code)
 			return true
 		}
