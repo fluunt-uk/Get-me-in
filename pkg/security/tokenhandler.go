@@ -5,7 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateToken(claim *TokenClaims) string{
+func GenerateToken(claim *TokenClaims) string {
 
 	claims := &jwt.StandardClaims{
 		Audience:  claim.Audience,
@@ -58,7 +58,7 @@ func VerifyToken(tokenString string) bool {
 }
 
 //Verify the token signature and expire dates with a claim
-func VerifyTokenWithClaim(tokenString string, claim string) bool {
+func VerifyTokenWithClaim(tokenString string, claim string) (bool, *jwt.StandardClaims) {
 
 	// Initialize a new instance of `Claims`
 	claims := &jwt.StandardClaims{}
@@ -77,7 +77,7 @@ func VerifyTokenWithClaim(tokenString string, claim string) bool {
 
 	// token.valid checks for expiry date too on top of signature
 	if token.Valid && claims.Audience == claim && err == nil {
-		return true
+		return true, claims
 	}
-	return false
+	return false, nil
 }
