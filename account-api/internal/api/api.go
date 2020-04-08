@@ -7,6 +7,7 @@ import (
 	event "github.com/ProjectReferral/Get-me-in/account-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"net/http"
 )
 
@@ -47,7 +48,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	result, err := dynamodb.GetItem(getEmailValue())
+	email := security.GetClaimsOfJWT().Subject
+	result, err := dynamodb.GetItem(email)
 
 	if !HandleError(err, w, true) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.User{}))
