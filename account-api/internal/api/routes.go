@@ -8,19 +8,29 @@ import (
 	"net/http"
 )
 
+var email = ""
+
 //Parses the authentication token and validates against the @claim
 //Some tokens can only authenticate with specific endpoints
 func wrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")
 
-		if a != "" && security.VerifyTokenWithClaim(a, claim) {
-			handler(w,req)
+		verified, claims := security.VerifyTokenWithClaim(a, claim)
+		email = claims.Subject // get the email from the subject
+
+		if a != "" && verified {
+			handler(w, req)
 			return
 		}
 
 		w.WriteHeader(http.StatusUnauthorized)
 	}
+}
+
+// return the email value from the JWT
+func getEmailValue() string {
+	return email
 }
 
 func SetupEndpoints() {

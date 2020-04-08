@@ -47,7 +47,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	result, err := dynamodb.GetItem(ExtractValue(w, r))
+	result, err := dynamodb.GetItem(getEmailValue())
 
 	if !HandleError(err, w, true) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.User{}))
@@ -138,7 +138,7 @@ func StringFromMap(m map[string]interface{}, p string) string {
 	return ""
 }
 
-func isEmpty(a string, b string) bool{
+func isEmpty(a string, b string) bool {
 	return a == "" || b == ""
 }
 
