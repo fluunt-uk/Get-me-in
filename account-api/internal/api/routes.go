@@ -13,10 +13,12 @@ import (
 func wrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")
-
-		verified := security.VerifyTokenWithClaim(a, claim)
-
-		if a != "" && verified {
+		if a == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("No Authorization JTW!!"))
+			return
+		}
+		if a != "" && security.VerifyTokenWithClaim(a, claim) {
 			handler(w, req)
 			return
 		}
