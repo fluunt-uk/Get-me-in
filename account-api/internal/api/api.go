@@ -31,11 +31,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
 
-	if !HandleError(errDecode, w, false) {
+	if !HandleError(errDecode, w) {
 
 		err := dynamodb.CreateItem(dynamoAttr)
 
-		if !HandleError(err, w, false) {
+		if !HandleError(err, w) {
 			//JSON format of the newly created user
 			w.Write([]byte(json))
 			w.WriteHeader(http.StatusOK)
@@ -51,10 +51,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	email := security.GetClaimsOfJWT().Subject
 	result, err := dynamodb.GetItem(email)
 
-	if !HandleError(err, w, true) {
+	if !HandleError(err, w) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.User{}))
 
-		if !HandleError(err, w, false) {
+		if !HandleError(err, w) {
 
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
@@ -69,11 +69,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	result, err := dynamodb.GetItem(extractValue)
 
 	//error thrown, record not found
-	if !HandleError(err, w, true) {
+	if !HandleError(err, w) {
 
 		errDelete := dynamodb.DeleteItem(extractValue)
 
-		if !HandleError(errDelete, w, false) {
+		if !HandleError(errDelete, w) {
 
 			http.Error(w, result.GoString(), 204)
 		}
@@ -112,7 +112,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		// if there is an error or record not found
 		if error != nil {
-			HandleError(error, w, true)
+			HandleError(error, w)
 			return
 		}
 
@@ -152,7 +152,7 @@ func isEmpty(a string, b string) bool {
 func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
 	v, err := dynamodb.GetParameterValue(r.Body, models.User{})
-	HandleError(err, w, false)
+	HandleError(err, w)
 
 	return v
 }
