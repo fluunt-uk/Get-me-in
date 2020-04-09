@@ -29,7 +29,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	body := r.Body
 
-	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
+	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{AccessCode:"WHAT"})
 
 	if !HandleError(errDecode, w) {
 
@@ -109,8 +109,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Write([]byte("Invalid credentials"))
 	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte("Invalid credentials"))
 }
 
 //Get the string value of a key
