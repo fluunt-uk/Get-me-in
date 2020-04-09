@@ -4,7 +4,7 @@ const (
 	PORT = ":5000"
 
 	/*************** API ENDPOINTS **************/
-	LOGIN_ENDPOINT = "http://localhost:5001/account/verify"
+	LOGIN_ENDPOINT = "http://localhost:5001/account/signin"
 	//LOGIN_ENDPOINT = "http://localhost:5000/mock"
 	/*********************************************/
 
