@@ -5,7 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var JWTclaims = &jwt.StandardClaims{}
+var JWTClaims = &jwt.StandardClaims{}
 
 func GenerateToken(claim *TokenClaims) string {
 
@@ -55,8 +55,6 @@ func VerifyToken(tokenString string) bool {
 
 	// token.valid checks for expiry date too on top of signature
 	if token.Valid && err == nil {
-		fmt.Println(claims.Audience)
-		fmt.Println("UP")
 		return true
 	}
 	return false
@@ -81,16 +79,19 @@ func VerifyTokenWithClaim(tokenString string, claim string) bool {
 	})
 
 	//TODO: security flow: this needs to be used in the future otherwise same token without exp date can be used eternally
-	//claims.Valid()
-	
+	//
+
 	// token.valid checks for expiry date too on top of signature
-	if token.Valid && claims.Audience == claim && err == nil {
-		JWTclaims = claims
+	if token.Valid &&
+		claims.Valid() == nil &&
+		claims.VerifyAudience(claim, true) &&
+		err == nil {
+		JWTClaims = claims
 		return true
 	}
 	return false
 }
 
 func GetClaimsOfJWT() *jwt.StandardClaims {
-	return JWTclaims
+	return JWTClaims
 }

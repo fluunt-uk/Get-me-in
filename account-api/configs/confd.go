@@ -15,6 +15,7 @@ const (
 	AUTH_REGISTER = "register_user"
 	AUTH_AUTHENTICATED = "crud"
 	AUTH_LOGIN = "signin_user"
+	NO_ACCESS = "admin_gui"
 	/*********************************************/
 )
 

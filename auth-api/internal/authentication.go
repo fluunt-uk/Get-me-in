@@ -19,6 +19,12 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 
 	//TODO: reCaptchacheck
 
+	//empty body
+	if req.ContentLength < 1{
+		http.Error(w, "Error parsing body", http.StatusBadRequest)
+		return
+	}
+
 	body, err := ioutil.ReadAll(req.Body)
 
 	if err != nil {
@@ -26,14 +32,13 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//request to account api to verify credentials
 	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")} )
 
 	if errPost != nil {
 		http.Error(w, errPost.Error(), 400)
 		return
 	}
-
-
 
 	if resp.StatusCode != 200 {
 		errorBody, errParse := ioutil.ReadAll(resp.Body)
@@ -47,7 +52,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token := IssueToken(req, configs.EXPIRY, configs.AUTH_AUTHENTICATED)
+	token := IssueToken(req, configs.EXPIRY, configs.AUTH_AUTHENTICATED,resp.Header.Get("subject"))
 
 	b, err := json.Marshal(token)
 	if err != nil {
@@ -61,7 +66,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 //A temporary token can be requested for registration
 //This token will only allow the user to access the /PUT endpoint for the Account-API
 func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request){
-	token := IssueToken(req, configs.TEMP_EXPIRY, configs.AUTH_REGISTER)
+	token := IssueToken(req, configs.TEMP_EXPIRY, configs.AUTH_REGISTER,"register")
 
 	b, err := json.Marshal(token)
 
@@ -73,14 +78,14 @@ func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request){
 	w.Write(b)
 }
 
-func IssueToken(req *http.Request, expiry time.Duration, audience string) security.TokenResponse{
+func IssueToken(req *http.Request, expiry time.Duration, audience string, subject string) security.TokenResponse{
 	t := time.Now()
 	e := t.Add(expiry * time.Minute)
 
 	//assign the claims to our customer model
 	token := &security.TokenClaims{
 		Issuer:     configs.SERVICE_ID,
-		Subject:    configs.SUBJECT,
+		Subject:    subject,
 		//treat audience as scope(permissions the token has access to)
 		Audience:   audience,
 		IssuedAt:   t.Unix(),

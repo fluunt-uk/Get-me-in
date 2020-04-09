@@ -48,6 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	//email parsed from the jwt
 	email := security.GetClaimsOfJWT().Subject
 	result, err := dynamodb.GetItem(email)
 
@@ -58,24 +59,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
-		}
-	}
-}
-
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	extractValue := ExtractValue(w, r)
-
-	//Check item still exists
-	result, err := dynamodb.GetItem(extractValue)
-
-	//error thrown, record not found
-	if !HandleError(err, w) {
-
-		errDelete := dynamodb.DeleteItem(extractValue)
-
-		if !HandleError(errDelete, w) {
-
-			http.Error(w, result.GoString(), 204)
 		}
 	}
 }
@@ -100,8 +83,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	if bodyMap != nil {
 		//get the values
-		emailFromBody := StringFromMap(bodyMap, configs.UNIQUE_IDENTIFIER)
-		passwordFromBody := StringFromMap(bodyMap, configs.PW)
+		emailFromBody, passwordFromBody := CredentialsFromMap(bodyMap, configs.UNIQUE_IDENTIFIER, configs.PW)
 
 		if isEmpty(emailFromBody, passwordFromBody) {
 			http.Error(w, "Invalid input", 400)
@@ -117,27 +99,30 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		u := dynamodb.Unmarshal(result, models.Credentials{})
-		passwordFromDB := StringFromMap(u, configs.PW)
+		_, passwordFromDB := CredentialsFromMap(u, configs.UNIQUE_IDENTIFIER, configs.PW)
 
 		//validation, hash matches
 		if passwordFromBody == passwordFromDB {
+			w.Header().Add("subject", emailFromBody)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 	}
 
+	w.Write([]byte("Invalid credentials"))
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
-//Get the string value of a kay
-func StringFromMap(m map[string]interface{}, p string) string {
-	value := m[p]
+//Get the string value of a key
+func CredentialsFromMap(m map[string]interface{}, u string, p string) (string, string) {
+	username := m[u]
+	password := m[p]
 
-	if value != nil {
-		return fmt.Sprintf("%v", m[p])
+	if username != nil && password != nil{
+		return fmt.Sprintf("%v", m[u]), fmt.Sprintf("%v", m[p])
 	}
 
-	return ""
+	return "", ""
 }
 
 func isEmpty(a string, b string) bool {
@@ -155,4 +140,23 @@ func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 	HandleError(err, w)
 
 	return v
+}
+
+//SUPER USER operation
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	extractValue := ExtractValue(w, r)
+
+	//Check item still exists
+	result, err := dynamodb.GetItem(extractValue)
+
+	//error thrown, record not found
+	if !HandleError(err, w) {
+
+		errDelete := dynamodb.DeleteItem(extractValue)
+
+		if !HandleError(errDelete, w) {
+
+			http.Error(w, result.GoString(), 204)
+		}
+	}
 }
