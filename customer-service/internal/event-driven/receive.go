@@ -84,26 +84,19 @@ func ActionEmailType(queue string, subject string, conn *amqp.Connection, c s.Ac
 	go func() {
 		for d := range msgsCreateUser {
 
-			//var p s.IncomingDataStruct
-			//err := json.Unmarshal(d.Body, &p)
-			//if err != nil {
-			//	fmt.Println(err)
-			//}
-			//fmt.Println(p)
+			o := RetrieveData("action", d)
+			k := o.(s.IncomingActionDataStruct)
 
-			i := RetrieveData("action", d)
-
-			// , "hamza_razeq@hotmail.co.uk", "0101hamza@gmail.com", "sumite3117@hotmail.com"
-			smtp.SendEmail([]string{i.Email}, subject, smtp.ActionEmail(s.ActionEmailStruct{
-				Name:        i.Firstname + i.Surname,
+			// TODO - Will need to use correct endpoint with the acesscode!!
+			smtp.SendEmail([]string{k.Email}, subject, smtp.ActionEmail(s.ActionEmailStruct{
+				Name:        k.Firstname + " "+ k.Surname,
 				Intro:       c.Intro,
 				Instruct:    c.Instruct,
 				ButtonText:  c.ButtonText,
 				ButtonColor: c.ButtonColor,
-				ButtonLink:  "-",
+				ButtonLink:  k.Accesscode,
 				Outro:       c.Outro,
 			}))
-
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 			d.Ack(true)
@@ -138,9 +131,12 @@ func NotificationEmailType(queue string, subject string, conn *amqp.Connection, 
 	go func() {
 		for d := range msgsCreateUser {
 
+			o := RetrieveData("notification", d)
+			k := o.(s.IncomingNotificationDataStruct)
+
 			// Will need to give this a body for more of dat blingbling
 			smtp.SendEmail([]string{"sumite3117@hotmail.com"}, subject, smtp.NotificationEmail(s.NotificationEmailStruct{
-				Name:  "a",
+				Name:  k.Firstname,
 				Intro: c.Intro,
 				Outro: c.Outro,
 			}))
@@ -178,12 +174,15 @@ func PaymentEmailType(queue string, subject string, conn *amqp.Connection) {
 	go func() {
 		for d := range msgsCreateUser {
 
+			o := RetrieveData("payment", d)
+			k := o.(s.IncomingPaymentDataStruct)
+
 			// Will need to give this a body for more of dat blingbling
-			smtp.SendEmail([]string{"sumite3117@hotmail.com"}, subject, smtp.PaymentEmail(s.PaymentEmailStruct{
-				Firstname:  "--",
-				Premium: "--",
-				Description: "--",
-				Price: "--",
+			smtp.SendEmail([]string{k.Email}, subject, smtp.PaymentEmail(s.PaymentEmailStruct{
+				Firstname:  k.Fullname(),
+				Premium: k.Premium,
+				Description: k.Description,
+				Price: k.Price,
 			}))
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
@@ -236,3 +235,6 @@ func RetrieveData(typeof string, d amqp.Delivery) interface{} {
 //	failOnError(err, "Failed to register a consumer")
 //}
 
+
+//life
+//alien covenant

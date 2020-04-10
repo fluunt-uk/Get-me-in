@@ -20,7 +20,7 @@ type PaymentEmailStruct struct {
 	Firstname 	string
 	Premium 	string
 	Description string
-	Price 		string
+	Price 		int
 }
 
 type IncomingNotificationDataStruct struct {
@@ -30,6 +30,8 @@ type IncomingNotificationDataStruct struct {
 }
 
 type IncomingPaymentDataStruct struct {
+	Firstname 	string	`json:"firstname"`
+	Surname 	string	`json:"surname"`
 	Email 		string 	`json:"email"`
 	Premium 	string	`json:"premium"`
 	Description string	`json:"description"`
@@ -40,5 +42,9 @@ type IncomingActionDataStruct struct {
 	Email 		string 	`json:"email"`
 	Firstname 	string 	`json:"firstname"`
 	Surname 	string 	`json:"surname"`
-	Buttonlink 	string 	`json:"buttonlink"`
+	Accesscode 	string 	`json:"accesscode"`
+}
+
+func (c *IncomingPaymentDataStruct) Fullname() string {
+	return c.Firstname + " " + c.Surname
 }
