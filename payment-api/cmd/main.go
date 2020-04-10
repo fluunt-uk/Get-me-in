@@ -2,10 +2,8 @@ package main
 
 import (
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	configs2 "github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/stripe/stripe-go"
 	"log"
@@ -15,8 +13,7 @@ import (
 func main() {
 	loadEnvConfigs()
 
-	internal.ConnectToDynamoDB()
-	api.SetupEndpoints()
+	internal.SetupEndpoints()
 }
 
 //service specific configs are loaded at runtime
@@ -29,7 +26,6 @@ func loadEnvConfigs() {
 
 	configs.BrokerUrl = os.Getenv("broker_url")
 	dynamodb.SearchParam = configs.UNIQUE_IDENTIFIER
-	dynamodb.GenericModel = models.User{}
 
 	switch env := os.Getenv("ENV"); env {
 	case "DEV":

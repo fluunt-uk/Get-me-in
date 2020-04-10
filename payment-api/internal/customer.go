@@ -11,23 +11,27 @@ func createCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{
 		Description: stripe.String("My First Test Customer (created for API docs)"),
 	}
-	c, err := customer.New(params)
-	toString, _ := json.Marshal(c)
+	c, _ := customer.New(params)
+	toString, err := json.Marshal(c)
 
-	if err {
-
+	if !HandleError(err, w) {
+		w.Write(toString)
+		w.WriteHeader(http.StatusOK)
 	}
-	w.Write(toString)
-	w.WriteHeader(http.StatusOK)
+
 }
 
-func retrieveCustomer() *stripe.Customer {
+func retrieveCustomer(w http.ResponseWriter, r *http.Request) {
 	c, _ := customer.Get("cus_H4HfdRtWmkH717", nil)
+	toString, err := json.Marshal(c)
 
-	return c
+	if !HandleError(err, w) {
+		w.Write(toString)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
-func updateCustomer() *stripe.Customer {
+func updateCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{}
 	params.AddMetadata("order_id", "6735")
 	c, _ := customer.Update(
@@ -35,23 +39,32 @@ func updateCustomer() *stripe.Customer {
 		params,
 	)
 
-	return c
+	toString, err := json.Marshal(c)
+	if !HandleError(err, w) {
+		w.Write(toString)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
-func deleteCustomer() *stripe.Customer {
+func deleteCustomer(w http.ResponseWriter, r *http.Request) {
 	c, _ := customer.Del("cus_H4HfdRtWmkH717", nil)
-
-	return c
+	toString, err := json.Marshal(c)
+	if !HandleError(err, w) {
+		w.Write(toString)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
-func listAllCustomers() *stripe.Customer {
+func listAllCustomers(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := customer.List(params)
 	for i.Next() {
 		c := i.Customer()
-		return c
+		toString, err := json.Marshal(c)
+		if !HandleError(err, w) {
+			w.Write(toString)
+			w.WriteHeader(http.StatusOK)
+		}
 	}
-
-	return nil
 }
