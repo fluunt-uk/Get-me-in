@@ -81,19 +81,21 @@ func ActionEmailType(queue string, subject string, conn *amqp.Connection, c s.Ac
 
 	forever := make(chan string)
 
-
 	go func() {
 		for d := range msgsCreateUser {
 
-			var p s.IncomingDataStruct
-			err := json.Unmarshal(d.Body, &p)
-			if err != nil {
-				fmt.Println(err)
-			}
+			//var p s.IncomingDataStruct
+			//err := json.Unmarshal(d.Body, &p)
+			//if err != nil {
+			//	fmt.Println(err)
+			//}
+			//fmt.Println(p)
+
+			i := RetrieveData("action", d)
 
 			// , "hamza_razeq@hotmail.co.uk", "0101hamza@gmail.com", "sumite3117@hotmail.com"
-			smtp.SendEmail([]string{"sharjeel50@hotmail.co.uk"}, subject, smtp.ActionEmail(s.ActionEmailStruct{
-				Name:        p.Firstname + p.Surname,
+			smtp.SendEmail([]string{i.Email}, subject, smtp.ActionEmail(s.ActionEmailStruct{
+				Name:        i.Firstname + i.Surname,
 				Intro:       c.Intro,
 				Instruct:    c.Instruct,
 				ButtonText:  c.ButtonText,
@@ -192,9 +194,29 @@ func PaymentEmailType(queue string, subject string, conn *amqp.Connection) {
 	<-forever
 }
 
+func RetrieveData(typeof string, d amqp.Delivery) interface{} {
 
+	var p interface{}
+
+	switch typeof {
+	case "notification":
+		p = s.IncomingNotificationDataStruct{}
+	case "payment":
+		p = s.IncomingPaymentDataStruct{}
+	case "action":
+		p = s.IncomingActionDataStruct{}
+	}
+
+	err := json.Unmarshal(d.Body, &p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return p
+}
 
 //func CreateChannel(conn *amqp.Connection, queue string) *amqp.Channel {
+//
 //	defer conn.Close()
 //	ch, err := conn.Channel()
 //

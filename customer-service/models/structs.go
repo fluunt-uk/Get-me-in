@@ -11,20 +11,34 @@ type ActionEmailStruct struct {
 }
 
 type NotificationEmailStruct struct {
-	Name  string
-	Intro string
-	Outro string
+	Name  		string
+	Intro 		string
+	Outro 		string
 }
 
 type PaymentEmailStruct struct {
-	Firstname string
-	Premium string
+	Firstname 	string
+	Premium 	string
 	Description string
-	Price string
+	Price 		string
 }
 
-type IncomingDataStruct struct {
-	Firstname string
-	Surname string
-	Email string
+type IncomingNotificationDataStruct struct {
+	Email 		string 	`json:"email"`
+	Firstname 	string 	`json:"firstname"`
+	Surname 	string 	`json:"surname"`
+}
+
+type IncomingPaymentDataStruct struct {
+	Email 		string 	`json:"email"`
+	Premium 	string	`json:"premium"`
+	Description string	`json:"description"`
+	Price 		int 	`json:"price"`
+}
+
+type IncomingActionDataStruct struct {
+	Email 		string 	`json:"email"`
+	Firstname 	string 	`json:"firstname"`
+	Surname 	string 	`json:"surname"`
+	Buttonlink 	string 	`json:"buttonlink"`
 }

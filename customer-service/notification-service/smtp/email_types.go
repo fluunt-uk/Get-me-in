@@ -46,11 +46,7 @@ func ActionEmail(params models.ActionEmailStruct) string {
 		},
 	}
 
-	emailBody, err := h.GenerateHTML(email)
-	if err != nil {
-		failOnError(err, "Failed to generate HTML email")
-	}
-	return emailBody
+	return StringParsedHTML(email)
 }
 
 // This email will be used to only notifiy a user without any actionss
@@ -67,11 +63,7 @@ func NotificationEmail(params models.NotificationEmailStruct) string {
 		},
 	}
 
-	emailBody, err := h.GenerateHTML(email)
-	if err != nil {
-		failOnError(err, "Failed to generate HTML email")
-	}
-	return emailBody
+	return StringParsedHTML(email)
 }
 
 func PaymentEmail(params models.PaymentEmailStruct) string {
@@ -99,7 +91,11 @@ func PaymentEmail(params models.PaymentEmailStruct) string {
 		},
 	}
 
-	emailBody, err := h.GenerateHTML(email)
+	return StringParsedHTML(email)
+}
+
+func StringParsedHTML(e hermes.Email) string {
+	emailBody, err := h.GenerateHTML(e)
 	if err != nil {
 		failOnError(err, "Failed to generate HTML email")
 	}
