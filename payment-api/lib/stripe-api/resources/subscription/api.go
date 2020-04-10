@@ -1,8 +1,6 @@
-package stripe_api
+package subscription
 
 import (
-	"encoding/json"
-	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/sub"
 	"net/http"
@@ -18,44 +16,28 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	s, _ := sub.New(params)
-	toString, err := json.Marshal(s)
 
-	if !internal.HandleError(err, w) {
-		w.Write(toString)
-		w.WriteHeader(http.StatusOK)
-	}
+	ReturnSuccessJSON(w, s)
 }
 
 func RetrieveSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Get("sub_36VrPHS2vVxJMq", nil)
-	toString, err := json.Marshal(s)
 
-	if !internal.HandleError(err, w) {
-		w.Write(toString)
-		w.WriteHeader(http.StatusOK)
-	}
+	ReturnSuccessJSON(w, s)
 }
 
 func UpdateSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{}
 	params.AddMetadata("order_id", "6735")
 	s, _ := sub.Update("sub_36VrPHS2vVxJMq", params)
-	toString, err := json.Marshal(s)
 
-	if !internal.HandleError(err, w) {
-		w.Write(toString)
-		w.WriteHeader(http.StatusOK)
-	}
+	ReturnSuccessJSON(w, s)
 }
 
 func CancelSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Cancel("sub_36VrPHS2vVxJMq", nil)
-	toString, err := json.Marshal(s)
 
-	if !internal.HandleError(err, w) {
-		w.Write(toString)
-		w.WriteHeader(http.StatusOK)
-	}
+	ReturnSuccessJSON(w, s)
 }
 
 func ListSubs(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +46,7 @@ func ListSubs(w http.ResponseWriter, r *http.Request) {
 	i := sub.List(params)
 	for i.Next() {
 		s := i.Subscription()
-		toString, err := json.Marshal(s)
 
-		if !internal.HandleError(err, w) {
-			w.Write(toString)
-			w.WriteHeader(http.StatusOK)
-		}
+		ReturnSuccessJSON(w, s)
 	}
 }

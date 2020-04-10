@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	configs2 "github.com/ProjectReferral/Get-me-in/payment-api/configs"
-	internal2 "github.com/ProjectReferral/Get-me-in/payment-api/internal"
+	configs "github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/stripe/stripe-go"
 	"log"
@@ -13,12 +12,12 @@ import (
 func main() {
 	loadEnvConfigs()
 
-	internal2.SetupEndpoints()
+	internal.SetupEndpoints()
 }
 
 //internal specific configs are loaded at runtime
 func loadEnvConfigs() {
-	stripe.Key = configs2.STRIPEKEY
+	stripe.Key = configs.StripeKey
 	var env = ""
 
 	log.Println("Running on %s \n", configs.PORT)
