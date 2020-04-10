@@ -5,7 +5,9 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
+	configs2 "github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/stripe/stripe-go"
 	"log"
 	"os"
 )
@@ -19,6 +21,7 @@ func main() {
 
 //service specific configs are loaded at runtime
 func loadEnvConfigs() {
+	stripe.Key = configs2.STRIPEKEY
 
 	var env = ""
 
