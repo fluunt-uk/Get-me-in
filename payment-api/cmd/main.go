@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	configs2 "github.com/ProjectReferral/Get-me-in/payment-api/configs"
-	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
+	internal2 "github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/stripe/stripe-go"
 	"log"
@@ -13,18 +13,17 @@ import (
 func main() {
 	loadEnvConfigs()
 
-	internal.SetupEndpoints()
+	internal2.SetupEndpoints()
 }
 
-//service specific configs are loaded at runtime
+//internal specific configs are loaded at runtime
 func loadEnvConfigs() {
 	stripe.Key = configs2.STRIPEKEY
-
 	var env = ""
 
 	log.Println("Running on %s \n", configs.PORT)
 
-	configs.BrokerUrl = os.Getenv("broker_url")
+	configs.BrokerUrl = os.Getenv("BROKERURL")
 	dynamodb.SearchParam = configs.UNIQUE_IDENTIFIER
 
 	switch env := os.Getenv("ENV"); env {

@@ -13,7 +13,7 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 		Customer: stripe.String("cus_H4dYk0sB1TmcGB"),
 		Items: []*stripe.SubscriptionItemsParams{
 			{
-				Plan: stripe.String("plan_EeE4ns3bvb34ZP"),
+				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
 			},
 		},
 	}
