@@ -1,17 +1,24 @@
 package internal
 
 import (
+	"encoding/json"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/customer"
+	"net/http"
 )
 
-func createCustomer() *stripe.Customer {
+func createCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{
 		Description: stripe.String("My First Test Customer (created for API docs)"),
 	}
-	c, _ := customer.New(params)
+	c, err := customer.New(params)
+	toString, _ := json.Marshal(c)
 
-	return c
+	if err {
+
+	}
+	w.Write(toString)
+	w.WriteHeader(http.StatusOK)
 }
 
 func retrieveCustomer() *stripe.Customer {
