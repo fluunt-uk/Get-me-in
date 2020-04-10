@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-/*** Values injected from main service that imports this library ***/
+/*** Values injected from main internal that imports this library ***/
 var DynamoTable string
 var SearchParam string
 var GenericModel interface{}

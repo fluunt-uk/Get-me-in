@@ -7,6 +7,7 @@ import (
 	event "github.com/ProjectReferral/Get-me-in/account-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"net/http"
 )
 
@@ -21,15 +22,20 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: reCaptcha check, 30ms average
-
+	if r.ContentLength < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("No body error!"))
+		return
+	}
 	body := r.Body
-	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{})
 
-	if !HandleError(errDecode, w, false) {
+	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{AccessCode: "WHAT"})
+
+	if !HandleError(errDecode, w) {
 
 		err := dynamodb.CreateItem(dynamoAttr)
 
-		if !HandleError(err, w, false) {
+		if !HandleError(err, w) {
 			//JSON format of the newly created user
 			w.Write([]byte(json))
 			w.WriteHeader(http.StatusOK)
@@ -38,36 +44,21 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			go event.BroadcastUserCreatedEvent(json)
 		}
 	}
+
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	result, err := dynamodb.GetItem(ExtractValue(w, r))
+	//email parsed from the jwt
+	email := security.GetClaimsOfJWT().Subject
+	result, err := dynamodb.GetItem(email)
 
-	if !HandleError(err, w, true) {
+	if !HandleError(err, w) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.User{}))
 
-		if !HandleError(err, w, false) {
+		if !HandleError(err, w) {
 
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
-		}
-	}
-}
-
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	extractValue := ExtractValue(w, r)
-
-	//Check item still exists
-	result, err := dynamodb.GetItem(extractValue)
-
-	//error thrown, record not found
-	if !HandleError(err, w, true) {
-
-		errDelete := dynamodb.DeleteItem(extractValue)
-
-		if !HandleError(errDelete, w, false) {
-
-			http.Error(w, result.GoString(), 204)
 		}
 	}
 }
@@ -86,35 +77,56 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	bodyMap, err := dynamodb.DecodeToMap(r.Body, models.Credentials{})
 
 	if err != nil {
-		HandleError(err, w, false)
+		http.Error(w, err.Error(), 400)
+		return
 	}
 
-	//get the values
-	emailFromBody := StringFromMap(bodyMap, configs.UNIQUE_IDENTIFIER)
-	passwordFromBody := StringFromMap(bodyMap, configs.PW)
+	if bodyMap != nil {
+		//get the values
+		emailFromBody, passwordFromBody := CredentialsFromMap(bodyMap, configs.UNIQUE_IDENTIFIER, configs.PW)
 
-	//response from dynamodb
-	result, error := dynamodb.GetItem(emailFromBody)
+		if isEmpty(emailFromBody, passwordFromBody) {
+			http.Error(w, "Invalid input", 400)
+			return
+		}
+		//response from dynamodb
+		result, error := dynamodb.GetItem(emailFromBody)
 
-	// if there is an error or record not found
-	if error != nil {
-		HandleError(error, w, true)
-	}
+		// if there is an error or record not found
+		if error != nil {
+			HandleError(error, w)
+			return
+		}
 
-	u := dynamodb.Unmarshal(result, models.Credentials{})
-	passwordFromDB := StringFromMap(u, configs.PW)
+		u := dynamodb.Unmarshal(result, models.Credentials{})
+		_, passwordFromDB := CredentialsFromMap(u, configs.UNIQUE_IDENTIFIER, configs.PW)
 
-	//validation, hash matches
-	if passwordFromBody == passwordFromDB {
-		w.WriteHeader(http.StatusAccepted)
+		//validation, hash matches
+		if passwordFromBody == passwordFromDB {
+			w.Header().Add("subject", emailFromBody)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte("Invalid credentials"))
 }
 
-//Get the string value of a kay
-func StringFromMap(m map[string]interface{}, p string) string {
-	return fmt.Sprintf("%v", m[p])
+//Get the string value of a key
+func CredentialsFromMap(m map[string]interface{}, u string, p string) (string, string) {
+	username := m[u]
+	password := m[p]
+
+	if username != nil && password != nil {
+		return fmt.Sprintf("%v", m[u]), fmt.Sprintf("%v", m[p])
+	}
+
+	return "", ""
+}
+
+func isEmpty(a string, b string) bool {
+	return a == "" || b == ""
 }
 
 //to avoid duplication, this method is re-used
@@ -125,7 +137,26 @@ func StringFromMap(m map[string]interface{}, p string) string {
 func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
 	v, err := dynamodb.GetParameterValue(r.Body, models.User{})
-	HandleError(err, w, false)
+	HandleError(err, w)
 
 	return v
+}
+
+//SUPER USER operation
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	extractValue := ExtractValue(w, r)
+
+	//Check item still exists
+	result, err := dynamodb.GetItem(extractValue)
+
+	//error thrown, record not found
+	if !HandleError(err, w) {
+
+		errDelete := dynamodb.DeleteItem(extractValue)
+
+		if !HandleError(errDelete, w) {
+
+			http.Error(w, result.GoString(), 204)
+		}
+	}
 }

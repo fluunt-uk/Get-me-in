@@ -17,14 +17,14 @@ func main() {
 	api.SetupEndpoints()
 }
 
-//service specific configs are loaded at runtime
+//internal specific configs are loaded at runtime
 func loadEnvConfigs() {
 
 	var env = ""
 
 	log.Println("Running on %s \n", configs.PORT)
 
-	configs.BrokerUrl = os.Getenv("broker_url")
+	configs.BrokerUrl = os.Getenv("BROKERURL")
 	dynamodb.SearchParam = configs.UNIQUE_IDENTIFIER
 	dynamodb.GenericModel = models.User{}
 
