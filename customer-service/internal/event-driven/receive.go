@@ -1,9 +1,11 @@
 package event_driven
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
 	s "github.com/ProjectReferral/Get-me-in/customer-service/models"
-	"github.com/ProjectReferral/Get-me-in/notification-service/smtp"
+	"github.com/ProjectReferral/Get-me-in/customer-service/notification-service/smtp"
 	"github.com/streadway/amqp"
 	"log"
 )
@@ -22,24 +24,36 @@ func ReceiveFromAllQs() {
 		Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 	})
 
-	// TODO -  WILL NEED TO FILL OUT WHEN RESET-USER-EMAIL Q IS MADE, THIS ALSO GOES FOR THE FUNCS BELOW!!!
-	ActionEmailType("reset-user-email", "Reset your password", conn, s.ActionEmailStruct{
-		Intro:       "------",
-		Instruct:    "------",
-		ButtonText:  "------",
-		ButtonColor: "#fc2403",
-		Outro:       "------",
-	})
+	//ActionEmailType("reset-user-email", "Reset your password", conn, s.ActionEmailStruct{
+	//	Intro:       "------",
+	//	Instruct:    "------",
+	//	ButtonText:  "------",
+	//	ButtonColor: "#fc2403",
+	//	Outro:       "------",
+	//})
+	//
+	//NotificationEmailType("payment-confirmation-email", "Payment confirmation", conn, s.NotificationEmailStruct{
+	//	Intro: "------",
+	//	Outro: "------",
+	//})
+	//
+	//NotificationEmailType("cancel-subscription-email", "Canceled subscription", conn, s.NotificationEmailStruct{
+	//	Intro: "------",
+	//	Outro: "------",
+	//})
+	//
+	//NotificationEmailType("create-subscription-email", "Subscription successfully created", conn, s.NotificationEmailStruct{
+	//	Intro: "------",
+	//	Outro: "------",
+	//})
+	//
+	//NotificationEmailType("reminder-email", "Reminder", conn, s.NotificationEmailStruct{
+	//	Intro: "------",
+	//	Outro: "------",
+	//})
+	//
+	//PaymentEmailType("payment-notification-email", "Subscription confirmation", conn)
 
-	NotificationEmailType("payment-confirmation-email", "Payment confirmation", conn, s.NotificationEmailStruct{
-		Intro: "------",
-		Outro: "------",
-	})
-
-	NotificationEmailType("cancel-subscription-email", "Canceled subscription", conn,s.NotificationEmailStruct{
-		Intro: "------",
-		Outro: "------",
-	})
 
 	//Debugging purposes
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
@@ -67,11 +81,19 @@ func ActionEmailType(queue string, subject string, conn *amqp.Connection, c s.Ac
 
 	forever := make(chan string)
 
+
 	go func() {
 		for d := range msgsCreateUser {
 
-			smtp.SendEmail([]string{"sumite3117@hotmail.com", "sharjeel50@hotmail.co.uk", "hamza_razeq@hotmail.co.uk", "0101hamza@gmail.com"}, subject, smtp.ActionEmail(s.ActionEmailStruct{
-				Name:        "Hamza",
+			var p s.IncomingDataStruct
+			err := json.Unmarshal(d.Body, &p)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			// , "hamza_razeq@hotmail.co.uk", "0101hamza@gmail.com", "sumite3117@hotmail.com"
+			smtp.SendEmail([]string{"sharjeel50@hotmail.co.uk"}, subject, smtp.ActionEmail(s.ActionEmailStruct{
+				Name:        p.Firstname + p.Surname,
 				Intro:       c.Intro,
 				Instruct:    c.Instruct,
 				ButtonText:  c.ButtonText,
@@ -79,6 +101,7 @@ func ActionEmailType(queue string, subject string, conn *amqp.Connection, c s.Ac
 				ButtonLink:  "-",
 				Outro:       c.Outro,
 			}))
+
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 			d.Ack(true)
@@ -98,12 +121,12 @@ func NotificationEmailType(queue string, subject string, conn *amqp.Connection, 
 
 	msgsCreateUser, err := ch.Consume(
 		queue, // queue
-		"",                    // consumer
-		false,                  // auto-ack,
-		false,                 // exclusive
-		false,                 // no-local
-		false,                 // no-wait
-		nil,                     // args
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 
 	failOnError(err, "Failed to register a consumer")
@@ -118,6 +141,47 @@ func NotificationEmailType(queue string, subject string, conn *amqp.Connection, 
 				Name:  "a",
 				Intro: c.Intro,
 				Outro: c.Outro,
+			}))
+
+			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
+			d.Ack(true)
+		}
+	}()
+
+	<-forever
+}
+
+func PaymentEmailType(queue string, subject string, conn *amqp.Connection) {
+
+	defer conn.Close()
+	ch, err := conn.Channel()
+
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	msgsCreateUser, err := ch.Consume(
+		queue, // queue
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	failOnError(err, "Failed to register a consumer")
+
+	forever := make(chan string)
+
+	go func() {
+		for d := range msgsCreateUser {
+
+			// Will need to give this a body for more of dat blingbling
+			smtp.SendEmail([]string{"sumite3117@hotmail.com"}, subject, smtp.PaymentEmail(s.PaymentEmailStruct{
+				Firstname:  "--",
+				Premium: "--",
+				Description: "--",
+				Price: "--",
 			}))
 
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)

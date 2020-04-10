@@ -71,7 +71,38 @@ func NotificationEmail(params models.NotificationEmailStruct) string {
 	if err != nil {
 		failOnError(err, "Failed to generate HTML email")
 	}
-	
+	return emailBody
+}
+
+func PaymentEmail(params models.PaymentEmailStruct) string {
+	email := hermes.Email{
+		Body: hermes.Body{
+			Table: hermes.Table{
+				Data: [][]hermes.Entry{
+					{
+						{Key: "Premium", Value: params.Premium},
+						{Key: "Description", Value: params.Description},
+						{Key: "Price", Value: params.Price},
+					},
+				},
+				Columns: hermes.Columns{
+					// Custom style for each rows
+					CustomWidth: map[string]string{
+						"Premium":  "20%",
+						"Price": "15%",
+					},
+					CustomAlignment: map[string]string{
+						"Price": "right",
+					},
+				},
+			},
+		},
+	}
+
+	emailBody, err := h.GenerateHTML(email)
+	if err != nil {
+		failOnError(err, "Failed to generate HTML email")
+	}
 	return emailBody
 }
 

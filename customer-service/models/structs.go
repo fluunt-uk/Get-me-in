@@ -1,6 +1,5 @@
 package models
 
-//name string, intro string, instruc string, buttonText string, buttonColor string, buttonLink string, outro string
 type ActionEmailStruct struct {
 	Name 		string
 	Intro 		string
@@ -15,4 +14,17 @@ type NotificationEmailStruct struct {
 	Name  string
 	Intro string
 	Outro string
+}
+
+type PaymentEmailStruct struct {
+	Firstname string
+	Premium string
+	Description string
+	Price string
+}
+
+type IncomingDataStruct struct {
+	Firstname string
+	Surname string
+	Email string
 }
