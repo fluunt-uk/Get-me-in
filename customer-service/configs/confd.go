@@ -1,4 +1,9 @@
 package configs
 
 
-var BrokerUrl = ""
+var (
+	DevEmail = ""
+	BrokerUrl = ""
+	DevEmailPw = ""
+)
+
