@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func ReceiveFromQ(qName string){
+func ReceiveFromQ(qName string) {
 	conn, err := amqp.Dial(configs.BrokerUrl)
 	log.Printf("Listening on Q: %s", qName)
 
@@ -22,24 +22,23 @@ func ReceiveFromQ(qName string){
 
 	msgs, err := ch.Consume(
 		qName, // queue
-		"",     // consumer
-		true,   // auto-ack, TODO: manual ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"",    // consumer
+		true,  // auto-ack, TODO: manual ack
+		false, // exclusive
+		false, // no-local
+		false, // no-wait
+		nil,   // args
 	)
 
 	msgsClone, err := ch.Consume(
 		configs.TESTQ1, // queue
-		"",     // consumer
-		true,   // auto-ack, TODO: manual ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"",             // consumer
+		true,           // auto-ack, TODO: manual ack
+		false,          // exclusive
+		false,          // no-local
+		false,          // no-wait
+		nil,            // args
 	)
-
 
 	failOnError(err, "Failed to register a consumer")
 
@@ -47,7 +46,7 @@ func ReceiveFromQ(qName string){
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s - %s", d.Body,d.CorrelationId)
+			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 
 			//ProcessMessage(1)
 			SendToQ("test.reply", "Reply: processed", "queue.test.reply", "test.direct")
@@ -56,7 +55,7 @@ func ReceiveFromQ(qName string){
 
 	go func() {
 		for d := range msgsClone {
-			log.Printf("Received a message: %s - %s", d.Body,d.CorrelationId)
+			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 			//	ProcessMessage(2)
 			SendToQ("test.reply", "Reply: processed", "queue.test.reply", "test.direct")
 		}
@@ -73,7 +72,7 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func ProcessMessage(process int){
+func ProcessMessage(process int) {
 
 	switch process {
 	case 1:

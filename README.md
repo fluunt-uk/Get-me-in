@@ -8,9 +8,7 @@
 
 ## Overview
 
-A web based system directed in helping a job seeker to land a job at their desired company. It involves a referrer and a referee. 
-
-At the current scope, the referrer will advertise the job opportunity which will be available for referees to "apply". The referee can then choose to communicate with the referrer via instant messaging.
+TBC
 
 ## Technical Overview
 

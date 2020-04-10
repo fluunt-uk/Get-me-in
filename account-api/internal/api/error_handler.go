@@ -5,14 +5,13 @@ import (
 	"net/http"
 )
 
-
 //Custom made error
-func HandleError(err error, w http.ResponseWriter, isCustom bool) bool{
-
+func HandleError(err error, w http.ResponseWriter) bool {
 	if err != nil {
 		//we can return the error with specific response code and reason
+		e, isCustom := err.(*dynamodb.ErrorString)
+
 		if isCustom {
-			e := err.(*dynamodb.ErrorString)
 			http.Error(w, e.Reason, e.Code)
 			return true
 		}

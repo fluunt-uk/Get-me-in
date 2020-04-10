@@ -32,6 +32,6 @@ func UpdateItem(updatingField string, identifier string, updateVal string) (bool
 	if err != nil {
 		return false, err
 	}
-	
+
 	return true, nil
 }

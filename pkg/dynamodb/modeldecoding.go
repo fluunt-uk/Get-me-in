@@ -11,11 +11,11 @@ import (
 /**
 * Convert type interface to dynamodb readable object
 **/
-func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error){
+func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error) {
 
 	bodyMap, err := DecodeToMap(readBody, m)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -32,12 +32,12 @@ func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]
 /**
 * Convert type interface to dynamodb readable object and JSON
 **/
-func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error, string){
+func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error, string) {
 
 	bodyMap, err := DecodeToMap(readBody, m)
 	jsonString, err := json.Marshal(bodyMap)
 
-	if err != nil{
+	if err != nil {
 		return nil, err, ""
 	}
 
@@ -54,7 +54,7 @@ func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[
 /**
 * Convert the interface fields into a map
 **/
-func DecodeToMap (b io.ReadCloser, m interface{}) (map[string]interface{}, error) {
+func DecodeToMap(b io.ReadCloser, m interface{}) (map[string]interface{}, error) {
 
 	// Try to decode th
 	//e request body into the struct. If there is an error,
@@ -97,10 +97,10 @@ func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interfa
 /**
 * Get the specific value query by the unique identifier
 **/
-func GetParameterValue(r io.ReadCloser, m interface{}) (string,error){
+func GetParameterValue(r io.ReadCloser, m interface{}) (string, error) {
 	bodyMap, err := DecodeToMap(r, m)
 
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 
@@ -110,6 +110,6 @@ func GetParameterValue(r io.ReadCloser, m interface{}) (string,error){
 /**
 * Convert a interface type to string
 **/
-func StringFromMap(m map[string]interface{}, p string) string{
+func StringFromMap(m map[string]interface{}, p string) string {
 	return fmt.Sprintf("%v", m[p])
 }
