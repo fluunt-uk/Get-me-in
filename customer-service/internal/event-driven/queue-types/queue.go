@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func ReceiveAndProcess(destination string, subject string, conn *amqp.Connection, template string, queue string){
+func ReceiveAndProcess(subject string, conn *amqp.Connection, template string, queue string){
 
 	defer conn.Close()
 	ch, err := conn.Channel()
@@ -33,9 +33,9 @@ func ReceiveAndProcess(destination string, subject string, conn *amqp.Connection
 		for d := range msgsCreateUser {
 			log.Printf("Received a message: %s - %s", d.Body, d.CorrelationId)
 
-			t := templates.GenerateHTMLTemplate(template, d.Body)
+			template, email := templates.GenerateHTMLTemplate(template, d.Body)
 
-			smtp.SendEmail([]string{destination}, subject, t)
+			smtp.SendEmail([]string{email}, subject, template)
 			log.Printf("Email sent")
 			d.Ack(true)
 		}

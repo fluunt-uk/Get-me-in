@@ -23,25 +23,40 @@ var h = hermes.Hermes{
     },
 }
 
-func GenerateHTMLTemplate(typeof string, d []byte) string{
+func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 
 	switch typeof {
-	case "notification":
+	case "cancel-subscription":
 		p := s.IncomingNotificationDataStruct{}
 
 		toStruct(d, &p)
 
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{})
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "",
+			Outro: "",
+		})
 
-	//case "payment":
-	//	p = s.IncomingPaymentDataStruct{}
-	//
-	//	toStruct(d, &p)
-	//	return GenerateSubscriptionHTMLTemplate(p, s.NotificationEmailStruct{})
-	case "action":
+	case "":
+		p := s.IncomingNotificationDataStruct{}
+
+		toStruct(d, &p)
+
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "",
+			Outro: "",
+		})
+
+	case "payment":
+		p := s.IncomingPaymentDataStruct{}
+
+		toStruct(d, &p)
+		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
+
+	case "new-user":
 		p := s.IncomingActionDataStruct{}
 
 		toStruct(d, &p)
+
 		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
 			Intro:       "Welcome to GMI! We're very excited to have you on board.",
 			Instruct:    "To get started, please click here:",
@@ -49,9 +64,22 @@ func GenerateHTMLTemplate(typeof string, d []byte) string{
 			ButtonColor: "#22BC66",
 			Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 		})
+
+	case "reset-password":
+		p := s.IncomingActionDataStruct{}
+
+		toStruct(d, &p)
+
+		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
+			Intro:       "You recently made a request to reset your password.",
+			Instruct:    "Please click the link below to continue.",
+			ButtonText:  "Reset Password",
+			ButtonColor: "#fc2403",
+			Outro:       "If you did not make this change or you believe an unauthorised person has accessed your account, go to {reset-password endpoint} to reset your password without delay.",
+		})
 	}
 
-	return ""
+	return "", ""
 }
 
 func toStruct(d []byte, p interface{}){

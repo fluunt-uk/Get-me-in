@@ -17,7 +17,9 @@ func ReceiveFromAllQs() {
 		Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 	})*/
 
-	queue_types.ActionEmailQueue("jipesh14@gmail.com", "Please verify your email", "new-user-verify-email")
+	queue_types.ActionEmailQueue("Please verify your email", "new-user","new-user-verify-email")
+	queue_types.ActionEmailQueue("Reset your password", "reset-password","reset-password-email")
+	queue_types.NotificationEmailQueue("Canceled subscription", "cancel-subscription", "cancel-subscription-email")
 
 	//ActionEmailType("reset-user-email", "Reset your password", conn, s.ActionEmailStruct{
 	//	Intro:       "------",
@@ -53,28 +55,3 @@ func ReceiveFromAllQs() {
 	//Debugging purposes
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 }
-
-//func CreateChannel(conn *amqp.Connection, queue string) *amqp.Channel {
-//
-//	defer conn.Close()
-//	ch, err := conn.Channel()
-//
-//	failOnError(err, "Failed to open a channel")
-//	defer ch.Close()
-//
-//	msgsCreateUser, err := ch.Consume(
-//		queue, // queue
-//		"",                    // consumer
-//		false,                  // auto-ack,
-//		false,                 // exclusive
-//		false,                 // no-local
-//		false,                 // no-wait
-//		nil,                     // args
-//	)
-//
-//	failOnError(err, "Failed to register a consumer")
-//}
-
-
-//life
-//alien covenant

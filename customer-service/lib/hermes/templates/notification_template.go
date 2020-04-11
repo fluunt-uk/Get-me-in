@@ -22,7 +22,7 @@ func NotificationEmail(params models.NotificationEmailStruct) string {
 	return StringParsedHTML(email)
 }
 
-func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l models.NotificationEmailStruct) string{
+func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l models.NotificationEmailStruct) (string, string) {
 
 	t := NotificationEmail(models.NotificationEmailStruct{
 		Name:  p.Firstname,
@@ -30,5 +30,5 @@ func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l
 		Outro: l.Outro,
 	})
 
-	return t
+	return t, p.Email
 }

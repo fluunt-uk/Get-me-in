@@ -5,11 +5,11 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func NotificationEmailQueue(d string, s string, queue string) {
+func NotificationEmailQueue(s string, template string, queue string) {
 
 	conn, err := amqp.Dial(configs.BrokerUrl)
 
 	FailOnError(err, "Failed to connect to RabbitMQ")
 
-	ReceiveAndProcess(d, s, conn, "notification", queue)
+	ReceiveAndProcess(s, conn, template, queue)
 }

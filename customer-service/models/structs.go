@@ -30,9 +30,9 @@ type IncomingNotificationDataStruct struct {
 }
 
 type IncomingPaymentDataStruct struct {
+	Email 		string 	`json:"email"`
 	Firstname 	string	`json:"firstname"`
 	Surname 	string	`json:"surname"`
-	Email 		string 	`json:"email"`
 	Premium 	string	`json:"premium"`
 	Description string	`json:"description"`
 	Price 		int 	`json:"price"`

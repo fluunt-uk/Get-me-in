@@ -33,10 +33,10 @@ func ActionEmail(params models.ActionEmailStruct) string {
 	return StringParsedHTML(email)
 }
 
-func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.ActionEmailStruct) string{
+func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.ActionEmailStruct) (string, string) {
 
 	t := ActionEmail(models.ActionEmailStruct{
-		Name:        k.Firstname + " "+ k.Surname,
+		Name:        k.Firstname + " " + k.Surname,
 		Intro:       l.Intro,
 		Instruct:    l.Instruct,
 		ButtonText:  l.ButtonText,
@@ -45,5 +45,5 @@ func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.Acti
 		Outro:       l.Outro,
 	})
 
-	return t
+	return t, k.Email
 }
