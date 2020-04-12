@@ -63,4 +63,5 @@ const (
 	PAYMENT_INVOICE = "payment-invoice"
 	PAYMENT_CONFIRMATION = "payment-confirmation"
 	REMINDER = "reminder"
+	REFEREE_APPLICATION = "referee-application"
 )

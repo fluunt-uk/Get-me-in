@@ -23,14 +23,6 @@ var h = hermes.Hermes{
     },
 }
 
-//Types - Will need to add the rest
-//Cancel Subscription
-//New User
-//Reset Password
-//Create Subscription
-//Payment Invoice
-//Payment Confirmation
-
 func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 
 	switch typeof {
@@ -80,7 +72,19 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 		// Will also need to pass through when the service ends for the customer
 		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
 			Intro: "This is a confirmation that your GMI account has been canceled at your request.",
-			Outro: "To start applying again, you can reactivate your account at any time. We hope your decide to come back soon.",
+			Outro: "To start applying again, you can reactivate your account at any time. We hope you decide to come back soon.",
+		})
+
+	case s.REFEREE_APPLICATION:
+
+		p := s.IncomingNotificationDataStruct{}
+		toStruct(d, &p)
+
+		// Will need to pass through some button to link to reactivate account (if possible) or pass in a button for sign up
+		// Will also need to pass through when the service ends for the customer
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "",
+			Outro: "",
 		})
 
 	case s.REMINDER:

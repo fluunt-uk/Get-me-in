@@ -41,7 +41,7 @@ func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.Acti
 		Instruct:    l.Instruct,
 		ButtonText:  l.ButtonText,
 		ButtonColor: l.ButtonColor,
-		ButtonLink:  k.Accesscode,
+		ButtonLink:  "endpoint/" + k.Accesscode,
 		Outro:       l.Outro,
 	})
 

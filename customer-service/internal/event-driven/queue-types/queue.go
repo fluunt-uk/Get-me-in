@@ -16,7 +16,7 @@ func ReceiveAndProcess(subject string, conn *amqp.Connection, template string, q
 	defer ch.Close()
 
 	msgsCreateUser, err := ch.Consume(
-		queue, // queue
+		queue,
 		"",
 		false,
 		false,
