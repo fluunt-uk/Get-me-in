@@ -1,5 +1,20 @@
 package queue_types
 
+import (
+	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
+	"github.com/streadway/amqp"
+)
+
+func SubscriptionEmailQueue(s string, template string, queue string) {
+
+	conn, err := amqp.Dial(configs.BrokerUrl)
+
+	FailOnError(err, "Failed to connect to RabbitMQ")
+
+	ReceiveAndProcess(s, conn, template, queue)
+}
+
+
 //import (
 //	event_driven "github.com/ProjectReferral/Get-me-in/customer-service/internal/event-driven"
 //	"github.com/ProjectReferral/Get-me-in/customer-service/internal/smtp"

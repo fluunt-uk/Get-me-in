@@ -23,38 +23,21 @@ var h = hermes.Hermes{
     },
 }
 
+//Types - Will need to add the rest
+//Cancel Subscription
+//New User
+//Reset Password
+//Create Subscription
+//Payment Invoice
+//Payment Confirmation
+
 func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 
 	switch typeof {
-	case "cancel-subscription":
-		p := s.IncomingNotificationDataStruct{}
 
-		toStruct(d, &p)
+	case s.NEW_USER_VERIFY:
 
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
-			Intro: "",
-			Outro: "",
-		})
-
-	case "":
-		p := s.IncomingNotificationDataStruct{}
-
-		toStruct(d, &p)
-
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
-			Intro: "",
-			Outro: "",
-		})
-
-	case "payment":
-		p := s.IncomingPaymentDataStruct{}
-
-		toStruct(d, &p)
-		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
-
-	case "new-user":
 		p := s.IncomingActionDataStruct{}
-
 		toStruct(d, &p)
 
 		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
@@ -65,9 +48,9 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 			Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 		})
 
-	case "reset-password":
-		p := s.IncomingActionDataStruct{}
+	case s.RESET_PASSWORD:
 
+		p := s.IncomingActionDataStruct{}
 		toStruct(d, &p)
 
 		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
@@ -77,10 +60,57 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 			ButtonColor: "#fc2403",
 			Outro:       "If you did not make this change or you believe an unauthorised person has accessed your account, go to {reset-password endpoint} to reset your password without delay.",
 		})
+
+	case s.CREATE_SUBSCRIPTION:
+
+		p := s.IncomingNotificationDataStruct{}
+		toStruct(d, &p)
+
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "Welcome! Your GMI experience just got premium.",
+			Outro: "",
+		})
+
+	case s.CANCEL_SUBSCRIPTION:
+
+		p := s.IncomingNotificationDataStruct{}
+		toStruct(d, &p)
+
+		// Will need to pass through some button to link to reactivate account (if possible) or pass in a button for sign up
+		// Will also need to pass through when the service ends for the customer
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "This is a confirmation that your GMI account has been canceled at your request.",
+			Outro: "To start applying again, you can reactivate your account at any time. We hope your decide to come back soon.",
+		})
+
+	case s.REMINDER:
+
+		p := s.IncomingNotificationDataStruct{}
+		toStruct(d, &p)
+
+		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+			Intro: "",
+			Outro: "",
+		})
+
+	case s.PAYMENT_CONFIRMATION:
+
+		p := s.IncomingPaymentDataStruct{}
+		toStruct(d, &p)
+
+		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
+
+	case s.PAYMENT_INVOICE:
+
+		p := s.IncomingPaymentDataStruct{}
+		toStruct(d, &p)
+
+		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
 	}
 
 	return "", ""
 }
+
 
 func toStruct(d []byte, p interface{}){
 	err := json.Unmarshal(d, &p)

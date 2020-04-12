@@ -2,6 +2,7 @@ package event_driven
 
 import (
 	"github.com/ProjectReferral/Get-me-in/customer-service/internal/event-driven/queue-types"
+	s "github.com/ProjectReferral/Get-me-in/customer-service/models"
 	"log"
 )
 
@@ -17,9 +18,9 @@ func ReceiveFromAllQs() {
 		Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 	})*/
 
-	queue_types.ActionEmailQueue("Please verify your email", "new-user","new-user-verify-email")
-	queue_types.ActionEmailQueue("Reset your password", "reset-password","reset-password-email")
-	queue_types.NotificationEmailQueue("Canceled subscription", "cancel-subscription", "cancel-subscription-email")
+	queue_types.ActionEmailQueue("Please verify your email", s.NEW_USER_VERIFY,"new-user-verify-email")
+	queue_types.ActionEmailQueue("Reset your password", s.RESET_PASSWORD,"reset-password-email")
+	queue_types.NotificationEmailQueue("Canceled subscription", s.CANCEL_SUBSCRIPTION, "cancel-subscription-email")
 
 	//ActionEmailType("reset-user-email", "Reset your password", conn, s.ActionEmailStruct{
 	//	Intro:       "------",
