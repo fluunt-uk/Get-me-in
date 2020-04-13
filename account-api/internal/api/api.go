@@ -48,6 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
+
 	//email parsed from the jwt
 	email := security.GetClaimsOfJWT().Subject
 	result, err := dynamodb.GetItem(email)
@@ -71,39 +72,63 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	CreateUser(w, r)
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+//check if the user has an active subscription
+func IsUserPremium(w http.ResponseWriter, r *http.Request) {
+	//email parsed from the jwt
+	email := security.GetClaimsOfJWT().Subject
+	result, err := dynamodb.GetItem(email)
 
-	// convert the response body into a map
-	bodyMap, err := dynamodb.DecodeToMap(r.Body, models.Credentials{})
+	p := result.Item[configs.PREMIUM].BOOL
 
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+	if !HandleError(err, w) && *p {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	if bodyMap != nil {
-		//get the values
-		emailFromBody, passwordFromBody := CredentialsFromMap(bodyMap, configs.UNIQUE_IDENTIFIER, configs.PW)
+	w.WriteHeader(204)
+	return
+}
 
-		if isEmpty(emailFromBody, passwordFromBody) {
-			http.Error(w, "Invalid input", 400)
-			return
-		}
-		//response from dynamodb
-		result, error := dynamodb.GetItem(emailFromBody)
+func Login(w http.ResponseWriter, r *http.Request) {
+	var u models.User
 
-		// if there is an error or record not found
-		if error != nil {
-			HandleError(error, w)
-			return
-		}
+	// convert the response body into a map
+	//bodyMap, err := dynamodb.DecodeToMap(r.Body, models.Credentials{})
 
-		u := dynamodb.Unmarshal(result, models.Credentials{})
-		_, passwordFromDB := CredentialsFromMap(u, configs.UNIQUE_IDENTIFIER, configs.PW)
+	errJson := json.NewDecoder(r.Body).Decode(&u)
 
-		//validation, hash matches
-		if passwordFromBody == passwordFromDB {
-			w.Header().Add("subject", emailFromBody)
+	if errJson != nil {
+		http.Error(w, errJson.Error(), 400)
+		return
+	}
+
+	//get the values
+	//emailFromBody, passwordFromBody := CredentialsFromMap(bodyMap, configs.UNIQUE_IDENTIFIER, configs.PW)
+
+	if isEmpty(u.Email, u.Password) {
+		http.Error(w, "Invalid input", 400)
+		return
+	}
+	//response from dynamodb
+	result, error := dynamodb.GetItem(u.Email)
+
+	// if there is an error or record not found
+	if error != nil {
+		HandleError(error, w)
+		return
+	}
+
+	c := dynamodb.Unmarshal(result, models.Credentials{})
+	_, passwordFromDB := CredentialsFromMap(c, configs.UNIQUE_IDENTIFIER, configs.PW)
+
+	//validation, hash matches
+	if u.Password == passwordFromDB {
+		w.Header().Add("subject", u.Email)
+		b, err := json.Marshal(u)
+
+		if !HandleError(err, w) {
+
+			w.Write(b)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -160,3 +185,5 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+

@@ -16,6 +16,7 @@ type User struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
 	AccessCode string `json:"accesscode"`
+	Premium    bool `json:"premium"`
 }
 
 type Credentials struct {

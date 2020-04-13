@@ -45,11 +45,14 @@ func SetupEndpoints() {
 	_router.HandleFunc("/account", wrapHandlerWithSpecialAuth(UpdateUser, configs.AUTH_AUTHENTICATED)).Methods("PATCH")
 	_router.HandleFunc("/account", wrapHandlerWithSpecialAuth(GetUser, configs.AUTH_AUTHENTICATED)).Methods("GET")
 
-	//token with correct sign in claim allowed
-	_router.HandleFunc("/account/signin", wrapHandlerWithSpecialAuth(Login, configs.AUTH_LOGIN)).Methods("POST")
-
 	//no one should have access apart from super users
 	_router.HandleFunc("/account", wrapHandlerWithSpecialAuth(DeleteUser, configs.NO_ACCESS)).Methods("DELETE")
+
+	//no one should have access apart from super users
+	_router.HandleFunc("/account/premium", wrapHandlerWithSpecialAuth(IsUserPremium, configs.AUTH_AUTHENTICATED)).Methods("GET")
+
+	//token with correct sign in claim allowed
+	_router.HandleFunc("/account/signin", wrapHandlerWithSpecialAuth(Login, configs.AUTH_LOGIN)).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }

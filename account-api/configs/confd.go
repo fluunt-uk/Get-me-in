@@ -7,6 +7,7 @@ const (
 	EU_WEST_2         = "eu-west-2"
 	UNIQUE_IDENTIFIER = "email"
 	PW                = "password"
+	PREMIUM = "premium"
 	/*********************************************/
 	/************** RabbitMQ configs *************/
 	FANOUT_EXCHANGE = "accounts.fanout"
