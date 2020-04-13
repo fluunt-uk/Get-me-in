@@ -18,6 +18,8 @@ type NotificationEmailStruct struct {
 
 type PaymentEmailStruct struct {
 	Firstname 	string
+	Intro       string
+	Outro		string
 	Premium 	string
 	Description string
 	Price 		int

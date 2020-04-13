@@ -9,6 +9,10 @@ import (
 func PaymentEmail(params models.PaymentEmailStruct) string {
 	email := hermes.Email{
 		Body: hermes.Body{
+				Name: params.Firstname,
+				Intros: []string {
+					params.Intro,
+				},
 			Table: hermes.Table{
 				Data: [][]hermes.Entry{
 					{
@@ -28,6 +32,9 @@ func PaymentEmail(params models.PaymentEmailStruct) string {
 					},
 				},
 			},
+			Outros: []string{
+				params.Outro,
+			},
 		},
 	}
 
@@ -38,6 +45,8 @@ func GenerateSubscriptionHTMLTemplate(p models.IncomingPaymentDataStruct, l mode
 
 	t := PaymentEmail(models.PaymentEmailStruct{
 		Firstname: p.Firstname,
+		Intro: l.Intro,
+		Outro: l.Outro,
 		Premium: p.Premium,
 		Description: p.Description,
 		Price: p.Price,
@@ -45,3 +54,13 @@ func GenerateSubscriptionHTMLTemplate(p models.IncomingPaymentDataStruct, l mode
 
 	return t, p.Email
 }
+
+
+//{
+//"email": "sharjeel50@hotmail.co.uk",
+//"firstname": "Sharjeel",
+//"surname": "Jan",
+//"premium": "this is it",
+//"Description": "mad ting",
+//"price": 7
+//}

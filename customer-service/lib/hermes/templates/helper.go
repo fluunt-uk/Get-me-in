@@ -135,7 +135,10 @@ func BaseTypeSubscriptionEmail(typeof string, d []byte) (string, string) {
 		p := s.IncomingPaymentDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
+		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{
+			Intro: "Your order has been processed successfully.",
+			Outro: "Thank you, enjoy your experience.",
+		})
 
 	case s.PAYMENT_INVOICE:
 

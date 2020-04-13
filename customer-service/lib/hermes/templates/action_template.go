@@ -36,7 +36,7 @@ func ActionEmail(params models.ActionEmailStruct) string {
 func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.ActionEmailStruct) (string, string) {
 
 	t := ActionEmail(models.ActionEmailStruct{
-		Name:        k.Firstname + " " + k.Surname,
+		Name:        k.Firstname,
 		Intro:       l.Intro,
 		Instruct:    l.Instruct,
 		ButtonText:  l.ButtonText,

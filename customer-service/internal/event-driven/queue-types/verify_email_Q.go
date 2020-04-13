@@ -1,8 +1,8 @@
 package queue_types
 
 import (
-	t "github.com/ProjectReferral/Get-me-in/customer-service/models"
 	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
+	t "github.com/ProjectReferral/Get-me-in/customer-service/models"
 	"github.com/streadway/amqp"
 )
 
