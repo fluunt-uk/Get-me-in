@@ -31,7 +31,8 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//request to account api to verify credentials
-	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")})
+	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body,
+		map[string]string{configs.AUTHORIZATION: req.Header.Get(configs.AUTHORIZATION)})
 
 	if errPost != nil {
 		http.Error(w, errPost.Error(), 400)
@@ -50,7 +51,8 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token := IssueToken(req, configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get("subject"), resp.Body)
+	//subject here is the email
+	token := IssueToken(configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get("subject"), resp.Body)
 
 	b, err := json.Marshal(token)
 	if err != nil {
@@ -64,7 +66,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 //A temporary token can be requested for registration
 //This token will only allow the user to access the /PUT endpoint for the Account-API
 func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
-	token := IssueToken(req, configs.TEMP_EXPIRY, configs.AUTH_REGISTER, "register", nil)
+	token := IssueToken(configs.TEMP_EXPIRY, configs.AUTH_REGISTER, "register", nil)
 
 	b, err := json.Marshal(token)
 

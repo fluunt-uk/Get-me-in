@@ -11,7 +11,7 @@ import (
 )
 
 
-func IssueToken(req *http.Request, expiry time.Duration, audience string, subject string, body io.ReadCloser) security.TokenResponse {
+func IssueToken(expiry time.Duration, audience string, subject string, body io.ReadCloser) security.TokenResponse {
 	t := time.Now()
 	e := t.Add(expiry * time.Minute)
 	var u UserResponse
@@ -25,7 +25,7 @@ func IssueToken(req *http.Request, expiry time.Duration, audience string, subjec
 		IssuedAt:   t.Unix(),
 		Expiration: e.Unix(),
 		NotBefore:  t.Unix(),
-		Id:         req.Header.Get("id"),
+		Id:         "NOT_SET",
 	}
 
 	if subject != "register" {
@@ -37,7 +37,7 @@ func IssueToken(req *http.Request, expiry time.Duration, audience string, subjec
 	}
 
 	tr := security.TokenResponse{
-		//GenerateToken is a our security library
+		//GenerateToken is our security library
 		AccessToken:	security.GenerateToken(token),
 		TokenType:		configs.BEARER,
 		ExpiresIn:		configs.EXPIRY,

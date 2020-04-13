@@ -2,6 +2,9 @@ package configs
 
 const (
 	PORT = ":5000"
+	/****************** HEADERS ******************/
+	AUTHORIZATION = "Authorization"
+	/*********************************************/
 
 	/*************** API ENDPOINTS **************/
 	LOGIN_ENDPOINT = "http://localhost:5001/account/signin"
@@ -10,7 +13,6 @@ const (
 
 	/*********** Authentication configs **********/
 	SERVICE_ID = "auth"
-	SUBJECT    = "authentication"
 	BEARER     = "Bearer"
 	//2.5 days
 	EXPIRY = 3600
