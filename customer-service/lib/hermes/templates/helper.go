@@ -23,7 +23,24 @@ var h = hermes.Hermes{
     },
 }
 
-func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
+func GenerateHTMLTemplate(basetype string, typeof string, d []byte) (string, string) {
+
+	switch basetype {
+
+	case s.BASETYPE_ACTION:
+		return BaseTypeActionEmail(typeof, d)
+
+	case s.BASETYPE_NOTIFICATION:
+		return BaseTypeNotificationEmail(typeof, d)
+
+	case s.BASETYPE_SUBSCRIPTION:
+		return BaseTypeSubscriptionEmail(typeof, d)
+	}
+
+	return "",""
+}
+
+func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
 
 	switch typeof {
 
@@ -52,6 +69,14 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 			ButtonColor: "#fc2403",
 			Outro:       "If you did not make this change or you believe an unauthorised person has accessed your account, go to {reset-password endpoint} to reset your password without delay.",
 		})
+	}
+
+	return "",""
+}
+
+func BaseTypeNotificationEmail(typeof string, d []byte) (string, string) {
+
+	switch typeof {
 
 	case s.CREATE_SUBSCRIPTION:
 
@@ -96,6 +121,14 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 			Intro: "",
 			Outro: "",
 		})
+	}
+
+	return "",""
+}
+
+func BaseTypeSubscriptionEmail(typeof string, d []byte) (string, string) {
+
+	switch typeof {
 
 	case s.PAYMENT_CONFIRMATION:
 
@@ -112,9 +145,8 @@ func GenerateHTMLTemplate(typeof string, d []byte) (string, string) {
 		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
 	}
 
-	return "", ""
+	return "",""
 }
-
 
 func toStruct(d []byte, p interface{}){
 	err := json.Unmarshal(d, &p)

@@ -45,6 +45,11 @@ type IncomingActionDataStruct struct {
 	Accesscode 	string 	`json:"accesscode"`
 }
 
+const (
+	BASETYPE_ACTION = "action"
+	BASETYPE_NOTIFICATION = "notificaiton"
+	BASETYPE_SUBSCRIPTION = "subscription"
+)
 
 //Types - Will need to add the rest
 //Cancel Subscription
