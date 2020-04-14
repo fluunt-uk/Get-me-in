@@ -9,17 +9,18 @@ import (
 )
 
 /**
-* Convert type interface to dynamodb readable object
+* Convert type interface to dynamodb readable object and JSON
 **/
 func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error) {
 
-	bodyMap, err := DecodeToMap(readBody, m)
+	bodyMap, err := DecodeToMap(readBody, &m)
 
 	if err != nil {
 		return nil, err
 	}
 
 	av, errM := dynamodbattribute.MarshalMap(bodyMap)
+
 
 	if errM != nil {
 		return nil, errM
@@ -30,31 +31,9 @@ func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]
 }
 
 /**
-* Convert type interface to dynamodb readable object and JSON
-**/
-func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error, string) {
-
-	bodyMap, err := DecodeToMap(readBody, m)
-	jsonString, err := json.Marshal(bodyMap)
-
-	if err != nil {
-		return nil, err, ""
-	}
-
-	av, errM := dynamodbattribute.MarshalMap(bodyMap)
-
-	if errM != nil {
-		return nil, errM, ""
-	}
-
-	return av, nil, string(jsonString)
-
-}
-
-/**
 * Convert the interface fields into a map
 **/
-func DecodeToMap(b io.ReadCloser, m interface{}) (map[string]interface{}, error) {
+func DecodeToMap(b io.ReadCloser, m interface{}) (interface{}, error) {
 
 	// Try to decode th
 	//e request body into the struct. If there is an error,
@@ -65,13 +44,7 @@ func DecodeToMap(b io.ReadCloser, m interface{}) (map[string]interface{}, error)
 		return nil, errJson
 	}
 
-	mapM, ok := m.(map[string]interface{})
-
-	if !ok {
-		fmt.Printf("ERROR: not a map-> %#v\n", m)
-	}
-
-	return mapM, nil
+	return m, nil
 }
 
 /**
@@ -92,24 +65,4 @@ func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interfa
 	}
 
 	return mapM
-}
-
-/**
-* Get the specific value query by the unique identifier
-**/
-func GetParameterValue(r io.ReadCloser, m interface{}) (string, error) {
-	bodyMap, err := DecodeToMap(r, m)
-
-	if err != nil {
-		return "", err
-	}
-
-	return StringFromMap(bodyMap, SearchParam), nil
-}
-
-/**
-* Convert a interface type to string
-**/
-func StringFromMap(m map[string]interface{}, p string) string {
-	return fmt.Sprintf("%v", m[p])
 }

@@ -95,8 +95,5 @@ func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 //TODO: move to dynamodb library?
 func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
-	v, err := dynamodb.GetParameterValue(r.Body, models.Advert{})
-	HandleError(err, w, false)
-
-	return v
+	return ""
 }

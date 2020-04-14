@@ -4,6 +4,7 @@ const (
 	PORT = ":5000"
 	/****************** HEADERS ******************/
 	AUTHORIZATION = "Authorization"
+	SUBJECT = "subject"
 	/*********************************************/
 
 	/*************** API ENDPOINTS **************/

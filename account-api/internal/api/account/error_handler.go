@@ -1,4 +1,4 @@
-package api
+package account
 
 import (
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"

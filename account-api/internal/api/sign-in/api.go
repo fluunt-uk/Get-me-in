@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
+	"github.com/ProjectReferral/Get-me-in/account-api/internal/api/account"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"net/http"
@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// if there is an error or record not found
 	if error != nil {
-		api.HandleError(error, w)
+		account.HandleError(error, w)
 		return
 	}
 
@@ -41,7 +41,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("subject", u.Email)
 		b, err := json.Marshal(u)
 
-		if !api.HandleError(err, w) {
+		if !account.HandleError(err, w) {
 
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)

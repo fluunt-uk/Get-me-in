@@ -52,7 +52,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//subject here is the email
-	token := IssueToken(configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get("subject"), resp.Body)
+	token := IssueToken(configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get(configs.SUBJECT), resp.Body)
 
 	b, err := json.Marshal(token)
 	if err != nil {

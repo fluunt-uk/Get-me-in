@@ -2,8 +2,8 @@ package account
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
 	event "github.com/ProjectReferral/Get-me-in/account-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
@@ -20,6 +20,7 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 //Create a new user using our dynamodb adapter
 //A event message it sent to the queues which are consumed by the relevant services
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	var u models.User
 
 	//TODO: reCaptcha check, 30ms average
 	if r.ContentLength < 1 {
@@ -29,19 +30,25 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	body := r.Body
 
-	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{AccessCode: "WHAT"})
+	u.GenerateAccessCode()
+	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
 
-	if !api.HandleError(errDecode, w) {
+	if !HandleError(errDecode, w) {
 
 		err := dynamodb.CreateItem(dynamoAttr)
 
-		if !api.HandleError(err, w) {
+		if !HandleError(err, w) {
+
+			b, err := json.Marshal(u)
+			if err != nil {
+				fmt.Sprintf(err.Error())
+			}
 			//JSON format of the newly created user
-			w.Write([]byte(json))
+			w.Write(b)
 			w.WriteHeader(http.StatusOK)
 
 			//triggers email confirmation e-mail
-			go event.BroadcastUserCreatedEvent(json)
+			go event.BroadcastUserCreatedEvent(string(b))
 		}
 	}
 
@@ -53,10 +60,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	email := security.GetClaimsOfJWT().Subject
 	result, err := dynamodb.GetItem(email)
 
-	if !api.HandleError(err, w) {
+	if !HandleError(err, w) {
 		b, err := json.Marshal(dynamodb.Unmarshal(result, models.User{}))
 
-		if !api.HandleError(err, w) {
+		if !HandleError(err, w) {
 
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
@@ -80,7 +87,7 @@ func IsUserPremium(w http.ResponseWriter, r *http.Request) {
 
 	p := result.Item[configs.PREMIUM].BOOL
 
-	if !api.HandleError(err, w) && *p {
+	if !HandleError(err, w) && *p {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -89,36 +96,28 @@ func IsUserPremium(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//to avoid duplication, this method is re-used
-//Gets the unique identifier from the response body
-//This unique identifier is set under the API configs
-//For this context, it would be mail
-//TODO: move to dynamodb library?
-func ExtractValue(w http.ResponseWriter, r *http.Request) string {
-
-	v, err := dynamodb.GetParameterValue(r.Body, models.User{})
-	api.HandleError(err, w)
-
-	return v
-}
-
 //SUPER USER operation
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	extractValue := ExtractValue(w, r)
+	var u models.User
+
+	errJson := json.NewDecoder(r.Body).Decode(&u)
+
+	if errJson != nil {
+		http.Error(w, errJson.Error(), 400)
+		return
+	}
 
 	//Check item still exists
-	result, err := dynamodb.GetItem(extractValue)
+	result, err := dynamodb.GetItem(u.Email)
 
 	//error thrown, record not found
-	if !api.HandleError(err, w) {
+	if !HandleError(err, w) {
 
-		errDelete := dynamodb.DeleteItem(extractValue)
+		errDelete := dynamodb.DeleteItem(u.Email)
 
-		if !api.HandleError(errDelete, w) {
+		if !HandleError(errDelete, w) {
 
 			http.Error(w, result.GoString(), 204)
 		}
 	}
 }
-
-
