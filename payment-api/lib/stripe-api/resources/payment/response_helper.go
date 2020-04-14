@@ -12,6 +12,7 @@ func ReturnSuccessJSON(w http.ResponseWriter, c *stripe.PaymentMethod) {
 
 	if !stripe_api.HandleError(err, w) {
 		w.Write(toString)
+
 		w.WriteHeader(http.StatusOK)
 	}
 }
