@@ -1,4 +1,4 @@
-package internal
+package auth
 
 import (
 	"encoding/json"
@@ -76,4 +76,10 @@ func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
+}
+
+//Response for testing purposes
+func MockResponse(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("OK"))
+	w.WriteHeader(http.StatusOK)
 }

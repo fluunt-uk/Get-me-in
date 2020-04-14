@@ -30,7 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	body := r.Body
 
-	u.GenerateAccessCode()
+	u.AccessCode = event.NewUUID()
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
 
 	if !HandleError(errDecode, w) {
@@ -120,4 +120,37 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, result.GoString(), 204)
 		}
 	}
+}
+
+func VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	queryMap := r.URL.Query()
+
+	accessCodeKeys, ok := queryMap["access_code"]
+	tokenKeys, ok := queryMap["token"]
+
+	accessCodeValue := accessCodeKeys[0]
+	tokenValue := tokenKeys[0]
+
+	if !ok || len(accessCodeValue) < 1 || len(tokenValue) < 1 {
+		w.Write([]byte("Url Param are missing"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//validate the token expiry date
+	if security.VerifyTokenWithClaim(tokenValue, configs.AUTH_VERIFY) {
+
+		//email parsed from the jwt
+		email := security.GetClaimsOfJWT().Subject
+		result, err := dynamodb.GetItem(email)
+
+		if !HandleError(err, w) {
+			if accessCodeValue == *result.Item["access_code"].S {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+		}
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
 }

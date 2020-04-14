@@ -1,12 +1,12 @@
-package internal
+package auth
 
 import (
 	"encoding/json"
 	"github.com/ProjectReferral/Get-me-in/auth-api/configs"
+	"github.com/ProjectReferral/Get-me-in/auth-api/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"io"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -14,7 +14,7 @@ import (
 func IssueToken(expiry time.Duration, audience string, subject string, body io.ReadCloser) security.TokenResponse {
 	t := time.Now()
 	e := t.Add(expiry * time.Minute)
-	var u UserResponse
+	var u models.UserResponse
 
 	//assign the claims to our customer model
 	token := &security.TokenClaims{
@@ -48,11 +48,4 @@ func IssueToken(expiry time.Duration, audience string, subject string, body io.R
 
 	return tr
 }
-
-//Response for testing purposes
-func MockResponse(w http.ResponseWriter, req *http.Request) {
-	w.Write([]byte("OK"))
-	w.WriteHeader(http.StatusOK)
-}
-
 
