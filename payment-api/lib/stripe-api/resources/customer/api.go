@@ -9,7 +9,10 @@ import (
 func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{
 		Description: stripe.String("My First Test Customer (created for API docs)"),
-		PaymentMethod:stripe.String("pm_1GWso0Ghy1brUyYI6Iea3ww4"),
+		PaymentMethod:stripe.String("pm_1GYFlGGhy1brUyYICzPO9P6O"),
+		InvoiceSettings: &stripe.CustomerInvoiceSettingsParams{
+			DefaultPaymentMethod: stripe.String("pm_1GYFlGGhy1brUyYICzPO9P6O"),
+		},
 	}
 	c, _ := customer.New(params)
 

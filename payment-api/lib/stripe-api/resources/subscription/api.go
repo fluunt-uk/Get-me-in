@@ -8,7 +8,7 @@ import (
 
 func CreateSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_H535ODl8lPK12L"),
+		Customer: stripe.String("cus_H6Sh6OUR88nUKr"),
 		Items: []*stripe.SubscriptionItemsParams{
 			{
 				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
