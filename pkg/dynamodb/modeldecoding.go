@@ -19,6 +19,10 @@ func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]
 		return nil, err
 	}
 
+	//encoder := dynamodbattribute.NewEncoder(func(e *dynamodbattribute.Encoder) {
+	//	e.EnableEmptyCollections = true
+	//})
+
 	av, errM := dynamodbattribute.MarshalMap(bodyMap)
 
 
@@ -65,4 +69,10 @@ func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interfa
 	}
 
 	return mapM
+}
+
+func ParseEmptyCollection(av map[string]*dynamodb.AttributeValue, v string){
+
+	av[v].NULL = nil
+	av[v].M = map[string]*dynamodb.AttributeValue{}
 }

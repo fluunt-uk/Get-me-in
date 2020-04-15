@@ -8,6 +8,7 @@ const (
 	UNIQUE_IDENTIFIER	= "email"
 	PW               	= "password"
 	PREMIUM				= "premium"
+	APPLICATION			= "application"
 	/*********************************************/
 	/************** RabbitMQ configs *************/
 	FANOUT_EXCHANGE		= "accounts.fanout"

@@ -8,10 +8,14 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
+	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"net/http"
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
+	//dynamodb.TestUpdate()
+	//dynamodb.UpdateSingleField("surname", "lunos@gmail.com", "just trying")
+	dynamodb.AppendNewMap(r.Header.Get("Auth"), r.Header.Get("email"), r.Body, models.Advert{})
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -31,7 +35,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 
 	u.AccessCode = event.NewUUID()
+	//u.Applications = map[string]models.Advert{nil: {}}
+
+
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
+
+	dynamodb.ParseEmptyCollection(dynamoAttr, configs.APPLICATIONS)
+
 
 	if !HandleError(errDecode, w) {
 
