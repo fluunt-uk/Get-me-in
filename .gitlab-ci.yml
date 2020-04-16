@@ -14,15 +14,7 @@ variables:
 before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
-  - ls
-  - pwd
   - cd $GOPATH/src/$REPO_NAME
-  - pwd
-  - ls
-  - echo $CI_PROJECT_DIR
-  - cd $CI_PROJECT_DIR
-  - pwd
-  - ls
 
 stages:
   - build
@@ -31,4 +23,4 @@ stages:
 compile:
   stage: build
   script:
-    - go run $CI_PROJECT_DIR/account-api/cmd/main.go
+    - go build -v $CI_PROJECT_DIR/account-api/cmd
