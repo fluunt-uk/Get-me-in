@@ -29,4 +29,6 @@ dep:
 compile:
   stage: build
   script:
-    - go build -v $CI_PROJECT_DIR/account-api/cmd
+    - cd $CI_PROJECT_DIR
+    - ls
+    - go build -o $CI_PROJECT_DIR/account-api/cmd
