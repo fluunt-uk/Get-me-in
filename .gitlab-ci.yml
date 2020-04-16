@@ -2,7 +2,7 @@ variables:
   PACKAGE_PATH: /go/src/gitlab.com/ProjectReferral/Get-me-in
 
 before_script:
-  - docker info  
+  - docker info
 
 stages:
   - dep
