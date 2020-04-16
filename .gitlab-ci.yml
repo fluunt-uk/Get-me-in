@@ -17,18 +17,17 @@ before_script:
   - cd $GOPATH/src/$REPO_NAME
 
 stages:
-  - dep
   - build
   
-dep:
-  stage: dep
-  script:
-    - cd $CI_PROJECT_DIR
-    - go mod download 
+# dep:
+#   stage: dep
+#   script:
+#     - cd $CI_PROJECT_DIR
+#     - go mod download 
 
 compile:
   stage: build
   script:
-    - cd $CI_PROJECT_DIR
+    - cd $CI_PROJECT_DIR/account-api/cmd
     - ls
     - go build -o $CI_PROJECT_DIR/account-api/cmd
