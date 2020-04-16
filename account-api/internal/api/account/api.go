@@ -8,14 +8,13 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
-	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"net/http"
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
 	//dynamodb.TestUpdate()
 	//dynamodb.UpdateSingleField("surname", "lunos@gmail.com", "just trying")
-	dynamodb.AppendNewMap(r.Header.Get("Auth"), r.Header.Get("email"), r.Body, models.Advert{})
+	UpdateUser(w,r)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -29,19 +28,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	//TODO: reCaptcha check, 30ms average
 	if r.ContentLength < 1 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("No body error!"))
+		w.Write([]byte("No body error"))
 		return
 	}
 	body := r.Body
 
 	u.AccessCode = event.NewUUID()
-	//u.Applications = map[string]models.Advert{nil: {}}
-
 
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
-
 	dynamodb.ParseEmptyCollection(dynamoAttr, configs.APPLICATIONS)
-
 
 	if !HandleError(errDecode, w) {
 
@@ -81,12 +76,13 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Creating a new user with same ID replaces the record
-//Temporary solution
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var cr models.ChangeRequest
 
-	//TODO: Change to UpdateItem
-	CreateUser(w, r)
+	dynamodb.DecodeToMap(r.Body, &cr)
+
+	UpdateValue(r.Header.Get("email"), &cr)
+
 }
 
 //check if the user has an active subscription
@@ -104,32 +100,6 @@ func IsUserPremium(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(204)
 	return
-}
-
-//SUPER USER operation
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	var u models.User
-
-	errJson := json.NewDecoder(r.Body).Decode(&u)
-
-	if errJson != nil {
-		http.Error(w, errJson.Error(), 400)
-		return
-	}
-
-	//Check item still exists
-	result, err := dynamodb.GetItem(u.Email)
-
-	//error thrown, record not found
-	if !HandleError(err, w) {
-
-		errDelete := dynamodb.DeleteItem(u.Email)
-
-		if !HandleError(errDelete, w) {
-
-			http.Error(w, result.GoString(), 204)
-		}
-	}
 }
 
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {

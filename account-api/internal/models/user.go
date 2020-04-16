@@ -12,7 +12,6 @@ type User struct {
 	Premium    		bool `json:"premium"`
 	VerifyToken		string `json:"verify_token"`
 	Verified		bool `json:"verified`
-	//Applications 	Advert `dynamodbav:"applications"`
 	Applications 	map[string]Advert `dynamodbav:"applications"`
 }
 
@@ -31,4 +30,11 @@ type Advert struct {
 	ValidTill   string `json:"valid_till"`
 	Company     string `json:"company"`
 	Description string `json:"description"`
+}
+
+type ChangeRequest struct {
+	NewString 	string 	`json:"new_value"`
+	Field		string 	`json:"field"`
+	NewMap		Advert 	`json:"new_map"`
+	Type		int		`json:"type"`
 }

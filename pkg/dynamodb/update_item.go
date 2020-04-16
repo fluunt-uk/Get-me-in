@@ -3,14 +3,12 @@ package dynamodb
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"io"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"log"
 )
 
-/**
-TODO: not working as expected yet
-***** NOT IN USE, under implementation ****
-**/
+
+
 func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue string) (bool, error) {
 
 	input := &dynamodb.UpdateItemInput{
@@ -27,8 +25,8 @@ func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue str
 				S: aws.String(recordToUpdate),
 			},
 		},
-		// May need updating
-		ReturnValues:     aws.String("UPDATED_NEW"),
+		// Not used at the moment
+		//ReturnValues:     aws.String("UPDATED_NEW"),
 		//set {field name on dynamoDb} = {fieldtoUpdate}
 		UpdateExpression: aws.String("set " + fieldToUpdate + "= :" + fieldToUpdate),
 	}
@@ -41,7 +39,33 @@ func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue str
 	return true, nil
 }
 
+func AppendNewMap(mapId string, r string, i interface{}, key string){
 
+	m, _ := dynamodbattribute.MarshalMap(&i)
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			SearchParam: {
+				S: aws.String(r),
+			},
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":" + key: {
+				M: m,
+			},
+		},
+		//Not used at the moment
+		//ReturnValues:     aws.String("ALL_NEW"),
+		UpdateExpression: aws.String("SET "+ key+ "." + mapId + " = :" + key),
+		TableName:        aws.String(DynamoTable),
+	}
+	_, err := DynamoConnection.UpdateItem(input)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+//TODO:append to lists
 //func AppendNewObject(){
 //
 //	//value, _ := GetItem("luno@gmail.com")
@@ -96,38 +120,3 @@ func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue str
 //		log.Println(err)
 //	}
 //}
-
-func AppendNewMap(id string, r string, body io.ReadCloser, i interface{}){
-
-	//advertDetails := map[string]*dynamodb.AttributeValue{
-	//	"advert_id": {
-	//		S: aws.String("asd"),
-	//	},
-	//	"advert_description": {
-	//		S: aws.String("what, just trying"),
-	//	},
-	//}
-
-	m, _ := DecodeToDynamoAttribute(body, i)
-
-	input := &dynamodb.UpdateItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
-				S: aws.String(r),
-			},
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":applications": {
-				M: m,
-			},
-		},
-		ReturnValues:     aws.String("ALL_NEW"),
-		UpdateExpression: aws.String("SET applications." + id + " = :applications"),
-		TableName:        aws.String("dev-users"),
-	}
-	_, err := DynamoConnection.UpdateItem(input)
-	if err != nil {
-		log.Println(err)
-	}
-
-}

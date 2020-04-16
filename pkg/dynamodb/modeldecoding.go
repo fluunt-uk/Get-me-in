@@ -13,31 +13,23 @@ import (
 **/
 func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error) {
 
-	bodyMap, err := DecodeToMap(readBody, &m)
-
-	if err != nil {
+	if err := DecodeToMap(readBody, &m); err != nil {
 		return nil, err
 	}
 
-	//encoder := dynamodbattribute.NewEncoder(func(e *dynamodbattribute.Encoder) {
-	//	e.EnableEmptyCollections = true
-	//})
-
-	av, errM := dynamodbattribute.MarshalMap(bodyMap)
-
+	av, errM := dynamodbattribute.MarshalMap(&m)
 
 	if errM != nil {
 		return nil, errM
 	}
 
 	return av, nil
-
 }
 
 /**
 * Convert the interface fields into a map
 **/
-func DecodeToMap(b io.ReadCloser, m interface{}) (interface{}, error) {
+func DecodeToMap(b io.ReadCloser, m interface{})  error {
 
 	// Try to decode th
 	//e request body into the struct. If there is an error,
@@ -45,10 +37,10 @@ func DecodeToMap(b io.ReadCloser, m interface{}) (interface{}, error) {
 	errJson := json.NewDecoder(b).Decode(&m)
 
 	if errJson != nil {
-		return nil, errJson
+		return errJson
 	}
 
-	return m, nil
+	return nil
 }
 
 /**
