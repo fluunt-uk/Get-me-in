@@ -19,6 +19,7 @@ before_script:
   - cd $GOPATH/src/$REPO_NAME
   - pwd
   - ls
+  - echo $CI_PROJECT_DIR
 
 stages:
   - build
@@ -27,4 +28,4 @@ stages:
 compile:
   stage: build
   script:
-    - go build -o $CI_PROJECT_DIR/account-api/cmd/main.go
+    - go run -o $CI_PROJECT_DIR/account-api/cmd/main.go
