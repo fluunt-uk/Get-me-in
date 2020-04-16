@@ -1,0 +1,34 @@
+image: golang:1.9
+
+stages:
+  - build
+#
+# to avoid downloading the same content several times. Once a job is completed,
+# the listed paths will be archived, and next job will use the same archive.
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+
+before_script:
+# Create a symbolic link under $GOPATH, this is needed for local build
+    - cd $GOPATH/src
+    - mkdir -p gitlab.com/$CI_PROJECT_NAMESPACE/$CI_NAME
+    - cd gitlab.com/$CI_PROJECT_NAMESPACE/$CI_NAME
+    - ln -s $CI_PROJECT_DIR
+    - cd $CI_NAME
+
+
+build:
+    stage: build
+    script:
+    -  go get -v -t -d ./account-api/...
+    -  go build -v ./account-api/cmd
+    -  go get -v -t -d ./marketing-api/...
+    -  go build -v ./marketing-api/cmd
+    -  go get -v -t -d ./auth-api/...
+    -  go build -v ./auth-api/cmd
