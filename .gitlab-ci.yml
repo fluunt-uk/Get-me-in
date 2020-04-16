@@ -20,6 +20,9 @@ before_script:
   - pwd
   - ls
   - echo $CI_PROJECT_DIR
+  - cd $CI_PROJECT_DIR
+  - pwd
+  - ls
 
 stages:
   - build
@@ -28,4 +31,4 @@ stages:
 compile:
   stage: build
   script:
-    - go run -o $CI_PROJECT_DIR/account-api/cmd/main.go
+    - go run $CI_PROJECT_DIR/account-api/cmd/main.go
