@@ -2,7 +2,6 @@ package subscription
 
 import (
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
@@ -21,8 +20,7 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 	}
 	s, _ := sub.New(params)
 
-	configs.StripeObjects["sub"] = s
-	stripe_api.ReturnSuccessJSON(w,"sub")
+	stripe_api.ReturnSuccessJSON(w, &s)
 
 	status, err := AddSubscription(models.Subscription{
 		Email:          "hamza@gmail.com",
@@ -41,8 +39,7 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 func RetrieveSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Get("sub_H6qCxUjOuCCmfj", nil)
 
-	configs.StripeObjects["sub"] = s
-	stripe_api.ReturnSuccessJSON(w,"sub")
+	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
 func UpdateSub(w http.ResponseWriter, r *http.Request) {
@@ -50,16 +47,13 @@ func UpdateSub(w http.ResponseWriter, r *http.Request) {
 	params.AddMetadata("order_id", "0001")
 	s, _ := sub.Update("sub_H6qCxUjOuCCmfj", params)
 
-	configs.StripeObjects["sub"] = s
-	stripe_api.ReturnSuccessJSON(w,"sub")
+	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
 func CancelSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Cancel("sub_H6qCxUjOuCCmfj", nil)
 
-	configs.StripeObjects["sub"] = s
-	stripe_api.ReturnSuccessJSON(w,"sub")
-
+	stripe_api.ReturnSuccessJSON(w, &s)
 	//status, err = DeleteSubscription()
 }
 
@@ -70,7 +64,6 @@ func ListSubs(w http.ResponseWriter, r *http.Request) {
 	for i.Next() {
 		s := i.Subscription()
 
-		configs.StripeObjects["sub"] = s
-		stripe_api.ReturnSuccessJSON(w,"sub")
+		stripe_api.ReturnSuccessJSON(w, &s)
 	}
 }
