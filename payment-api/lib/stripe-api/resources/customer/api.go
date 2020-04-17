@@ -8,11 +8,8 @@ import (
 
 func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{
+		Name: stripe.String("Hamza"),
 		Description: stripe.String("My First Test Customer (created for API docs)"),
-		PaymentMethod:stripe.String("pm_1GYFlGGhy1brUyYICzPO9P6O"),
-		InvoiceSettings: &stripe.CustomerInvoiceSettingsParams{
-			DefaultPaymentMethod: stripe.String("pm_1GYFlGGhy1brUyYICzPO9P6O"),
-		},
 	}
 	c, _ := customer.New(params)
 
@@ -20,16 +17,16 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 }
 
 func RetrieveCustomer(w http.ResponseWriter, r *http.Request) {
-	c, _ := customer.Get("cus_H4HfdRtWmkH717", nil)
+	c, _ := customer.Get("cus_H6Sh6OUR88nUKr", nil)
 
 	ReturnSuccessJSON(w, c)
 }
 
 func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerParams{}
-	params.AddMetadata("order_id", "6735")
+	params.AddMetadata("order_id", "00022")
 	c, _ := customer.Update(
-		"cus_H4HfdRtWmkH717",
+		"cus_H6Sh6OUR88nUKr",
 		params,
 	)
 
@@ -37,7 +34,7 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
-	c, _ := customer.Del("cus_H4HfdRtWmkH717", nil)
+	c, _ := customer.Del("cus_H6Sh6OUR88nUKr", nil)
 
 	ReturnSuccessJSON(w, c)
 }

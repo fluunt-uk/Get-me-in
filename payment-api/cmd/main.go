@@ -27,7 +27,8 @@ func loadEnvConfigs() {
 
 	switch env := os.Getenv("ENV"); env {
 	case "DEV":
-		dynamodb.DynamoTable = "dev-users"
+		//dynamodb.DynamoTable = "dev-users"
+		dynamodb.DynamoTable = "subscription-table"
 	case "UAT":
 		dynamodb.DynamoTable = "uat-users"
 	case "PROD":
