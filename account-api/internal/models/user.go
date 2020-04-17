@@ -8,10 +8,13 @@ type User struct {
 	Surname    		string `json:"surname"`
 	Email      		string `json:"email"`
 	Password   		string `json:"password"`
+	//for verify email purposes
 	AccessCode 		string `json:"access_code"`
+	//if the user has an active sub
 	Premium    		bool `json:"premium"`
-	VerifyToken		string `json:"verify_token"`
+	//email has been verified
 	Verified		bool `json:"verified`
+	//all the adverts the user has applied for
 	Applications 	map[string]Advert `dynamodbav:"applications"`
 }
 
@@ -32,9 +35,12 @@ type Advert struct {
 	Description string `json:"description"`
 }
 
+//used to update user details
 type ChangeRequest struct {
 	NewString 	string 	`json:"new_value"`
 	Field		string 	`json:"field"`
 	NewMap		Advert 	`json:"new_map"`
+	//type 1: single string value
+	//type 2: map value
 	Type		int		`json:"type"`
 }

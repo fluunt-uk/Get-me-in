@@ -12,9 +12,6 @@ import (
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
-	//dynamodb.TestUpdate()
-	//dynamodb.UpdateSingleField("surname", "lunos@gmail.com", "just trying")
-	UpdateUser(w,r)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -59,6 +56,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//get the email from the jwt
+//stored in the subject claim
 func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	//email parsed from the jwt
@@ -76,16 +75,27 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//two ways of updating a user's information
+//type 1: updates a single string value for a defined field
+//type 2: appends a map for a defined field(this field name must already exists)
+//all parameters are set under ChangeRequest struct
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var cr models.ChangeRequest
 
 	dynamodb.DecodeToMap(r.Body, &cr)
 
-	UpdateValue(r.Header.Get("email"), &cr)
+	email:= security.GetClaimsOfJWT().Subject
+	err := UpdateValue(email, &cr)
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 //check if the user has an active subscription
+//parses email from the jwt
 func IsUserPremium(w http.ResponseWriter, r *http.Request) {
 	//email parsed from the jwt
 	email := security.GetClaimsOfJWT().Subject
@@ -102,6 +112,9 @@ func IsUserPremium(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//we parse the access_code and token from the query string
+//token is validated
+//we compare the access_code in the db matches the one passed in from the query string
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	queryMap := r.URL.Query()
 
@@ -133,4 +146,9 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
+}
+
+//TODO:resend verification email
+func ResendVerification(w http.ResponseWriter, r *http.Request){
+
 }

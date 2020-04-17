@@ -4,12 +4,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"log"
 )
 
 
 
-func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue string) (bool, error) {
+func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue string) error {
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -33,13 +32,13 @@ func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue str
 
 	_, err := DynamoConnection.UpdateItem(input)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
-func AppendNewMap(mapId string, r string, i interface{}, key string){
+func AppendNewMap(mapId string, r string, i interface{}, key string) error {
 
 	m, _ := dynamodbattribute.MarshalMap(&i)
 
@@ -61,8 +60,10 @@ func AppendNewMap(mapId string, r string, i interface{}, key string){
 	}
 	_, err := DynamoConnection.UpdateItem(input)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+
+	return nil
 }
 
 //TODO:append to lists
