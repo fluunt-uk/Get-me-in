@@ -31,8 +31,13 @@ func SetupEndpoints() {
 	_router.HandleFunc("/payment/create", payment.CreatePayment).Methods("POST")
 
 	_router.HandleFunc("/token/create", token.CreateToken).Methods("POST")
+	_router.HandleFunc("/token/get", token.GetToken).Methods("GET")
 
 	_router.HandleFunc("/card/create", card.CreateCard).Methods("POST")
+	_router.HandleFunc("/card/get", card.GetCard).Methods("GET")
+	_router.HandleFunc("/card/update", card.UpdateCard).Methods("POST")
+	_router.HandleFunc("/card/delete", card.DeleteCard).Methods("DELETE")
+	_router.HandleFunc("/card/getAll", card.GetAllCards).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }

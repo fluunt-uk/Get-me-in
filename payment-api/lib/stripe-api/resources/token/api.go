@@ -19,3 +19,12 @@ func CreateToken(w http.ResponseWriter, r *http.Request)  {
 
 	ReturnSuccessJSON(w, t)
 }
+
+func GetToken(w http.ResponseWriter, r *http.Request)  {
+	t, _ := token.Get(
+		"tok_1GUZNNGhy1brUyYInPwRWKkA",
+		nil,
+	)
+
+	ReturnSuccessJSON(w, t)
+}
