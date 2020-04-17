@@ -8,7 +8,7 @@ import (
 
 
 
-func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue string) error {
+func UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue string) error {
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -37,6 +37,39 @@ func UpdateSingleField(fieldToUpdate string, recordToUpdate string, newValue str
 
 	return nil
 }
+
+func UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool) error{
+
+	input := &dynamodb.UpdateItemInput{
+		//values that needs change
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":" + fieldToUpdate: {
+				BOOL: aws.Bool(newValue),
+			},
+		},
+		TableName: aws.String(DynamoTable),
+		//search by(primary key)
+		Key: map[string]*dynamodb.AttributeValue{
+			SearchParam: {
+				S: aws.String(recordToUpdate),
+			},
+		},
+		// Not used at the moment
+		//ReturnValues:     aws.String("UPDATED_NEW"),
+		//set {field name on dynamoDb} = {fieldtoUpdate}
+		UpdateExpression: aws.String("set " + fieldToUpdate + "= :" + fieldToUpdate),
+	}
+
+	_, err := DynamoConnection.UpdateItem(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+
+}
+
 
 func AppendNewMap(mapId string, r string, i interface{}, key string) error {
 

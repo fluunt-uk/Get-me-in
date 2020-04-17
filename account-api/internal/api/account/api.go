@@ -84,7 +84,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	dynamodb.DecodeToMap(r.Body, &cr)
 
-	email:= security.GetClaimsOfJWT().Subject
+	email := security.GetClaimsOfJWT().Subject
 	err := UpdateValue(email, &cr)
 
 	if err != nil {
@@ -120,14 +120,17 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	accessCodeKeys, ok := queryMap["access_code"]
 	tokenKeys, ok := queryMap["token"]
-
-	accessCodeValue := accessCodeKeys[0]
-	tokenValue := tokenKeys[0]
-
-	if !ok || len(accessCodeValue) < 1 || len(tokenValue) < 1 {
+	if !ok {
 		w.Write([]byte("Url Param are missing"))
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	}
+
+	accessCodeValue := accessCodeKeys[0]
+	tokenValue := tokenKeys[0]
+	if len(accessCodeValue) < 1 || len(tokenValue) < 1 {
+		w.Write([]byte("Url Param are missing"))
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	//validate the token expiry date
@@ -135,13 +138,18 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 		//email parsed from the jwt
 		email := security.GetClaimsOfJWT().Subject
-		result, err := dynamodb.GetItem(email)
+		result, err := dynamodb.GetItem("lunos4@gmail.com")
 
 		if !HandleError(err, w) {
 			if accessCodeValue == *result.Item["access_code"].S {
+
+				UpdateValue(email, &models.ChangeRequest{Field: "verified", NewBool: true, Type: 3})
 				w.WriteHeader(http.StatusOK)
 				return
 			}
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Access code does not match"))
+			return
 		}
 	}
 
@@ -149,6 +157,26 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 //TODO:resend verification email
-func ResendVerification(w http.ResponseWriter, r *http.Request){
+func ResendVerification(w http.ResponseWriter, r *http.Request) {
+	var u models.User
+	email := security.GetClaimsOfJWT().Subject
 
+	//new access code generated
+	UpdateValue(email, &models.ChangeRequest{Field: "access_code", NewString: event.NewUUID(), Type: 1})
+
+	user, err := dynamodb.GetItem("lunos4@gmail.com")
+
+	if !HandleError(err, w) {
+
+		dynamodb.Unmarshal(user, &u)
+		b, errM := json.Marshal(&u)
+
+		if !HandleError(errM, w) {
+
+			w.Write(b)
+			w.WriteHeader(http.StatusOK)
+
+			go event.BroadcastUserCreatedEvent(string(b))
+		}
+	}
 }

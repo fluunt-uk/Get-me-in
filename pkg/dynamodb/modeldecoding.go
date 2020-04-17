@@ -2,7 +2,6 @@ package dynamodb
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"io"
@@ -46,21 +45,15 @@ func DecodeToMap(b io.ReadCloser, m interface{})  error {
 /**
 * Model mapping of type interface to item from dynamodb
 **/
-func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interface{} {
+func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) error {
 
 	err := dynamodbattribute.UnmarshalMap(result.Item, &m)
 
 	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		return err
 	}
 
-	mapM, ok := m.(map[string]interface{})
-
-	if !ok {
-		fmt.Printf("ERROR: not a map-> %#v\n", m)
-	}
-
-	return mapM
+	return nil
 }
 
 func ParseEmptyCollection(av map[string]*dynamodb.AttributeValue, v string){

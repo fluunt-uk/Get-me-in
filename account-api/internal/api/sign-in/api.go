@@ -2,8 +2,6 @@ package sign_in
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api/account"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
@@ -32,9 +30,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		account.HandleError(error, w)
 		return
 	}
+	var c models.Credentials
 
-	c := dynamodb.Unmarshal(result, models.Credentials{})
-	_, passwordFromDB := CredentialsFromMap(c, configs.UNIQUE_IDENTIFIER, configs.PW)
+	dynamodb.Unmarshal(result, &c)
+	passwordFromDB := c.Password
 
 	//validation, hash matches
 	if u.Password == passwordFromDB {
@@ -51,19 +50,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusUnauthorized)
 	w.Write([]byte("Invalid credentials"))
-}
-
-
-//Get the string value of a key
-func CredentialsFromMap(m map[string]interface{}, u string, p string) (string, string) {
-	username := m[u]
-	password := m[p]
-
-	if username != nil && password != nil {
-		return fmt.Sprintf("%v", m[u]), fmt.Sprintf("%v", m[p])
-	}
-
-	return "", ""
 }
 
 func isEmpty(a string, b string) bool {

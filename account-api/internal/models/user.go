@@ -13,7 +13,7 @@ type User struct {
 	//if the user has an active sub
 	Premium    		bool `json:"premium"`
 	//email has been verified
-	Verified		bool `json:"verified`
+	Verified		bool `dynamodbav:"verified"`
 	//all the adverts the user has applied for
 	Applications 	map[string]Advert `dynamodbav:"applications"`
 }
@@ -40,7 +40,10 @@ type ChangeRequest struct {
 	NewString 	string 	`json:"new_value"`
 	Field		string 	`json:"field"`
 	NewMap		Advert 	`json:"new_map"`
+	NewBool		bool 	`json:"new_bool"`
 	//type 1: single string value
 	//type 2: map value
+	//type 3: boolean value
 	Type		int		`json:"type"`
 }
+

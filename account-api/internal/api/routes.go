@@ -54,7 +54,7 @@ func SetupEndpoints() {
 
 	//token verification happening under the function
 	_router.HandleFunc("/account/verify", account.VerifyEmail).Methods("POST")
-	_router.HandleFunc("/account/verify/retry", account.ResendVerification).Methods("POST")
+	_router.HandleFunc("/account/verify/resend", account.ResendVerification).Methods("POST")
 
 
 	//no one should have access apart from super users
