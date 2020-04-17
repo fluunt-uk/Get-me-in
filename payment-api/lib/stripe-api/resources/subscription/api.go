@@ -2,6 +2,8 @@ package subscription
 
 import (
 	"fmt"
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/sub"
@@ -10,7 +12,7 @@ import (
 
 func CreateSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_H7EDAZGzu81IFr"),
+		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
 		Items: []*stripe.SubscriptionItemsParams{
 			{
 				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
@@ -19,7 +21,8 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 	}
 	s, _ := sub.New(params)
 
-	ReturnSuccessJSON(w, s)
+	configs.StripeObjects["sub"] = s
+	stripe_api.ReturnSuccessJSON(w,"sub")
 
 	status, err := AddSubscription(models.Subscription{
 		Email:          "hamza@gmail.com",
@@ -38,7 +41,8 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 func RetrieveSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Get("sub_H6qCxUjOuCCmfj", nil)
 
-	ReturnSuccessJSON(w, s)
+	configs.StripeObjects["sub"] = s
+	stripe_api.ReturnSuccessJSON(w,"sub")
 }
 
 func UpdateSub(w http.ResponseWriter, r *http.Request) {
@@ -46,13 +50,15 @@ func UpdateSub(w http.ResponseWriter, r *http.Request) {
 	params.AddMetadata("order_id", "0001")
 	s, _ := sub.Update("sub_H6qCxUjOuCCmfj", params)
 
-	ReturnSuccessJSON(w, s)
+	configs.StripeObjects["sub"] = s
+	stripe_api.ReturnSuccessJSON(w,"sub")
 }
 
 func CancelSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Cancel("sub_H6qCxUjOuCCmfj", nil)
 
-	ReturnSuccessJSON(w, s)
+	configs.StripeObjects["sub"] = s
+	stripe_api.ReturnSuccessJSON(w,"sub")
 
 	//status, err = DeleteSubscription()
 }
@@ -64,6 +70,7 @@ func ListSubs(w http.ResponseWriter, r *http.Request) {
 	for i.Next() {
 		s := i.Subscription()
 
-		ReturnSuccessJSON(w, s)
+		configs.StripeObjects["sub"] = s
+		stripe_api.ReturnSuccessJSON(w,"sub")
 	}
 }

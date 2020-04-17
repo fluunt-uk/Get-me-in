@@ -14,3 +14,5 @@ var (
 	StripeKey = "sk_test_IsdgFVzr2pBjUip3oAzMbI5r007L1vhtUs"
 	BrokerUrl = ""
 )
+
+var StripeObjects = make(map[string]interface{})

@@ -1,6 +1,8 @@
 package card
 
 import (
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/card"
 	"net/http"
@@ -8,12 +10,13 @@ import (
 
 func CreateCard(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
-		Customer: stripe.String("cus_H7EDAZGzu81IFr"),
-		Token: stripe.String("tok_1GYzmlGhy1brUyYIRzzU6nvl"),
+		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
+		Token: stripe.String("tok_1GZ3MzGhy1brUyYIYJiEpaZB"),
 	}
 	c, _ := card.New(params)
 
-	ReturnSuccessJSON(w, c)
+	configs.StripeObjects["card"] = c
+	stripe_api.ReturnSuccessJSON(w,"card")
 }
 
 func GetCard(w http.ResponseWriter, r *http.Request)  {
@@ -25,7 +28,8 @@ func GetCard(w http.ResponseWriter, r *http.Request)  {
 		params,
 	)
 
-	ReturnSuccessJSON(w, c)
+	configs.StripeObjects["card"] = c
+	stripe_api.ReturnSuccessJSON(w,"card")
 }
 
 func UpdateCard(w http.ResponseWriter, r *http.Request)  {
@@ -38,7 +42,8 @@ func UpdateCard(w http.ResponseWriter, r *http.Request)  {
 		params,
 	)
 
-	ReturnSuccessJSON(w, c)
+	configs.StripeObjects["card"] = c
+	stripe_api.ReturnSuccessJSON(w,"card")
 }
 
 func DeleteCard(w http.ResponseWriter, r *http.Request)  {
@@ -50,7 +55,8 @@ func DeleteCard(w http.ResponseWriter, r *http.Request)  {
 		params,
 	)
 
-	ReturnSuccessJSON(w, c)
+	configs.StripeObjects["card"] = c
+	stripe_api.ReturnSuccessJSON(w,"card")
 }
 
 func GetAllCards(w http.ResponseWriter, r *http.Request)  {
@@ -61,7 +67,9 @@ func GetAllCards(w http.ResponseWriter, r *http.Request)  {
 	i := card.List(params)
 	for i.Next() {
 		c := i.Card()
-		ReturnSuccessJSON(w, c)
+
+		configs.StripeObjects["card"] = c
+		stripe_api.ReturnSuccessJSON(w,"card")
 	}
 
 }
