@@ -5,34 +5,11 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api/account"
 	sign_in "github.com/ProjectReferral/Get-me-in/account-api/internal/api/sign-in"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
+	"github.com/ProjectReferral/Get-me-in/util"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
-
-//Parses the authentication token and validates against the @claim
-//Some tokens can only authenticate with specific endpoints
-func wrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		a := req.Header.Get("Authorization")
-
-		//empty header
-		if a == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("No Authorization JTW!!"))
-			return
-		}
-
-		//not empty header and token is valid
-		if a != "" && security.VerifyTokenWithClaim(a, claim) {
-			handler(w, req)
-			return
-		}
-
-		//not empty header and token is invalid
-		w.WriteHeader(http.StatusUnauthorized)
-	}
-}
 
 func SetupEndpoints() {
 
@@ -56,10 +33,8 @@ func SetupEndpoints() {
 	_router.HandleFunc("/account/verify", account.VerifyEmail).Methods("POST")
 	_router.HandleFunc("/account/verify/resend", account.ResendVerification).Methods("POST")
 
-
 	//no one should have access apart from super users
 	_router.HandleFunc("/account", wrapHandlerWithSpecialAuth(account.DeleteUser, configs.NO_ACCESS)).Methods("DELETE")
-
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }
