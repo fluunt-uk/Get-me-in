@@ -57,13 +57,15 @@ func CancelSub(w http.ResponseWriter, r *http.Request) {
 	//status, err = DeleteSubscription()
 }
 
+//it return 3 ReturnSuccessJSON as per the limit
+//but SOMEHOW (to-be figured out) the method is auto called as many times as needed to get all Subs
 func ListSubs(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionListParams{}
+	//A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
 	params.Filters.AddFilter("limit", "", "3")
 	i := sub.List(params)
 	for i.Next() {
 		s := i.Subscription()
-
 		stripe_api.ReturnSuccessJSON(w, &s)
 	}
 }

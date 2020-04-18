@@ -32,7 +32,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	dynamoAttr, errDecode, json := dynamodb.DecodeToDynamoAttributeAndJson(body, models.User{AccessCode: "WHAT"})
 
 	if !HandleError(errDecode, w) {
-
 		err := dynamodb.CreateItem(dynamoAttr)
 
 		if !HandleError(err, w) {

@@ -1,7 +1,6 @@
 package token
 
 import (
-	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/token"
@@ -20,8 +19,7 @@ func CreateToken(w http.ResponseWriter, r *http.Request)  {
 	}
 	t, _ := token.New(params)
 
-	configs.StripeObjects["token"] = t
-	stripe_api.ReturnSuccessJSON(w,"token")
+	stripe_api.ReturnSuccessJSON(w, &t)
 }
 
 func GetToken(w http.ResponseWriter, r *http.Request)  {
@@ -30,6 +28,5 @@ func GetToken(w http.ResponseWriter, r *http.Request)  {
 		nil,
 	)
 
-	configs.StripeObjects["token"] = t
-	stripe_api.ReturnSuccessJSON(w,"token")
+	stripe_api.ReturnSuccessJSON(w, &t)
 }
