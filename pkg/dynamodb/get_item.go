@@ -6,12 +6,12 @@ import (
 	"net/http"
 )
 
-func GetItem(itemValue string) (*dynamodb.GetItemOutput, error) {
+func (d *DynamoDB) GetItem(itemValue string) (*dynamodb.GetItemOutput, error) {
 
-	result, err := DynamoConnection.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String(DynamoTable),
+	result, err := d.Connection.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(d.Table),
 		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
+			d.SearchParam: {
 				S: aws.String(itemValue),
 			},
 		},

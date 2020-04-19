@@ -1,34 +1,21 @@
 package util
 
 import (
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/account-api/configs"
+	dynamo_lib "github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"log"
-	"os"
 	"net/http"
 )
 
+
+
 //internal specific configs are loaded at runtime
-func LoadEnvConfigs(connectionName string, name string, port string,
-	searchParam string, genericModel interface{}) {
+func (sc *ServiceConfigs) LoadEnvConfigs() {
 
-	env := os.Getenv("ENV")
-	log.Printf("Environment: %s\n",env)
-	log.Printf("Running on %s\n", port)
-	dynamodb.GenericModel = genericModel
-	dynamodb.SearchParam = searchParam
-
-	switch env {
-	case "UAT":
-		dynamodb.DynamoTable = "uat-" + name
-	case "PROD":
-		dynamodb.DynamoTable = "prod-" + name
-	default:
-		dynamodb.DynamoTable = "dev-" + name
-	}
-	
-	connectToDynamoDB(connectionName)
+	log.Printf("Environment: %s\n",sc.Environment)
+	log.Printf("Running on %s\n", sc.Port)
 }
 
 //Parses the authentication token and validates against the @claim
@@ -61,13 +48,40 @@ func WrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.Han
 }
 
 //Create a single instance of DynamoDB connection
-func connectToDynamoDB(n string) {
+func (sc *ServiceConfigs)generateCredentials() *credentials.Credentials{
 
 	c := credentials.NewSharedCredentials("", "default")
 
-	err := dynamodb.Connect(c, n)
+	return c
+}
 
-	if err != nil {
-		panic(err)
+func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.DynamoDB{
+
+	switch configs.Env {
+	case "UAT":
+		sc.Table = "uat-" + sc.Table
+	case "PROD":
+		sc.Table = "prod-" + sc.Table
+	default:
+		sc.Table = "dev-" + sc.Table
 	}
+
+	dynamoDBInstance := &dynamo_lib.DynamoDB{
+		GenericModel:sc.GenericModel,
+		SearchParam:sc.SearchParam,
+		Table:sc.Table,
+		Credentials:sc.generateCredentials(),
+		Region: sc.Region,
+	}
+	return dynamoDBInstance
+}
+
+type ServiceConfigs struct {
+	Environment		string
+	Region			string
+	Table			string
+	SearchParam		string
+	GenericModel	interface{}
+	BrokerUrl		string
+	Port			string
 }
