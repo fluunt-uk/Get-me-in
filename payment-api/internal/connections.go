@@ -1,9 +1,9 @@
 package internal
 
 import (
-"github.com/ProjectReferral/Get-me-in/account-api/configs"
-"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
-"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 //Create a single instance of DynamoDB connection

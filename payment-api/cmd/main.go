@@ -11,7 +11,7 @@ import (
 
 func main() {
 	loadEnvConfigs()
-
+	internal.ConnectToDynamoDB()
 	internal.SetupEndpoints()
 }
 
@@ -27,8 +27,7 @@ func loadEnvConfigs() {
 
 	switch env := os.Getenv("ENV"); env {
 	case "DEV":
-		//dynamodb.DynamoTable = "dev-users"
-		dynamodb.DynamoTable = "subscription-table"
+		dynamodb.DynamoTable = "dev-subs"
 	case "UAT":
 		dynamodb.DynamoTable = "uat-users"
 	case "PROD":

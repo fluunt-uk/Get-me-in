@@ -11,7 +11,8 @@ import (
 
 func CreateSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
+		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
+
 		Items: []*stripe.SubscriptionItemsParams{
 			{
 				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
@@ -22,16 +23,20 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 
 	stripe_api.ReturnSuccessJSON(w, &s)
 
+	//status, err := AddSubscription(models.Subscription{
+	//	Email:          "hamza@gmail.com",
+	//	AccountID:      s.Customer.ID,
+	//	SubscriptionID: s.ID,
+	//	PlanID:         s.Plan.ID,
+	//	PlanType:       "Hamuzzz",
+	//})
+
 	status, err := AddSubscription(models.Subscription{
 		Email:          "hamza@gmail.com",
-		AccountID:      s.Customer.ID,
-		SubscriptionID: s.ID,
-		PlanID:         s.Plan.ID,
-		PlanType:       "Hamuzzz",
 	})
 
 	if err != nil{
-		fmt.Println(status)
+		fmt.Println(status, err)
 	}
 	fmt.Println(status, err)
 }

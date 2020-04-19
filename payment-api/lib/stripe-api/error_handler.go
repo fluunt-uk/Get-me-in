@@ -22,17 +22,3 @@ func HandleError(err error, w http.ResponseWriter) bool {
 	}
 	return false
 }
-
-// No ResponseWriter needed
-func NoRWHandleError(err error) bool {
-	if err != nil {
-		//we can return the error with specific response code and reason
-		_, isCustom := err.(*dynamodb.ErrorString)
-
-		if isCustom {
-			return true
-		}
-		return true
-	}
-	return false
-}
