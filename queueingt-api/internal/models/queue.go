@@ -5,13 +5,14 @@ import "github.com/streadway/amqp"
 //'json:' is the value that will be picked up from the JSON body
 //JSON must contain the value after 'json:...'  instead of the attribute name
 
+
 type QueueDeclare struct {
 	Name             string     `json:"name"`
 	Durable          bool       `json:"durable"`
 	DeleteWhenUnused bool       `json:"deletewhenunused"`
 	Exclusive        bool       `json:"exclusive"`
 	NoWait           bool       `json:"nowait"`
-	Arguments        amqp.Table // arguments unsuported
+	Arguments        amqp.Table `json:"arguments,omitempty"`
 }
 
 type ExchangeDeclare struct {
@@ -21,21 +22,32 @@ type ExchangeDeclare struct {
 	DeleteWhenUnused bool       `json:"deletewhenunused"`
 	Exclusive        bool       `json:"exclusive"`
 	NoWait           bool       `json:"nowait"`
-	Arguments        amqp.Table // arguments unsuported
+	Arguments        amqp.Table `json:"arguments,omitempty"`
 }
 
 type QueueBind struct {
 	Name             string     `json:"name"`
 	Key              string     `json:"key"`
-	Exchange         bool       `json:"exchange"`
+	Exchange         string     `json:"exchange"`
 	DeleteWhenUnused bool       `json:"deletewhenunused"`
-	Arguments        amqp.Table // arguments unsuported
+	Arguments        amqp.Table `json:"arguments,omitempty"`
 }
 
 type ExchangePublish struct {
 	Exchange        string           `json:"exchange"`
-	key             string           `json:"key"`
+	Key             string           `json:"key"`
 	Mandatory       bool             `json:"mandatory"`
 	Immediate       bool             `json:"immediate"`
-	Publishing       amqp.Publishing `json:"publishing"`
+	Publishing      amqp.Publishing  `json:"publishing"`
+}
+
+type QueueConsume struct {
+	URL			 	 string		`json:"url"` //send message too
+	Name             string     `json:"name"`
+	Consumer         string     `json:"consumer"`
+	AutoAck          bool       `json:"autoack"`
+	Exclusive 		 bool       `json:"exclusive"`
+	NoLocal        	 bool       `json:"noLocal"`
+	NoWait           bool       `json:"nowait"`
+	Arguments        amqp.Table `json:"arguments,omitempty"`
 }

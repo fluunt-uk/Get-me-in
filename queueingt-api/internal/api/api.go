@@ -8,55 +8,47 @@ import (
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
-	if events.TestQ() {
+	if events.TestQ(w) {
 		w.WriteHeader(http.StatusOK)
-	} else {
-		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
 func CreateQueue(w http.ResponseWriter, r *http.Request) {
-	if validateBody(w, r) {
-		queue := models.QueueDeclare{Arguments: nil}
-		send(w, r, queue, events.RabbitCreateQueue)
+	queue := models.QueueDeclare{Arguments: nil}
+	err := json.NewDecoder(r.Body).Decode(&queue)
+	if !HandleError(err, w) {
+		events.RabbitCreateQueue(w,queue)
 	}
 }
 
 func CreateExchange(w http.ResponseWriter, r *http.Request) {
-	if validateBody(w, r) {
-		exchange := models.ExchangeDeclare{Arguments: nil}
-		send(w, r, exchange, events.RabbitCreateExchange)
+	exchange := models.ExchangeDeclare{Arguments: nil}
+	err := json.NewDecoder(r.Body).Decode(&exchange)
+	if !HandleError(err, w) {
+		events.RabbitCreateExchange(w,exchange)
 	}
 }
 
 func BindExchange(w http.ResponseWriter, r *http.Request) {
-	if validateBody(w, r) {
-		bind := models.QueueBind{Arguments: nil}
-		send(w, r, bind, events.RabbitQueueBind)
+	bind := models.QueueBind{Arguments: nil}
+	err := json.NewDecoder(r.Body).Decode(&bind)
+	if !HandleError(err, w) {
+		events.RabbitQueueBind(w,bind)
 	}
 }
 
 func PublishToExchange(w http.ResponseWriter, r *http.Request) {
-	if validateBody(w, r) {
-		publish := models.ExchangePublish{}
-		send(w, r, publish, events.RabbitPublish)
-	}
-}
-
-
-func validateBody(w http.ResponseWriter, r *http.Request) bool {
-	if r.ContentLength < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("No body error!"))
-		return false
-	}
-	return true
-}
-
-func send(w http.ResponseWriter, r *http.Request,
-	s interface{}, fn func(interface{})) {
-	err := json.NewDecoder(r.Body).Decode(&s)
+	publish := models.ExchangePublish{}
+	err := json.NewDecoder(r.Body).Decode(&publish)
 	if !HandleError(err, w) {
-		fn(s)
+		events.RabbitPublish(w,publish)
+	}
+}
+
+func ConsumeQueue(w http.ResponseWriter, r *http.Request) {
+	consume := models.QueueConsume{Arguments: nil}
+	err := json.NewDecoder(r.Body).Decode(&consume)
+	if !HandleError(err, w) {
+		events.RabbitConsume(w,consume)
 	}
 }
