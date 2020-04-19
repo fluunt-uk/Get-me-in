@@ -138,7 +138,7 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 		//email parsed from the jwt
 		email := security.GetClaimsOfJWT().Subject
-		result, err := dynamodb.GetItem("lunos4@gmail.com")
+		result, err := dynamodb.GetItem(email)
 
 		if !HandleError(err, w) {
 			if accessCodeValue == *result.Item["access_code"].S {
@@ -164,7 +164,7 @@ func ResendVerification(w http.ResponseWriter, r *http.Request) {
 	//new access code generated
 	UpdateValue(email, &models.ChangeRequest{Field: "access_code", NewString: event.NewUUID(), Type: 1})
 
-	user, err := dynamodb.GetItem("lunos4@gmail.com")
+	user, err := dynamodb.GetItem(email)
 
 	if !HandleError(err, w) {
 
