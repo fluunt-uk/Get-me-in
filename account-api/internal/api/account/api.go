@@ -12,10 +12,9 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request){
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	Repo.CreateUser(w, r)
 }
-
 
 //
 ////get the email from the jwt
