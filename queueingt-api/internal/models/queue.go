@@ -42,12 +42,12 @@ type ExchangePublish struct {
 }
 
 type QueueConsume struct {
-	URL			 	 string		`json:"url"` //send message too
+	URL              string     `json:"url"`
 	Name             string     `json:"name"`
 	Consumer         string     `json:"consumer"`
 	AutoAck          bool       `json:"autoack"`
-	Exclusive 		 bool       `json:"exclusive"`
-	NoLocal        	 bool       `json:"noLocal"`
+	Exclusive        bool       `json:"exclusive"`
+	NoLocal	         bool       `json:"nolocal"`
 	NoWait           bool       `json:"nowait"`
 	Arguments        amqp.Table `json:"arguments,omitempty"`
 }
