@@ -31,3 +31,5 @@ compile:
     - cd $CI_PROJECT_DIR/account-api/cmd
     - ls
     - go build -o $CI_PROJECT_DIR/account-api/cmd
+    - go build -o $CI_PROJECT_DIR/auth-api/cmd
+    - go build -o $CI_PROJECT_DIR/marketing-api/cmd
