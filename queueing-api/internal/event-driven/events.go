@@ -1,14 +1,15 @@
 package event_driven
 
 import (
-	"github.com/ProjectReferral/Get-me-in/queueingt-api/configs"
-	"github.com/ProjectReferral/Get-me-in/queueingt-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/configs"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/internal/models"
 	"github.com/streadway/amqp"
 	"fmt"
 	"log"
 	"encoding/json"
 	"strings"
 	"net/http"
+	"time"
 )
 
 func TestQ(w http.ResponseWriter) bool{
@@ -113,6 +114,7 @@ func RabbitConsume(w http.ResponseWriter, consume models.QueueConsume) {
 			var arr = []string{}
 			var end bool
 			for {
+				time.Sleep(1 * time.Millisecond) //slows down loop
 				fmt.Printf("messages len=%d cap=%d %v\n", len(arr), cap(arr), arr)
 				select {
 					case msg := <-msgs:
