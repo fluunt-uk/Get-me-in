@@ -19,13 +19,7 @@ before_script:
 stages:
   - build
   
-# dep:
-#   stage: dep
-#   script:
-#     - cd $CI_PROJECT_DIR
-#     - go mod download 
-
-compile:
+build:
   stage: build
   script:
     - cd $CI_PROJECT_DIR/account-api/cmd
