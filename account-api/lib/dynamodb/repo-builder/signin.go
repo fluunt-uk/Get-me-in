@@ -1,4 +1,4 @@
-package repo
+package repo_builder
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type SignInBuilder interface{
 	Login(w http.ResponseWriter, r *http.Request)
 }
 //interface with the implemented methods will be injected in this variable
-var SignIn SignInRepository
+var SignIn SignInBuilder
 
 //credentials extract from the body
 //query the db with the email

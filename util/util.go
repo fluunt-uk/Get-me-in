@@ -25,7 +25,7 @@ func (sc *ServiceConfigs) LoadEnvConfigs() {
 }
 
 //DynamoDB configs
-func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.DynamoDB{
+func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.Wrapper{
 
 	switch configs.Env {
 	case "UAT":
@@ -36,12 +36,12 @@ func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.DynamoDB{
 		sc.Table = "dev-" + sc.Table
 	}
 
-	dynamoDBInstance := &dynamo_lib.DynamoDB{
-		GenericModel:sc.GenericModel,
-		SearchParam:sc.SearchParam,
-		Table:sc.Table,
+	dynamoDBInstance := &dynamo_lib.Wrapper{
+		GenericModel:&sc.GenericModel,
+		SearchParam:&sc.SearchParam,
+		Table:&sc.Table,
 		Credentials:sc.generateCredentials(),
-		Region: sc.Region,
+		Region: &sc.Region,
 	}
 	return dynamoDBInstance
 }

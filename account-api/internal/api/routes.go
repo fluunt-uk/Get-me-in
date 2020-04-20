@@ -36,6 +36,7 @@ func SetupEndpoints() {
 	_router.HandleFunc("/account/verify", security.WrapHandlerWithSpecialAuth(account.VerifyEmail, "")).Methods("POST")
 	_router.HandleFunc("/account/verify/resend", security.WrapHandlerWithSpecialAuth(account.ResendVerification, "")).Methods("POST")
 
+	//user must be authenticated before access this endpoint
 	_router.HandleFunc("/account/advert", security.WrapHandlerWithSpecialAuth(account_advert.GetAllAdverts, configs.AUTH_AUTHENTICATED)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))

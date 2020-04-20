@@ -9,33 +9,21 @@ import (
 )
 
 /*** Values injected from main internal that imports this library ***/
-type DynamoDB struct {
+type Wrapper struct {
 	Connection *dynamodb.DynamoDB
-	SearchParam string
-	GenericModel interface{}
-	Table string
+	SearchParam *string
+	GenericModel *interface{}
+	Table *string
 	Credentials *credentials.Credentials
-	Region string
+	Region *string
 }
 /*******************************************************************/
 
-//Create a connection to DB and assign the session to DynamoConnection variable
-//DynamoConnection variable is shared by other repo(CRUD)
-func (d *DynamoDB) Connect() error {
+//Create a connection to DB and assign the session to our struct variable
+//connection variable is shared by other repo-builder(CRUD)
+func (d *Wrapper) DefaultConnect() error {
 
-	//defensive coding, checking for empty values
-	if d.Table == "" && d.SearchParam == "" && d.GenericModel == nil {
-		return &ErrorString{
-			Reason: "Injected values are empty or nil",
-			Code:   http.StatusBadRequest,
-		}
-	}
-
-	//creating the object
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(d.Region),
-		Credentials: d.Credentials,
-	})
+	sess, err := newSession(d.Table, d.SearchParam, d.GenericModel, d.Region, d.Credentials)
 
 	if err != nil {
 		return err
@@ -45,4 +33,39 @@ func (d *DynamoDB) Connect() error {
 	d.Connection = dynamodb.New(sess)
 
 	return nil
+}
+
+//SOLID
+//O: Open for Modification - might come in handy
+func (d *Wrapper) CustomConnect(t *string, s *string, gm *interface{}, r *string, c *credentials.Credentials) (*dynamodb.DynamoDB,error) {
+
+	sess, err := newSession(t, s, gm, r, c)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dynamodb.New(sess), nil
+}
+
+func newSession(t *string, s *string, gm *interface{}, r *string, c *credentials.Credentials) (*session.Session, error){
+	//defensive coding, checking for empty values
+	if *t  == "" && *s == "" && *gm == nil {
+		return nil, &ErrorString{
+			Reason: "Injected values are empty or nil",
+			Code:   http.StatusBadRequest,
+		}
+	}
+
+	//creating the object
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(*r),
+		Credentials: c,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sess, nil
 }

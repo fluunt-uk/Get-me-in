@@ -6,9 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-
-
-func (d *DynamoDB) UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue string) error {
+func (d *Wrapper) UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue string) error {
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -17,10 +15,10 @@ func (d *DynamoDB) UpdateStringField(fieldToUpdate string, recordToUpdate string
 				S: aws.String(newValue),
 			},
 		},
-		TableName: aws.String(d.Table),
+		TableName: d.Table,
 		//search by(primary key)
 		Key: map[string]*dynamodb.AttributeValue{
-			d.SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(recordToUpdate),
 			},
 		},
@@ -38,7 +36,7 @@ func (d *DynamoDB) UpdateStringField(fieldToUpdate string, recordToUpdate string
 	return nil
 }
 
-func (d *DynamoDB) UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool) error{
+func (d *Wrapper) UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool) error{
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -47,10 +45,10 @@ func (d *DynamoDB) UpdateBoolField(fieldToUpdate string, recordToUpdate string, 
 				BOOL: aws.Bool(newValue),
 			},
 		},
-		TableName: aws.String(d.Table),
+		TableName: d.Table,
 		//search by(primary key)
 		Key: map[string]*dynamodb.AttributeValue{
-			d.SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(recordToUpdate),
 			},
 		},
@@ -70,14 +68,13 @@ func (d *DynamoDB) UpdateBoolField(fieldToUpdate string, recordToUpdate string, 
 
 }
 
-
-func (d *DynamoDB) AppendNewMap(mapId string, r string, i interface{}, key string) error {
+func (d *Wrapper) AppendNewMap(mapId string, r string, i interface{}, key string) error {
 
 	m, _ := dynamodbattribute.MarshalMap(&i)
 
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			d.SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(r),
 			},
 		},
@@ -89,7 +86,7 @@ func (d *DynamoDB) AppendNewMap(mapId string, r string, i interface{}, key strin
 		//Not used at the moment
 		//ReturnValues:     aws.String("ALL_NEW"),
 		UpdateExpression: aws.String("SET "+ key+ "." + mapId + " = :" + key),
-		TableName:        aws.String(d.Table),
+		TableName:        d.Table,
 	}
 	_, err := d.Connection.UpdateItem(input)
 	if err != nil {
