@@ -8,19 +8,22 @@ import (
 	"net/http"
 )
 
-type DynamoSignIn struct {
+type SignInWrapper struct {
 	//dynamo client
-	DC		*dynamodb.DynamoDB
+	DC		*dynamodb.Wrapper
 }
 //implement only the necessary methods for each repository
 //available to be consumed by the API
-type SignInRepository interface{
+type SignInBuilder interface{
 	Login(w http.ResponseWriter, r *http.Request)
 }
 //interface with the implemented methods will be injected in this variable
 var SignIn SignInRepository
 
-func (c *DynamoSignIn) Login(w http.ResponseWriter, r *http.Request) {
+//credentials extract from the body
+//query the db with the email
+//if this exists, get the pw hash and compare
+func (c *SignInWrapper) Login(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	errJson := json.NewDecoder(r.Body).Decode(&u)

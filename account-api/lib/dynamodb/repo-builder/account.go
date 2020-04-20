@@ -13,13 +13,13 @@ import (
 )
 
 
-type DynamoAccount struct {
+type AccountWrapper struct {
 	//dynamo client
-	DC		*dynamodb.DynamoDB
+	DC		*dynamodb.Wrapper
 }
 //implement only the necessary methods for each repository
 //available to be consumed by the API
-type AccountRepository interface{
+type AccountBuilder interface{
 	GetUser(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
 	CreateUser(http.ResponseWriter, *http.Request)
@@ -28,13 +28,13 @@ type AccountRepository interface{
 	ResendVerification(http.ResponseWriter, *http.Request)
 }
 //interface with the implemented methods will be injected in this variable
-var Account AccountRepository
+var Account AccountBuilder
 
 //We check for the recaptcha response and proceed
 //Covert the response body into appropriate models
 //Create a new user using our dynamodb adapter
 //A event message it sent to the queues which are consumed by the relevant services
-func (c *DynamoAccount) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	//TODO: reCaptcha check, 30ms average
@@ -71,7 +71,7 @@ func (c *DynamoAccount) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 //get the email from the jwt
 //stored in the subject claim
-func (c *DynamoAccount) GetUser(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) GetUser(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	//email parsed from the jwt
@@ -94,7 +94,7 @@ func (c *DynamoAccount) GetUser(w http.ResponseWriter, r *http.Request) {
 //type 1: updates a single string value for a defined field
 //type 2: appends a map for a defined field(this field name must already exists)
 //all parameters are set under ChangeRequest struct
-func (c *DynamoAccount) UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var cr models.ChangeRequest
 
 	dynamodb.DecodeToMap(r.Body, &cr)
@@ -111,7 +111,7 @@ func (c *DynamoAccount) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 //check if the user has an active subscription
 //parses email from the jwt
-func (c *DynamoAccount) IsUserPremium(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) IsUserPremium(w http.ResponseWriter, r *http.Request) {
 	//email parsed from the jwt
 	email := security.GetClaimsOfJWT().Subject
 	result, err := c.DC.GetItem(email)
@@ -130,7 +130,7 @@ func (c *DynamoAccount) IsUserPremium(w http.ResponseWriter, r *http.Request) {
 //we parse the access_code and token from the query string
 //token is validated
 //we compare the access_code in the db matches the one passed in from the query string
-func (c *DynamoAccount) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	queryMap := r.URL.Query()
 
 	accessCodeKeys, ok := queryMap["access_code"]
@@ -172,7 +172,7 @@ func (c *DynamoAccount) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 //TODO:resend verification email
-func (c *DynamoAccount) ResendVerification(w http.ResponseWriter, r *http.Request) {
+func (c *AccountWrapper) ResendVerification(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 	email := security.GetClaimsOfJWT().Subject
 

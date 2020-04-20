@@ -8,21 +8,22 @@ import (
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"net/http"
 )
-type DynamoAccountAdvert struct {
+type AccountAdvertWrapper struct {
 	//dynamo client
-	DC		*dynamodb.DynamoDB
+	DC		*dynamodb.Wrapper
 }
 //implement only the necessary methods for each repository
 //available to be consumed by the API
-type AccountAdvertRepository interface{
+type AccountAdvertBuilder interface{
 	GetAllAdverts(w http.ResponseWriter, r *http.Request)
 }
 //interface with the implemented methods will be injected in this variable
-var AccountAdvert AccountAdvertRepository
+var AccountAdvert AccountAdvertBuilder
 
-func (c *DynamoAccountAdvert) GetAllAdverts(w http.ResponseWriter, r *http.Request) {
+//get all the adverts for a specific account
+//token validated
+func (c *AccountAdvertWrapper) GetAllAdverts(w http.ResponseWriter, r *http.Request) {
 	var u = models.User{}
-
 
 	//email parsed from the jwt
 	email := security.GetClaimsOfJWT().Subject

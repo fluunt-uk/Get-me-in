@@ -4,7 +4,7 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 )
 
-func (c *DynamoAccount) UpdateValue(email string, cr *models.ChangeRequest) error{
+func (c *AccountWrapper) UpdateValue(email string, cr *models.ChangeRequest) error{
 
 	switch cr.Type {
 	// string value
