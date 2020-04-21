@@ -1,73 +1,55 @@
 package util
 
 import (
+	"github.com/ProjectReferral/Get-me-in/account-api/configs"
+	dynamo_lib "github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
-	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"log"
-	"os"
-	"net/http"
 )
 
-//internal specific configs are loaded at runtime
-func LoadEnvConfigs(connectionName string, name string, port string,
-	searchParam string, genericModel interface{}) {
-
-	env := os.Getenv("ENV")
-	log.Printf("Environment: %s\n",env)
-	log.Printf("Running on %s\n", port)
-	dynamodb.GenericModel = genericModel
-	dynamodb.SearchParam = searchParam
-
-	switch env {
-	case "UAT":
-		dynamodb.DynamoTable = "uat-" + name
-	case "PROD":
-		dynamodb.DynamoTable = "prod-" + name
-	default:
-		dynamodb.DynamoTable = "dev-" + name
-	}
-	
-	connectToDynamoDB(connectionName)
+type ServiceConfigs struct {
+	Environment		string
+	Region			string
+	Table			string
+	SearchParam		string
+	GenericModel	interface{}
+	BrokerUrl		string
+	Port			string
 }
 
-//Parses the authentication token and validates against the @claim
-//Some tokens can only authenticate with specific endpoints
-func WrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		a := req.Header.Get("Authorization")
+//internal specific configs are loaded at runtime
+func (sc *ServiceConfigs) LoadEnvConfigs() {
 
-		//empty header
-		if a == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("No Authorization JTW!!"))
-			return
-		}
+	log.Printf("Environment: %s\n",sc.Environment)
+	log.Printf("Running on %s\n", sc.Port)
+}
 
-		//not empty header and token is valid
-		if a != "" {
-			if claim == "" && security.VerifyToken(a) {
-				handler(w, req)
-				return
-			} else if claim != "" && security.VerifyTokenWithClaim(a, claim) {
-				handler(w, req)
-				return
-			}
-		}
+//DynamoDB configs
+func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.Wrapper{
 
-		//not empty header and token is invalid
-		w.WriteHeader(http.StatusUnauthorized)
+	switch configs.Env {
+	case "UAT":
+		sc.Table = "uat-" + sc.Table
+	case "PROD":
+		sc.Table = "prod-" + sc.Table
+	default:
+		sc.Table = "dev-" + sc.Table
 	}
+
+	dynamoDBInstance := &dynamo_lib.Wrapper{
+		GenericModel:&sc.GenericModel,
+		SearchParam:&sc.SearchParam,
+		Table:&sc.Table,
+		Credentials:sc.generateCredentials(),
+		Region: &sc.Region,
+	}
+	return dynamoDBInstance
 }
 
 //Create a single instance of DynamoDB connection
-func connectToDynamoDB(n string) {
+func (sc *ServiceConfigs)generateCredentials() *credentials.Credentials{
 
 	c := credentials.NewSharedCredentials("", "default")
 
-	err := dynamodb.Connect(c, n)
-
-	if err != nil {
-		panic(err)
-	}
+	return c
 }

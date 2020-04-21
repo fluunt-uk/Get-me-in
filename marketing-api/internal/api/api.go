@@ -1,7 +1,9 @@
 package api
 
 import (
-	repo_builder "github.com/ProjectReferral/Get-me-in/marketing-api/lib/dynamodb/repo-builder"
+	"encoding/json"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"net/http"
 )
 
@@ -16,22 +18,67 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 //A event message it sent to the queues which are consumed by the relevant services
 func CreateAdvert(w http.ResponseWriter, r *http.Request) {
 
-	repo_builder.Advert.CreateAdvert(w, r)
+	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(r.Body, models.Advert{})
+
+	if !HandleError(errDecode, w, false) {
+
+		err := dynamodb.CreateItem(dynamoAttr)
+
+		if !HandleError(err, w, false) {
+			//TODO: send event to queue
+			w.WriteHeader(http.StatusOK)
+		}
+	}
 }
 
 func DeleteAdvert(w http.ResponseWriter, r *http.Request) {
 
-	repo_builder.Advert.DeleteAdvert(w, r)
+	extractValue := ExtractValue(w, r)
 
+	errDelete := dynamodb.DeleteItem(extractValue)
+
+	if !HandleError(errDelete, w, false) {
+
+		//Check item still exists
+		result, err := dynamodb.GetItem(extractValue)
+
+		//error thrown, record not found
+		if !HandleError(err, w, true) {
+			http.Error(w, result.GoString(), 302)
+		}
+	}
 }
 
 func GetAdvert(w http.ResponseWriter, r *http.Request) {
-	repo_builder.Advert.GetAdvert(w, r)
+
+	result, err := dynamodb.GetItem(ExtractValue(w, r))
+
+	if !HandleError(err, w, true) {
+		b, err := json.Marshal(dynamodb.Unmarshal(result, models.Advert{}))
+
+		if !HandleError(err, w, false) {
+
+			w.Write([]byte(b))
+			w.WriteHeader(http.StatusOK)
+		}
+	}
 }
 
 //Creating a new user with same ID replaces the record
 //Temporary solution
 func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
-	repo_builder.Advert.UpdateAdvert(w, r)
+
+	//TODO: Change to UpdateItem
+	CreateAdvert(w, r)
+}
+
+//to avoid duplication, this method is re-used
+//Gets the unique identifier from the response body
+//This unique identifier is set under the API configs
+//For this context, it would be id
+//TODO: move to dynamodb library?
+func ExtractValue(w http.ResponseWriter, r *http.Request) string {
+
+	return ""
 }
 

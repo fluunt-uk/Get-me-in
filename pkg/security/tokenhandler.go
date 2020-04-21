@@ -3,6 +3,7 @@ package security
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"net/http"
 )
 
 var JWTClaims = &jwt.StandardClaims{}
@@ -83,4 +84,34 @@ func VerifyTokenWithClaim(tokenString string, claim string) bool {
 
 func GetClaimsOfJWT() *jwt.StandardClaims {
 	return JWTClaims
+}
+
+
+//Parses the authentication token and validates against the @claim
+//Some tokens can only authenticate with specific endpoints
+func WrapHandlerWithSpecialAuth(handler http.HandlerFunc, claim string) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		a := req.Header.Get("Authorization")
+
+		//empty header
+		if a == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("No Authorization JTW!!"))
+			return
+		}
+
+		//not empty header and token is valid
+		if a != "" {
+			if claim == "" && VerifyToken(a) {
+				handler(w, req)
+				return
+			} else if claim != "" && VerifyTokenWithClaim(a, claim) {
+				handler(w, req)
+				return
+			}
+		}
+
+		//not empty header and token is invalid
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 }

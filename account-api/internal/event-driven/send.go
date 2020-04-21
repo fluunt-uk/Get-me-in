@@ -3,18 +3,27 @@ package event_driven
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/streadway/amqp"
 	"log"
 )
 
-func SendToQ(body string, exchange string, correlationId string) {
-	conn, err := amqp.Dial(configs.BrokerUrl)
+type RabbitClient struct {
+	URL string
+	C *amqp.Connection
+}
 
+func (rc *RabbitClient) Connect (){
+	conn, err := amqp.Dial(rc.URL)
 	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
+	rc.C = conn
+}
 
-	ch, err := conn.Channel()
+
+func (rc *RabbitClient) SendToQ(body string, exchange string, correlationId string) {
+
+	defer rc.C.Close()
+
+	ch, err := rc.C.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 

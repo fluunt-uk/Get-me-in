@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ProjectReferral/Get-me-in/account-api/cmd/dep"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
@@ -9,12 +10,20 @@ import (
 )
 
 func main() {
-	loadEnvConfigs()
+
+	//gets all the necessary configs into our object
+	//completes connections
+	//assigns connections to repos
+	dep.Inject(&util.ServiceConfigs{
+		Environment: os.Getenv("ENV"),
+		Region:       configs.EU_WEST_2,
+		Table:        configs.TABLE_NAME,
+		SearchParam:  configs.UNIQUE_IDENTIFIER,
+		GenericModel: models.User{},
+		BrokerUrl:    os.Getenv("BROKERURL"),
+		Port:		  configs.PORT,
+	})
+
 	api.SetupEndpoints()
 }
 
-//internal specific configs are loaded at runtime
-func loadEnvConfigs() {
-	configs.BrokerUrl = os.Getenv("BROKERURL")
-	util.LoadEnvConfigs(configs.EU_WEST_2, configs.TABLE_NAME, configs.PORT, configs.UNIQUE_IDENTIFIER, models.User{})
-}
