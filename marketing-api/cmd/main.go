@@ -1,14 +1,27 @@
 package main
 
 import (
+	"github.com/ProjectReferral/Get-me-in/marketing-api/cmd/dep"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/util"
+	"os"
 )
 
 func main() {
-	//internal specific configs are loaded at runtime
-	util.LoadEnvConfigs(configs.EU_WEST_2, configs.TABLE_NAME, configs.PORT, configs.UNIQUE_IDENTIFIER, models.Advert{})
+
+	//gets all the necessary configs into our object
+	//completes connections
+	//assigns connections to repos
+	dep.Inject(&util.ServiceConfigs{
+		Environment: 	os.Getenv("ENV"),
+		Region:       	configs.EU_WEST_2,
+		Table:        	configs.TABLE_NAME,
+		SearchParam:  	configs.UNIQUE_IDENTIFIER,
+		GenericModel: 	models.Advert{},
+		Port:		  	configs.PORT,
+	})
+
 	api.SetupEndpoints()
 }
