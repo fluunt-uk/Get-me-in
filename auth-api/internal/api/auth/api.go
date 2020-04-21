@@ -1,14 +1,12 @@
-package internal
+package auth
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/ProjectReferral/Get-me-in/auth-api/configs"
 	request "github.com/ProjectReferral/Get-me-in/pkg/http_lib"
-	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 //Validates the request as human/robot with recaptcha
@@ -33,7 +31,8 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//request to account api to verify credentials
-	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body, map[string]string{"Authorization": req.Header.Get("Authorization")})
+	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body,
+		map[string]string{configs.AUTHORIZATION: req.Header.Get(configs.AUTHORIZATION)})
 
 	if errPost != nil {
 		http.Error(w, errPost.Error(), 400)
@@ -52,7 +51,8 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token := IssueToken(req, configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get("subject"))
+	//subject here is the email
+	token := IssueToken(configs.EXPIRY, configs.AUTH_AUTHENTICATED, resp.Header.Get(configs.SUBJECT), resp.Body)
 
 	b, err := json.Marshal(token)
 	if err != nil {
@@ -66,7 +66,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 //A temporary token can be requested for registration
 //This token will only allow the user to access the /PUT endpoint for the Account-API
 func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
-	token := IssueToken(req, configs.TEMP_EXPIRY, configs.AUTH_REGISTER, "register")
+	token := IssueToken(configs.TEMP_EXPIRY, configs.AUTH_REGISTER, "register", nil)
 
 	b, err := json.Marshal(token)
 
@@ -76,34 +76,6 @@ func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
-}
-
-func IssueToken(req *http.Request, expiry time.Duration, audience string, subject string) security.TokenResponse {
-	t := time.Now()
-	e := t.Add(expiry * time.Minute)
-
-	//assign the claims to our customer model
-	token := &security.TokenClaims{
-		Issuer:  configs.SERVICE_ID,
-		Subject: subject,
-		//treat audience as scope(permissions the token has access to)
-		Audience:   audience,
-		IssuedAt:   t.Unix(),
-		Expiration: e.Unix(),
-		NotBefore:  t.Unix(),
-		Id:         req.Header.Get("id"),
-	}
-
-	tr := security.TokenResponse{
-		//GenerateToken is a our security library
-		AccessToken: security.GenerateToken(token),
-		TokenType:   configs.BEARER,
-		ExpiresIn:   configs.EXPIRY,
-		//No support for refresh tokens as of yet
-		RefreshToken: "N/A",
-	}
-
-	return tr
 }
 
 //Response for testing purposes

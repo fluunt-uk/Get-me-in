@@ -1,4 +1,4 @@
-package api
+package stripe_api
 
 import (
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"

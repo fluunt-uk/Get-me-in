@@ -5,19 +5,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-func DeleteItem(itemValue string) error {
+func (d *Wrapper) DeleteItem(itemValue string) error {
 
 	// translate into a compatible object
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(itemValue),
 			},
 		},
-		TableName: aws.String(DynamoTable),
+		TableName: d.Table,
 	}
 
-	_, err := DynamoConnection.DeleteItem(input)
+	_, err := d.Connection.DeleteItem(input)
 
 	if err != nil {
 		return err
