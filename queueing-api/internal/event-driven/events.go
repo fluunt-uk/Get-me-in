@@ -2,7 +2,7 @@ package event_driven
 
 import (
 	"github.com/ProjectReferral/Get-me-in/queueing-api/configs"
-	"github.com/ProjectReferral/Get-me-in/queueing-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
 	"fmt"
 	"log"
@@ -13,8 +13,9 @@ import (
 )
 
 func TestQ(w http.ResponseWriter) bool{
-	conn := createConnection(w)
+	conn, err := amqp.Dial(configs.BrokerUrl)
 	if conn == nil {
+		log.Println(err.Error())
 		log.Println("Error: Failed to connect to RabbitMQ")
 		w.WriteHeader(http.StatusNotFound)
 		return false

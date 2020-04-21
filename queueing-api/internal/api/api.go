@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	events "github.com/ProjectReferral/Get-me-in/queueing-api/internal/event-driven"
-	"github.com/ProjectReferral/Get-me-in/queueing-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
