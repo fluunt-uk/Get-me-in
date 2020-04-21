@@ -16,14 +16,16 @@ before_script:
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
 
+
 stages:
   - build
   
 build:
   stage: build
   script:
-    - cd $CI_PROJECT_DIR/account-api/cmd
+    - cd $CI_PROJECT_DIR
     - ls
+    - go mod download
     - go build -o $CI_PROJECT_DIR/account-api/cmd
     - go build -o $CI_PROJECT_DIR/auth-api/cmd
     - go build -o $CI_PROJECT_DIR/marketing-api/cmd
