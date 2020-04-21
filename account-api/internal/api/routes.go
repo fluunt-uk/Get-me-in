@@ -18,7 +18,7 @@ func SetupEndpoints() {
 	_router.HandleFunc("/test", account.TestFunc)
 
 	//token with correct register claim allowed
-	_router.HandleFunc("/account", account.CreateUser).Methods("PUT")
+	_router.HandleFunc("/account", security.WrapHandlerWithSpecialAuth(account.CreateUser, configs.AUTH_REGISTER)).Methods("PUT")
 
 	//token with correct authenticated claim allowed
 	_router.HandleFunc("/account", security.WrapHandlerWithSpecialAuth(account.UpdateUser, configs.AUTH_AUTHENTICATED)).Methods("PATCH")

@@ -6,8 +6,6 @@ import (
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
-	//GetUser(w, r)
-	CreateUser(w, r)
 	w.WriteHeader(http.StatusOK)
 }
 
