@@ -67,6 +67,7 @@ func ActionEmailType(queue string, subject string, conn *amqp.Connection, c s.Ac
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
+
 	msgsCreateUser, err := ch.Consume(
 		queue, // queue
 		"",                    // consumer

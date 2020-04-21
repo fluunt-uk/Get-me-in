@@ -81,3 +81,4 @@ func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
 	return ""
 }
+

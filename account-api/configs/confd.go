@@ -26,4 +26,5 @@ const (
 var (
 	//To dial RabbitMQ
 	BrokerUrl = ""
+	Env = ""
 )

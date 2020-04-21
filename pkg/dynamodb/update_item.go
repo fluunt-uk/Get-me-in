@@ -6,9 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-
-
-func UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue string) error {
+func (d *Wrapper) UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue string) error {
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -17,10 +15,10 @@ func UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue str
 				S: aws.String(newValue),
 			},
 		},
-		TableName: aws.String(DynamoTable),
+		TableName: d.Table,
 		//search by(primary key)
 		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(recordToUpdate),
 			},
 		},
@@ -30,7 +28,7 @@ func UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue str
 		UpdateExpression: aws.String("set " + fieldToUpdate + "= :" + fieldToUpdate),
 	}
 
-	_, err := DynamoConnection.UpdateItem(input)
+	_, err := d.Connection.UpdateItem(input)
 	if err != nil {
 		return err
 	}
@@ -38,7 +36,7 @@ func UpdateStringField(fieldToUpdate string, recordToUpdate string, newValue str
 	return nil
 }
 
-func UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool) error{
+func (d *Wrapper) UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool) error{
 
 	input := &dynamodb.UpdateItemInput{
 		//values that needs change
@@ -47,10 +45,10 @@ func UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool)
 				BOOL: aws.Bool(newValue),
 			},
 		},
-		TableName: aws.String(DynamoTable),
+		TableName: d.Table,
 		//search by(primary key)
 		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(recordToUpdate),
 			},
 		},
@@ -60,7 +58,7 @@ func UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool)
 		UpdateExpression: aws.String("set " + fieldToUpdate + "= :" + fieldToUpdate),
 	}
 
-	_, err := DynamoConnection.UpdateItem(input)
+	_, err := d.Connection.UpdateItem(input)
 	if err != nil {
 		return err
 	}
@@ -70,14 +68,13 @@ func UpdateBoolField(fieldToUpdate string, recordToUpdate string, newValue bool)
 
 }
 
-
-func AppendNewMap(mapId string, r string, i interface{}, key string) error {
+func (d *Wrapper) AppendNewMap(mapId string, r string, i interface{}, key string) error {
 
 	m, _ := dynamodbattribute.MarshalMap(&i)
 
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			SearchParam: {
+			*d.SearchParam: {
 				S: aws.String(r),
 			},
 		},
@@ -89,9 +86,9 @@ func AppendNewMap(mapId string, r string, i interface{}, key string) error {
 		//Not used at the moment
 		//ReturnValues:     aws.String("ALL_NEW"),
 		UpdateExpression: aws.String("SET "+ key+ "." + mapId + " = :" + key),
-		TableName:        aws.String(DynamoTable),
+		TableName:        d.Table,
 	}
-	_, err := DynamoConnection.UpdateItem(input)
+	_, err := d.Connection.UpdateItem(input)
 	if err != nil {
 		return err
 	}
