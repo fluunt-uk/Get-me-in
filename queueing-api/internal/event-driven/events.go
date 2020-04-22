@@ -1,19 +1,21 @@
 package event_driven
 
 import (
-	"github.com/ProjectReferral/Get-me-in/queueingt-api/configs"
-	"github.com/ProjectReferral/Get-me-in/queueingt-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/configs"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
 	"fmt"
 	"log"
 	"encoding/json"
 	"strings"
 	"net/http"
+	"time"
 )
 
 func TestQ(w http.ResponseWriter) bool{
-	conn := createConnection(w)
+	conn, err := amqp.Dial(configs.BrokerUrl)
 	if conn == nil {
+		log.Println(err.Error())
 		log.Println("Error: Failed to connect to RabbitMQ")
 		w.WriteHeader(http.StatusNotFound)
 		return false
@@ -113,6 +115,7 @@ func RabbitConsume(w http.ResponseWriter, consume models.QueueConsume) {
 			var arr = []string{}
 			var end bool
 			for {
+				time.Sleep(1 * time.Millisecond) //slows down loop
 				fmt.Printf("messages len=%d cap=%d %v\n", len(arr), cap(arr), arr)
 				select {
 					case msg := <-msgs:
