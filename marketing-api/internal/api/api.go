@@ -1,11 +1,9 @@
-package internal
+package api
 
 import (
 	"encoding/json"
-	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"net/http"
 )
 
@@ -13,20 +11,6 @@ func TestFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-//will be deleted and handled by connections.go
-func ConnectToInstance(w http.ResponseWriter, r *http.Request) {
-
-	c := credentials.NewSharedCredentials("", "default")
-
-	err := dynamodb.Connect(c, configs.EU_WEST_2)
-
-	if err != nil {
-		e := err.(*dynamodb.ErrorString)
-		http.Error(w, e.Reason, e.Code)
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
 
 //We check for the recaptcha response and proceed
 //Covert the response body into appropriate models
@@ -95,8 +79,6 @@ func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 //TODO: move to dynamodb library?
 func ExtractValue(w http.ResponseWriter, r *http.Request) string {
 
-	v, err := dynamodb.GetParameterValue(r.Body, models.Advert{})
-	HandleError(err, w, false)
-
-	return v
+	return ""
 }
+

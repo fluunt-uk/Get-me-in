@@ -2,30 +2,28 @@ package dynamodb
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"io"
 )
 
 /**
-* Convert type interface to dynamodb readable object
+* Convert type interface to dynamodb readable object and JSON
 **/
 func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error) {
 
-	bodyMap, err := DecodeToMap(readBody, m)
-
-	if err != nil {
+	if err := DecodeToMap(readBody, &m); err != nil {
 		return nil, err
 	}
 
-	av, errM := dynamodbattribute.MarshalMap(bodyMap)
+	av, errM := dynamodbattribute.MarshalMap(&m)
 
 	if errM != nil {
 		return nil, errM
 	}
 
 	return av, nil
+<<<<<<< HEAD
 
 }
 
@@ -61,12 +59,14 @@ func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[
 
 	return av, nil, string(jsonString)
 
+=======
+>>>>>>> ef8155820d93a627b42eccadab034a303e096200
 }
 
 /**
 * Convert the interface fields into a map
 **/
-func DecodeToMap(b io.ReadCloser, m interface{}) (map[string]interface{}, error) {
+func DecodeToMap(b io.ReadCloser, m interface{})  error {
 
 	// Try to decode th
 	//e request body into the struct. If there is an error,
@@ -74,54 +74,28 @@ func DecodeToMap(b io.ReadCloser, m interface{}) (map[string]interface{}, error)
 	errJson := json.NewDecoder(b).Decode(&m)
 
 	if errJson != nil {
-		return nil, errJson
+		return errJson
 	}
 
-	mapM, ok := m.(map[string]interface{})
-
-	if !ok {
-		fmt.Printf("ERROR: not a map-> %#v\n", m)
-	}
-
-	return mapM, nil
+	return nil
 }
 
 /**
 * Model mapping of type interface to item from dynamodb
 **/
-func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) map[string]interface{} {
+func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) error {
 
 	err := dynamodbattribute.UnmarshalMap(result.Item, &m)
 
 	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		return err
 	}
 
-	mapM, ok := m.(map[string]interface{})
-
-	if !ok {
-		fmt.Printf("ERROR: not a map-> %#v\n", m)
-	}
-
-	return mapM
+	return nil
 }
 
-/**
-* Get the specific value query by the unique identifier
-**/
-func GetParameterValue(r io.ReadCloser, m interface{}) (string, error) {
-	bodyMap, err := DecodeToMap(r, m)
+func ParseEmptyCollection(av map[string]*dynamodb.AttributeValue, v string){
 
-	if err != nil {
-		return "", err
-	}
-
-	return StringFromMap(bodyMap, SearchParam), nil
-}
-
-/**
-* Convert a interface type to string
-**/
-func StringFromMap(m map[string]interface{}, p string) string {
-	return fmt.Sprintf("%v", m[p])
+	av[v].NULL = nil
+	av[v].M = map[string]*dynamodb.AttributeValue{}
 }
