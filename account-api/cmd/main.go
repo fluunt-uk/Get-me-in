@@ -1,43 +1,29 @@
 package main
 
 import (
+	"github.com/ProjectReferral/Get-me-in/account-api/cmd/dep"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
-	"github.com/ProjectReferral/Get-me-in/account-api/internal"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
-	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
-	"log"
+	"github.com/ProjectReferral/Get-me-in/util"
 	"os"
 )
 
 func main() {
-	loadEnvConfigs()
 
-	internal.ConnectToDynamoDB()
+	//gets all the necessary configs into our object
+	//completes connections
+	//assigns connections to repos
+	dep.Inject(&util.ServiceConfigs{
+		Environment: os.Getenv("ENV"),
+		Region:       configs.EU_WEST_2,
+		Table:        configs.TABLE_NAME,
+		SearchParam:  configs.UNIQUE_IDENTIFIER,
+		GenericModel: models.User{},
+		BrokerUrl:    os.Getenv("BROKERURL"),
+		Port:		  configs.PORT,
+	})
+
 	api.SetupEndpoints()
 }
 
-//internal specific configs are loaded at runtime
-func loadEnvConfigs() {
-
-	var env = ""
-
-	log.Println("Running on %s \n", configs.PORT)
-
-	configs.BrokerUrl = os.Getenv("BROKERURL")
-	dynamodb.SearchParam = configs.UNIQUE_IDENTIFIER
-	dynamodb.GenericModel = models.User{}
-
-	switch env := os.Getenv("ENV"); env {
-	case "DEV":
-		dynamodb.DynamoTable = "dev-users"
-	case "UAT":
-		dynamodb.DynamoTable = "uat-users"
-	case "PROD":
-		dynamodb.DynamoTable = "prod-users"
-	default:
-		dynamodb.DynamoTable = "dev-users"
-	}
-
-	log.Println("Environment:" + env)
-}
