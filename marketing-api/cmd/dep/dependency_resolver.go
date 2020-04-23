@@ -33,7 +33,7 @@ func Inject(builder ConfigBuilder) {
 	//dependency injection to our resource
 	//we inject the dynamo client
 	//shared client, therefore shared in between all the repos
-	LoadSignInRepo(&repo_builder.AdvertWrapper{
+	LoadAdvertRepo(&repo_builder.AdvertWrapper{
 		DC: dynamoClient,
 	})
 
@@ -43,7 +43,7 @@ func Inject(builder ConfigBuilder) {
 }
 
 //variable injected with the interface methods
-func LoadSignInRepo (r repo_builder.AdvertBuilder){
+func LoadAdvertRepo (r repo_builder.AdvertBuilder){
 	log.Println("Injecting Advert Repo")
 	repo_builder.Advert = r
 }
