@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
-	"github.com/ProjectReferral/Get-me-in/util"
+	"github.com/ProjectReferral/Get-me-in/pkg/security"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -13,10 +13,10 @@ func SetupEndpoints() {
 
 	_router.HandleFunc("/test", TestFunc)
 
-	_router.HandleFunc("/advert", util.WrapHandlerWithSpecialAuth(CreateAdvert, "")).Methods("PUT")
-	_router.HandleFunc("/advert", util.WrapHandlerWithSpecialAuth(DeleteAdvert, "")).Methods("DELETE")
-	_router.HandleFunc("/advert", util.WrapHandlerWithSpecialAuth(UpdateAdvert, "")).Methods("PATCH")
-	_router.HandleFunc("/advert", util.WrapHandlerWithSpecialAuth(GetAdvert, "")).Methods("GET")
+	_router.HandleFunc("/advert", security.WrapHandlerWithSpecialAuth(CreateAdvert, configs.AUTH_AUTHENTICATED)).Methods("PUT")
+	_router.HandleFunc("/advert", security.WrapHandlerWithSpecialAuth(DeleteAdvert, configs.AUTH_AUTHENTICATED)).Methods("DELETE")
+	_router.HandleFunc("/advert", security.WrapHandlerWithSpecialAuth(UpdateAdvert, configs.AUTH_AUTHENTICATED)).Methods("PATCH")
+	_router.HandleFunc("/advert", security.WrapHandlerWithSpecialAuth(GetAdvert, configs.AUTH_AUTHENTICATED)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }
