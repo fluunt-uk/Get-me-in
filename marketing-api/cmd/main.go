@@ -21,6 +21,7 @@ func main() {
 		SearchParam:  	configs.UNIQUE_IDENTIFIER,
 		GenericModel: 	models.Advert{},
 		Port:		  	configs.PORT,
+		BrokerUrl: 		configs.MQ_ENDPOINT,
 	})
 
 	api.SetupEndpoints()

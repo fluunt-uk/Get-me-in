@@ -2,7 +2,9 @@ package dep
 
 import (
 	"github.com/ProjectReferral/Get-me-in/marketing-api/lib/dynamodb/repo-builder"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"log"
 )
 
@@ -11,6 +13,7 @@ import (
 type ConfigBuilder interface{
 	LoadEnvConfigs()
 	LoadDynamoDBConfigs() *dynamodb.Wrapper
+	LoadRabbitMQConfigs() *client.DefaultQueueClient
 }
 
 //internal specific configs are loaded at runtime
@@ -34,11 +37,19 @@ func Inject(builder ConfigBuilder) {
 		DC: dynamoClient,
 	})
 
+	rabbitMQClient := builder.LoadRabbitMQConfigs()
+
+	LoadRabbitMQClient(rabbitMQClient)
 }
 
 //variable injected with the interface methods
 func LoadSignInRepo (r repo_builder.AdvertBuilder){
 	log.Println("Injecting Advert Repo")
 	repo_builder.Advert = r
+}
+
+func LoadRabbitMQClient(c client.QueueClient){
+	log.Println("Injecting RabbitMQ Client")
+	rabbitmq.Client = c
 }
 

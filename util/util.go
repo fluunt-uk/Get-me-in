@@ -3,6 +3,7 @@ package util
 import (
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	dynamo_lib "github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"log"
 )
@@ -44,6 +45,14 @@ func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.Wrapper{
 		Region: &sc.Region,
 	}
 	return dynamoDBInstance
+}
+
+//DynamoDB configs
+func (sc *ServiceConfigs) LoadRabbitMQConfigs() *client.DefaultQueueClient{
+
+	client := &client.DefaultQueueClient{Url: sc.BrokerUrl}
+
+	return client
 }
 
 //Create a single instance of DynamoDB connection

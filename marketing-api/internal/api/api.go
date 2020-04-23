@@ -2,11 +2,16 @@ package api
 
 import (
 	repo_builder "github.com/ProjectReferral/Get-me-in/marketing-api/lib/dynamodb/repo-builder"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/lib/rabbitmq"
 	"net/http"
 )
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
+
+	//TODO:anonymouns function to take in w and r
+
+	rabbitmq.BroadcastNewAdvert([]byte("Hello from Marketing Service"))
 }
 
 //We check for the recaptcha response and proceed

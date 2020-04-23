@@ -3,6 +3,7 @@ package repo_builder
 import (
 	"encoding/json"
 	"github.com/ProjectReferral/Get-me-in/marketing-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/marketing-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"net/http"
 	"net/url"
@@ -33,16 +34,19 @@ var Advert AdvertBuilder
 //Create a new user using our dynamodb adapter
 //A event message it sent to the queues which are consumed by the relevant services
 func (a *AdvertWrapper) CreateAdvert(w http.ResponseWriter, r *http.Request) {
+	var ad models.Advert
 
-	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(r.Body, models.Advert{})
+	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(r.Body, &ad)
 
 	if !HandleError(errDecode, w, false) {
 
 		err := a.DC.CreateItem(dynamoAttr)
 
 		if !HandleError(err, w, false) {
-			//TODO: send event to queue
 			w.WriteHeader(http.StatusOK)
+
+			b,_ := json.Marshal(&ad)
+			go rabbitmq.BroadcastNewAdvert(b)
 		}
 	}
 }
@@ -50,19 +54,20 @@ func (a *AdvertWrapper) CreateAdvert(w http.ResponseWriter, r *http.Request) {
 func (a *AdvertWrapper) DeleteAdvert(w http.ResponseWriter, r *http.Request) {
 	var am models.Advert
 
-	//TODO:perhaps better to get from query string
-	dynamodb.DecodeToMap(r.Body, &am)
+	id := GetQueryString(r.URL.Query(), "id", w)
 
-	errDelete := a.DC.DeleteItem(am.Uuid)
+	if id != "" {
+		errDelete := a.DC.DeleteItem(id)
 
-	if !HandleError(errDelete, w, false) {
+		if !HandleError(errDelete, w, false) {
 
-		//Check item still exists
-		result, err := a.DC.GetItem(am.Uuid)
+			//Check item still exists
+			result, err := a.DC.GetItem(am.Uuid)
 
-		//error thrown, record not found
-		if !HandleError(err, w, true) {
-			http.Error(w, result.GoString(), 302)
+			//error thrown, record not found
+			if !HandleError(err, w, true) {
+				http.Error(w, result.GoString(), 302)
+			}
 		}
 	}
 }
@@ -72,18 +77,22 @@ func (a *AdvertWrapper) GetAdvert(w http.ResponseWriter, r *http.Request) {
 
 	dynamodb.DecodeToMap(r.Body, &am)
 
-	//TODO:perhaps better to get from query string
-	result, err := a.DC.GetItem(am.Uuid)
+	id := GetQueryString(r.URL.Query(), "id", w)
 
-	if !HandleError(err, w, true) {
-		dynamodb.Unmarshal(result, &am)
+	if id != "" {
+		//TODO:perhaps better to get from query string
+		result, err := a.DC.GetItem(id)
 
-		b, err := json.Marshal(&am)
+		if !HandleError(err, w, true) {
+			dynamodb.Unmarshal(result, &am)
 
-		if !HandleError(err, w, false) {
+			b, err := json.Marshal(&am)
 
-			w.Write(b)
-			w.WriteHeader(http.StatusOK)
+			if !HandleError(err, w, false) {
+
+				w.Write(b)
+				w.WriteHeader(http.StatusOK)
+			}
 		}
 	}
 }

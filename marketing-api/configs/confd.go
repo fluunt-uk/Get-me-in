@@ -13,4 +13,8 @@ const (
 	AUTH_AUTHENTICATED = "crud"
 	NO_ACCESS          = "admin_gui"
 	/*********************************************/
+	/************** RabbitMQ configs *************/
+	FANOUT_EXCHANGE = "advert.fanout"
+	MQ_ENDPOINT = "http://35.179.11.178:5004"
+	/*********************************************/
 )
