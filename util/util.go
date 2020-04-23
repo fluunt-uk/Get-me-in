@@ -1,9 +1,11 @@
 package util
 
 import (
+	"crypto/rand"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	dynamo_lib "github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"fmt"
 	"log"
 )
 
@@ -44,6 +46,19 @@ func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.Wrapper{
 		Region: &sc.Region,
 	}
 	return dynamoDBInstance
+}
+
+func NewUUID() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		log.Println(err)
+		return "",err
+	}
+	uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+
+	return uuid,nil
 }
 
 //Create a single instance of DynamoDB connection

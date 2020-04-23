@@ -52,3 +52,31 @@ func ConsumeQueue(w http.ResponseWriter, r *http.Request) {
 		events.RabbitConsume(w,consume)
 	}
 }
+
+func SuscribeQueue(w http.ResponseWriter, r *http.Request) {
+	subscribe := models.QueueSubscribe{Arguments: nil}
+	err := json.NewDecoder(r.Body).Decode(&subscribe)
+	if !HandleError(err, w) {
+		events.RabbitSubscribe(w,subscribe)
+	}
+}
+
+func UnSuscribeQueue(w http.ResponseWriter, r *http.Request) {
+	subId := models.QueueSubscribeId{}
+	err := json.NewDecoder(r.Body).Decode(&subId)
+	if !HandleError(err, w) {
+		events.RabbitUnsubscribe(subId.ID)
+	}
+}
+
+func DumpData(w http.ResponseWriter, r *http.Request) {
+	dataUser := dataUser{}
+	err := json.NewDecoder(r.Body).Decode(&dataUser)
+	if !HandleError(err, w) {
+		events.ArrayDump(w,dataUser.Password)
+	}
+}
+
+type dataUser struct {
+	Password       string     `json:"password"`
+}
