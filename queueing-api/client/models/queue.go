@@ -85,6 +85,18 @@ type QueueMessage struct {
 type QueueFailedMessage struct {
 	ID               uint64     `json:"id"`
 	Body           []byte       `json:"body"`
-	RetryCount       int        `json:"retrycount"`
+	RetryCount       uint64     `json:"retrycount"`
 	Reason           string     `json:"reason"`
+}
+
+type MessageAcknowledge struct {
+	ID               uint64     `json:"id"`
+	Acknowledge      bool       `json:"acknowledge"`
+	Requeue          bool       `json:"requeue,omitempty"` //only valid if acknowledge is false
+	Multiple         bool       `json:"multiple"`
+}
+
+type MessageReject struct {
+	ID               uint64     `json:"id"`
+	Requeue          bool       `json:"requeue"`
 }

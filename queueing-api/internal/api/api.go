@@ -3,9 +3,18 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/configs"
 	events "github.com/ProjectReferral/Get-me-in/queueing-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
+	"os"
+	"log"
 )
+
+func Init(){
+	configs.BrokerUrl = os.Getenv("BROKERURL")
+	log.Println(configs.BrokerUrl)
+	events.CreateFailedMessageQueue()
+}
 
 func TestFunc(w http.ResponseWriter, r *http.Request) {
 	if events.TestQ(w) {
@@ -17,7 +26,7 @@ func CreateQueue(w http.ResponseWriter, r *http.Request) {
 	queue := models.QueueDeclare{Arguments: nil}
 	err := json.NewDecoder(r.Body).Decode(&queue)
 	if !HandleError(err, w) {
-		events.RabbitCreateQueue(w,queue)
+		events.RabbitCreateQueue(w,queue,false)
 	}
 }
 
@@ -66,6 +75,22 @@ func UnSuscribeQueue(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&subId)
 	if !HandleError(err, w) {
 		events.RabbitUnsubscribe(subId.ID)
+	}
+}
+
+func MessageAck(w http.ResponseWriter, r *http.Request){
+	acknowledge := models.MessageAcknowledge{}
+	err := json.NewDecoder(r.Body).Decode(&acknowledge)
+	if !HandleError(err, w) {
+		events.RabbitAck(w,acknowledge)
+	}
+}
+
+func MessageReject(w http.ResponseWriter, r *http.Request){
+	reject := models.MessageReject{}
+	err := json.NewDecoder(r.Body).Decode(&reject)
+	if !HandleError(err, w) {
+		events.RabbitReject(w,reject)
 	}
 }
 
