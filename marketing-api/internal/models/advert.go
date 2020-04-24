@@ -13,3 +13,16 @@ type Advert struct {
 	Company     string `json:"company"`
 	Description string `json:"description"`
 }
+
+//used to update user details
+type ChangeRequest struct {
+	NewString 	string 	`json:"new_value"`
+	Field		string 	`json:"field"`
+	NewMap		Advert 	`json:"new_map"`
+	NewBool		bool 	`json:"new_bool"`
+	//type 1: single string value
+	//type 2: map value
+	//type 3: boolean value
+	Type		int		`json:"type"`
+}
+

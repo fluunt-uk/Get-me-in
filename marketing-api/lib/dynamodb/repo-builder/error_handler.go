@@ -1,4 +1,4 @@
-package api
+package repo_builder
 
 import (
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
