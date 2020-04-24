@@ -7,7 +7,17 @@ import (
 	"net/http"
 )
 
-func CreateCard(w http.ResponseWriter, r *http.Request)  {
+type Builder interface {
+	CreateCard(http.ResponseWriter, *http.Request)
+	GetCard(http.ResponseWriter, *http.Request)
+	DeleteCard(http.ResponseWriter, *http.Request)
+	UpdateCard(http.ResponseWriter, *http.Request)
+	GetAllCards(http.ResponseWriter, *http.Request)
+}
+
+type Wrapper struct{}
+
+func (cw *Wrapper) CreateCard(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
 		Token: stripe.String("tok_1GZ3MzGhy1brUyYIYJiEpaZB"),
@@ -17,7 +27,7 @@ func CreateCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func GetCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) GetCard(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7EDAZGzu81IFr"),
 	}
@@ -29,7 +39,7 @@ func GetCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func UpdateCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) UpdateCard(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 		Name: stripe.String("Jenny Rosen"),
@@ -42,7 +52,7 @@ func UpdateCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func DeleteCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) DeleteCard(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 	}
@@ -54,7 +64,7 @@ func DeleteCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func GetAllCards(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) GetAllCards(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardListParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 	}
