@@ -106,15 +106,7 @@ func (dqc DefaultQueueClient) Subscribe(client *http.Client, subscribe models.Qu
 		log.Printf("failed to make json [%v]",subscribe)
 		return nil,err
 	}
-	resp,err1 := client.Post(dqc.url + "/subscribe","application/json",bytes.NewBuffer(body))
-	if err1 != nil || resp != nil && resp.StatusCode == 200 {
-		log.Println("reached client")
-		qsid := models.QueueSubscribeId{}
-		jsonErr := json.NewDecoder(resp.Body).Decode(&qsid)
-		log.Printf("value: %+v",qsid)
-		return resp,jsonErr
-	}
-	return resp,err1
+	return client.Post(dqc.url + "/subscribe","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID models.QueueSubscribeId) (resp *http.Response, err error) {
