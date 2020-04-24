@@ -254,8 +254,9 @@ func subscribeInit(w http.ResponseWriter, msgs <-chan amqp.Delivery, url string,
 			}
 			w.Header().Set("Content-Type", "application/json")
 			jsonErr := json.NewEncoder(w).Encode(subscribe)
+			w.WriteHeader(200)
 			checkError(w,jsonErr,false)
-			log.Println("new subscriber: %s",id)
+			log.Printf("new subscriber: %s",id)
 			return
 		}
 		close(ch,conn)

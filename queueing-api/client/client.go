@@ -111,6 +111,7 @@ func (dqc DefaultQueueClient) Subscribe(client *http.Client, subscribe models.Qu
 		log.Println("reached client")
 		qsid := models.QueueSubscribeId{}
 		jsonErr := json.NewDecoder(resp.Body).Decode(&qsid)
+		log.Printf("value: %+v",qsid)
 		return resp,jsonErr
 	}
 	return resp,err1
