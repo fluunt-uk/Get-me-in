@@ -24,12 +24,12 @@ type QueueClient interface {
 }
 
 type DefaultQueueClient struct {
-	Url string
+	url string
 }
 
 //pointer as it is a setter
 func (dqc *DefaultQueueClient) SetupURL(url string){
-	dqc.Url = url
+	dqc.url = url
 }
 
 func (dqc DefaultQueueClient) CreateQueue(client *http.Client, queue models.QueueDeclare) (resp *http.Response, err error) {
@@ -38,7 +38,7 @@ func (dqc DefaultQueueClient) CreateQueue(client *http.Client, queue models.Queu
 		log.Printf("failed to make json [%v]",queue)
 		return nil,err
 	}
-	return client.Post(dqc.Url + "/queue","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.url + "/queue","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) CreateExchange(client *http.Client, exchange models.ExchangeDeclare) (resp *http.Response, err error) {
@@ -47,7 +47,7 @@ func (dqc DefaultQueueClient) CreateExchange(client *http.Client, exchange model
 		log.Printf("failed to make json [%v]",exchange)
 		return nil,err
 	}
-	return client.Post(dqc.Url + "/exchange","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.url + "/exchange","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) QueueBind(client *http.Client, bind models.QueueBind) (resp *http.Response, err error) {
@@ -56,7 +56,7 @@ func (dqc DefaultQueueClient) QueueBind(client *http.Client, bind models.QueueBi
 		log.Printf("failed to make json [%v]",bind)
 		return nil,err
 	}
-    PutReq, err1 := http.NewRequest("PUT", dqc.Url + "/bind", bytes.NewBuffer(body))
+    PutReq, err1 := http.NewRequest("PUT", dqc.url + "/bind", bytes.NewBuffer(body))
 	if err1 != nil {
 		log.Printf("failed to create request: %s",err1.Error())
 		return nil,err1
@@ -71,7 +71,7 @@ func (dqc DefaultQueueClient) Publish(client *http.Client, publish models.Exchan
 		log.Printf("failed to make json [%v]",publish)
 		return nil,err
 	}
-	return client.Post(dqc.Url + "/publish","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.url + "/publish","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) Consume(client *http.Client, consume models.QueueConsume) (resp *http.Response, err error) {
@@ -80,7 +80,7 @@ func (dqc DefaultQueueClient) Consume(client *http.Client, consume models.QueueC
 		log.Printf("failed to make json [%v]",consume)
 		return nil,err
 	}
-	return client.Post(dqc.Url + "/consume","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.url + "/consume","application/json",bytes.NewBuffer(body))
 }
 
 func ExtractJsonString(r *http.Request) (json string, err error) {
