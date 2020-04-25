@@ -52,7 +52,8 @@ func (sc *ServiceConfigs) LoadDynamoDBConfigs() *dynamo_lib.Wrapper {
 //DynamoDB configs
 func (sc *ServiceConfigs) LoadRabbitMQConfigs() *client.DefaultQueueClient {
 
-	client := &client.DefaultQueueClient{Url: sc.BrokerUrl}
+	client := &client.DefaultQueueClient{}
+	client.SetupURL(sc.BrokerUrl)
 
 	return client
 }
