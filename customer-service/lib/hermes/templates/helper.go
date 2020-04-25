@@ -23,7 +23,8 @@ var h = hermes.Hermes{
     },
 }
 
-func GenerateHTMLTemplate(basetype string, typeof string, d []byte) (string, string) {
+// Will return template, email, subject
+func GenerateHTMLTemplate(basetype string, typeof string, d []byte) (string, string, string) {
 
 	switch basetype {
 
@@ -37,10 +38,10 @@ func GenerateHTMLTemplate(basetype string, typeof string, d []byte) (string, str
 		return BaseTypeSubscriptionEmail(typeof, d)
 	}
 
-	return "",""
+	return "","",""
 }
 
-func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
+func BaseTypeActionEmail(typeof string, d []byte) (string, string, string) {
 
 	switch typeof {
 
@@ -49,7 +50,7 @@ func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
 		p := s.IncomingActionDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
+		t, e := GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
 			Intro:       "Welcome to GMI! We're very excited to have you on board.",
 			Instruct:    "To get started, please click here:",
 			ButtonText:  "Confirm your account",
@@ -57,24 +58,28 @@ func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
 			Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 		})
 
+		return t, e, ""
+
 	case s.RESET_PASSWORD:
 
 		p := s.IncomingActionDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
+		t, e := GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
 			Intro:       "You recently made a request to reset your password.",
 			Instruct:    "Please click the link below to continue.",
 			ButtonText:  "Reset Password",
 			ButtonColor: "#fc2403",
 			Outro:       "If you did not make this change or you believe an unauthorised person has accessed your account, go to {reset-password endpoint} to reset your password without delay.",
 		})
+
+		return t, e, ""
 	}
 
-	return "",""
+	return "","",""
 }
 
-func BaseTypeNotificationEmail(typeof string, d []byte) (string, string) {
+func BaseTypeNotificationEmail(typeof string, d []byte) (string, string, string) {
 
 	switch typeof {
 
@@ -83,10 +88,12 @@ func BaseTypeNotificationEmail(typeof string, d []byte) (string, string) {
 		p := s.IncomingNotificationDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+		t, e := GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
 			Intro: "Welcome! Your GMI experience just got premium.",
 			Outro: "",
 		})
+
+		return t, e, ""
 
 	case s.CANCEL_SUBSCRIPTION:
 
@@ -95,10 +102,12 @@ func BaseTypeNotificationEmail(typeof string, d []byte) (string, string) {
 
 		// Will need to pass through some button to link to reactivate account (if possible) or pass in a button for sign up
 		// Will also need to pass through when the service ends for the customer
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+		t, e := GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
 			Intro: "This is a confirmation that your GMI account has been canceled at your request.",
 			Outro: "To start applying again, you can reactivate your account at any time. We hope you decide to come back soon.",
 		})
+
+		return t, e, ""
 
 	case s.REFEREE_APPLICATION:
 
@@ -107,26 +116,30 @@ func BaseTypeNotificationEmail(typeof string, d []byte) (string, string) {
 
 		// Will need to pass through some button to link to reactivate account (if possible) or pass in a button for sign up
 		// Will also need to pass through when the service ends for the customer
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+		t, e := GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
 			Intro: "",
 			Outro: "",
 		})
+
+		return t, e, ""
 
 	case s.REMINDER:
 
 		p := s.IncomingNotificationDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
+		t, e := GenerateNotificationHTMLTemplate(p, s.NotificationEmailStruct{
 			Intro: "",
 			Outro: "",
 		})
+
+		return t, e, ""
 	}
 
-	return "",""
+	return "","",""
 }
 
-func BaseTypeSubscriptionEmail(typeof string, d []byte) (string, string) {
+func BaseTypeSubscriptionEmail(typeof string, d []byte) (string, string, string) {
 
 	switch typeof {
 
@@ -135,20 +148,25 @@ func BaseTypeSubscriptionEmail(typeof string, d []byte) (string, string) {
 		p := s.IncomingPaymentDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{
+		template, email := GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{
 			Intro: "Your order has been processed successfully.",
 			Outro: "Thank you, enjoy your experience.",
 		})
+
+		return template, email, ""
+
 
 	case s.PAYMENT_INVOICE:
 
 		p := s.IncomingPaymentDataStruct{}
 		toStruct(d, &p)
 
-		return GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
+		t, e := GenerateSubscriptionHTMLTemplate(p, s.PaymentEmailStruct{})
+
+		return t, e, ""
 	}
 
-	return "",""
+	return "","",""
 }
 
 func toStruct(d []byte, p interface{}){

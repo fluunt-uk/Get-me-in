@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
-	"github.com/ProjectReferral/Get-me-in/customer-service/internal/event-driven"
+	"github.com/ProjectReferral/Get-me-in/customer-service/internal/api"
 	"log"
 	"os"
 )
 
 func main() {
 	loadEnvConfigs()
-	event_driven.ReceiveFromAllQs()
+	api.SetupEndpoints()
 }
 
 
@@ -17,8 +17,6 @@ func main() {
 func loadEnvConfigs() {
 	log.Println("Service now running")
 
-	//get the env variables
-	configs.BrokerUrl = os.Getenv("BROKERURL")
 	configs.DevEmail = os.Getenv("DEVMAIL")
 	configs.DevEmailPw = os.Getenv("DEVEMAILPW")
 

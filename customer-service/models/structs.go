@@ -48,27 +48,18 @@ type IncomingActionDataStruct struct {
 }
 
 const (
-	BASETYPE_ACTION = "action"
-	BASETYPE_NOTIFICATION = "notificaiton"
-	BASETYPE_SUBSCRIPTION = "subscription"
+	BASETYPE_ACTION 		= "action"
+	BASETYPE_NOTIFICATION 	= "notificaiton"
+	BASETYPE_SUBSCRIPTION 	= "subscription"
 )
 
-//Types - Will need to add the rest
-//Cancel Subscription
-//New User
-//Reset Password
-//Create Subscription
-//Payment Invoice
-//Payment Confirmation
-
-// Reminder can be changed to something more specific later on
 const (
-	CANCEL_SUBSCRIPTION = "cancel-subscription"
-	NEW_USER_VERIFY = "new-user-verify"
-	RESET_PASSWORD = "reset-password"
-	CREATE_SUBSCRIPTION = "create-subscription"
-	PAYMENT_INVOICE = "payment-invoice"
-	PAYMENT_CONFIRMATION = "payment-confirmation"
-	REMINDER = "reminder"
-	REFEREE_APPLICATION = "referee-application"
+	CANCEL_SUBSCRIPTION 	= "cancel-subscription"
+	NEW_USER_VERIFY 		= "new-user-verify"
+	RESET_PASSWORD 			= "reset-password"
+	CREATE_SUBSCRIPTION 	= "create-subscription"
+	PAYMENT_INVOICE 		= "payment-invoice"
+	PAYMENT_CONFIRMATION 	= "payment-confirmation"
+	REMINDER 				= "reminder"
+	REFEREE_APPLICATION 	= "referee-application"
 )
