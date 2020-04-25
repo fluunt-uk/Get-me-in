@@ -106,7 +106,7 @@ func (dqc DefaultQueueClient) Subscribe(client *http.Client, subscribe models.Qu
 		log.Printf("failed to make json [%v]",subscribe)
 		return nil,err
 	}
-	return client.Post(dqc.url + "/subscribe","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.Url + "/subscribe","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID models.QueueSubscribeId) (resp *http.Response, err error) {
@@ -115,7 +115,7 @@ func (dqc DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID model
 		log.Printf("failed to make json [%v]",subscribeID)
 		return nil,err
 	}
-	return client.Post(dqc.url + "/unsubscribe","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.Url + "/unsubscribe","application/json",bytes.NewBuffer(body))
 }
 
 func (dqc DefaultQueueClient) Acknowledge(client *http.Client, acknowledge models.MessageAcknowledge) (resp *http.Response, err error) {
@@ -124,7 +124,7 @@ func (dqc DefaultQueueClient) Acknowledge(client *http.Client, acknowledge model
 		log.Printf("failed to make json [%v]",acknowledge)
 		return nil,err
 	}
-	return client.Post(dqc.url + "/acknowledge","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.Url + "/acknowledge","application/json",bytes.NewBuffer(body))
 }
 
 
@@ -134,7 +134,7 @@ func (dqc DefaultQueueClient) Reject(client *http.Client, reject models.MessageR
 		log.Printf("failed to make json [%v]",reject)
 		return nil,err
 	}
-	return client.Post(dqc.url + "/reject","application/json",bytes.NewBuffer(body))
+	return client.Post(dqc.Url + "/reject","application/json",bytes.NewBuffer(body))
 }
 
 func ExtractJsonString(r *http.Request) (json string, err error) {
