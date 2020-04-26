@@ -19,8 +19,6 @@ type EmailBuilder interface{
 	 CreateSubscriptionEmail(http.ResponseWriter, *http.Request)
 }
 
-var Emails EmailBuilder
-
 func (c *EmailStruct) CreateActionEmail(w http.ResponseWriter, r *http.Request) {
 
 	CheckBodyStatus(w, r)
