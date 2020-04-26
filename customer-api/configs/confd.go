@@ -2,8 +2,8 @@ package configs
 
 
 var (
-	PORT = ":5005" //Will change
-	DevEmail = ""
-	DevEmailPw = ""
+	PORT = ":5005"
+	DevEmail = "project181219@gmail.com"
+	DevEmailPw = "kowbu1-nuQjik-zyxput"
 )
 

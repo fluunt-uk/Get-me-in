@@ -16,4 +16,10 @@ func main() {
 	})
 
 	api.SetupEndpoints()
+	LoadEmailConfig()
+}
+
+func LoadEmailConfig(){
+	configs.DevEmail = "project181219@gmail.com"
+	configs.DevEmailPw = "kowbu1-nuQjik-zyxput"
 }
