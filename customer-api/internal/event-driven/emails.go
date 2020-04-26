@@ -33,7 +33,7 @@ func (c *EmailStruct) CreateActionEmail(w http.ResponseWriter, r *http.Request) 
 
 	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
 
-	smtp.SendEmail([]string{p.Email}, subject, template)
+	go smtp.SendEmail([]string{p.Email}, subject, template)
 	log.Printf("Email sent")
 
 }
