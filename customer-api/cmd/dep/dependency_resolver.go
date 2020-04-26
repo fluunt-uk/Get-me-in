@@ -32,7 +32,6 @@ func Inject(builder ConfigBuilder) {
 	rabbitMQClient := builder.LoadRabbitMQConfigs()
 	email_builder.Subscribe(rabbitMQClient, hc)
 
-
 	email_builder.SetupRoute(&api.Router, hc, rabbitMQClient)
 
 	LoadEmailRepo(&email_builder.EmailStruct{})

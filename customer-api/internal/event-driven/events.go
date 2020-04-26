@@ -23,7 +23,7 @@ func Subscribe(dqc *client.DefaultQueueClient, hc *http.Client){
 	subscribe := models.QueueSubscribe {
 		//endpoint that will be consuming the messages
 		URL: configs.SUB_ACTION_EMAIL,
-		Name: "test-queue",
+		Name: "new-user-verify-email",
 		Consumer: "",
 		Exclusive: false,
 		NoLocal: false,
