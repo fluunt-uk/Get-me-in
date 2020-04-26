@@ -1,14 +1,11 @@
 package dep
 
 import (
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/account-api/lib/dynamodb/repo-builder"
 	"github.com/ProjectReferral/Get-me-in/account-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
-	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"log"
-	"time"
 )
 
 //methods that are implemented on util
@@ -54,20 +51,7 @@ func Inject(builder ConfigBuilder) {
 
 	LoadRabbitMQClient(rabbitMQClient)
 
-	rabbitmq.SubscribeTo(models.QueueSubscribe {
-		URL: configs.SUB_ACTION_EMAIL,
-		Name: "test-queue",
-		Consumer: "",
-		Exclusive: false,
-		NoLocal: false,
-		NoWait: false,
-		MaxRetry: 0,
-		Timeout: 5 * time.Second,
-		Qos: models.QueueQos {
-			PrefetchCount: 0,
-			PrefetchSize: 0,
-		},
-	})
+
 }
 
 //variable injected with the interface methods
