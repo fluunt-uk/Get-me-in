@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-service/models"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
 )
 
@@ -22,7 +22,7 @@ func NotificationEmail(params models.NotificationEmailStruct) string {
 	return StringParsedHTML(email)
 }
 
-func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l models.NotificationEmailStruct) (string, string) {
+func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l models.NotificationEmailStruct) string {
 
 	t := NotificationEmail(models.NotificationEmailStruct{
 		Name:  p.Firstname,
@@ -30,5 +30,5 @@ func GenerateNotificationHTMLTemplate(p models.IncomingNotificationDataStruct, l
 		Outro: l.Outro,
 	})
 
-	return t, p.Email
+	return t
 }

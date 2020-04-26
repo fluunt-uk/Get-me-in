@@ -1,16 +1,10 @@
 package smtp
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
+	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"log"
 	"net/smtp"
 )
-
-//t, errr := template.ParseFiles(html_template)
-//if errr != nil {
-//	log.Fatal(errr)
-//}
-//body.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, mime)))
 
 func SendEmail(to []string, subject string, html_template string) {
 

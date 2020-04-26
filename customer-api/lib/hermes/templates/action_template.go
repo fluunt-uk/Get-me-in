@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-service/models"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
 )
 
@@ -33,7 +33,7 @@ func ActionEmail(params models.ActionEmailStruct) string {
 	return StringParsedHTML(email)
 }
 
-func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.ActionEmailStruct) (string, string) {
+func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.ActionEmailStruct) string {
 
 	t := ActionEmail(models.ActionEmailStruct{
 		Name:        k.Firstname,
@@ -45,5 +45,5 @@ func GenerateActionHTMLTemplate(k models.IncomingActionDataStruct, l models.Acti
 		Outro:       l.Outro,
 	})
 
-	return t, k.Email
+	return t
 }

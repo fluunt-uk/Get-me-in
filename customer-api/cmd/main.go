@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-service/configs"
-	"github.com/ProjectReferral/Get-me-in/customer-service/internal/api"
+	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
+	"github.com/ProjectReferral/Get-me-in/customer-api/internal/api"
 	"log"
 	"os"
 )

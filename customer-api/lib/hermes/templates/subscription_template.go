@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-service/models"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
 	"strconv"
 )
@@ -41,7 +41,7 @@ func PaymentEmail(params models.PaymentEmailStruct) string {
 	return StringParsedHTML(email)
 }
 
-func GenerateSubscriptionHTMLTemplate(p models.IncomingPaymentDataStruct, l models.PaymentEmailStruct) (string, string) {
+func GenerateSubscriptionHTMLTemplate(p models.IncomingPaymentDataStruct, l models.PaymentEmailStruct) string {
 
 	t := PaymentEmail(models.PaymentEmailStruct{
 		Firstname: p.Firstname,
@@ -52,7 +52,7 @@ func GenerateSubscriptionHTMLTemplate(p models.IncomingPaymentDataStruct, l mode
 		Price: p.Price,
 	})
 
-	return t, p.Email
+	return t
 }
 
 

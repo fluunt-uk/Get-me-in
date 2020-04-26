@@ -48,12 +48,6 @@ type IncomingActionDataStruct struct {
 }
 
 const (
-	BASETYPE_ACTION 		= "action"
-	BASETYPE_NOTIFICATION 	= "notificaiton"
-	BASETYPE_SUBSCRIPTION 	= "subscription"
-)
-
-const (
 	CANCEL_SUBSCRIPTION 	= "cancel-subscription"
 	NEW_USER_VERIFY 		= "new-user-verify"
 	RESET_PASSWORD 			= "reset-password"
