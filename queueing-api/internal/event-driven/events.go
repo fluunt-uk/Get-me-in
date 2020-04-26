@@ -15,12 +15,13 @@ import (
 	"os"
 )
 
-var consumers = map[string](chan bool){}
-var messages  = map[uint64](uint64){}
+var consumers    = map[string](chan bool){}
+var messages     = map[string](map[uint64](uint64)){}
+var connections  = map[string](*subscriber){}
 
-type QueueMessage struct {
-	ID       string  `json:"id"`
-	Message  []byte  `json:"body"`
+type subscriber struct {
+	Channel    *amqp.Channel  `json:"channel"`
+	MaxRetry    int           `json:"maxretry"`
 }
 
 func TestQ(w http.ResponseWriter) bool{
@@ -194,15 +195,14 @@ func RabbitSubscribe(w http.ResponseWriter, subscribe models.QueueSubscribe) {
 func RabbitUnsubscribe(id string){
 	if b := consumers[id] ; b != nil {
 		consumers[id] <- false
+		messages[id] = nil
 	}
 }
 
 func RabbitAck(w http.ResponseWriter, ma models.MessageAcknowledge){
 	log.Printf("value is: %+v\n", ma)
-	ch, conn := createChanel(w,false)
-	if ch != nil {
-		defer conn.Close()
-		defer ch.Close()
+	if s := connections[ma.SubID.ID] ; s != nil {
+		ch := s.Channel
 		var err error
 		if ma.Acknowledge {
 			err = ch.Ack(
@@ -210,33 +210,72 @@ func RabbitAck(w http.ResponseWriter, ma models.MessageAcknowledge){
 				ma.Multiple,
 			)
 		}else {
+			if ma.Requeue && checkMessage(w,ch,ma,ma.ID,false,s.MaxRetry,ma.Body) {
+				return
+			}else{
+				err = ch.Nack(
+				ma.ID,
+				ma.Multiple,
+				ma.Requeue,
+				)
+			}	
+		}
+		m := messages[ma.GetID()]
+		if m != nil {
+			if _, exist := m[ma.ID] ; exist {
+				delete(m,ma.ID)
+			}
+		}
+		checkError(w,err,false)
+	}else{
+		w.WriteHeader(403)
+	}
+}
+
+func RabbitReject(w http.ResponseWriter, mr models.MessageReject){
+	log.Printf("value is: %+v\n", mr)
+	if s := connections[mr.SubID.ID] ; s != nil {
+		ch := s.Channel
+		if mr.Requeue && checkMessage(w,ch,mr,mr.ID,true,s.MaxRetry,mr.Body) {
+			return
+		}
+		err := ch.Reject(
+				mr.ID,
+				mr.Requeue,
+		)
+		m := messages[mr.GetID()]
+		if m!= nil {
+			if _, exist := m[mr.ID] ; exist {
+				delete(m,mr.ID)
+			}
+		}
+		checkError(w,err,false)
+	}
+}
+
+func checkMessage(w http.ResponseWriter, ch *amqp.Channel, message models.SubscribeMessage,
+	tag uint64, reject bool, maxRetry int, body []byte) bool {
+		messages[message.GetID()][tag] += 1
+		if maxRetry != -1 && int(messages[message.GetID()][tag]) > maxRetry {
+			return rejectMessage(ch, message.GetID(), tag, messages[message.GetID()][tag], maxRetry, body)
+		}else{
+			var err error
+			if reject {
+				mr := message.(models.MessageReject)
+				err = ch.Reject(
+					mr.ID,
+					mr.Requeue,
+				)
+		}else{
+			ma := message.(models.MessageAcknowledge)
 			err = ch.Nack(
 				ma.ID,
 				ma.Multiple,
 				ma.Requeue,
 			)
 		}
-		if !ma.Acknowledge && ma.Requeue {
-			messages[ma.ID] += 1
-		}
 		checkError(w,err,false)
-	}
-}
-
-func RabbitReject(w http.ResponseWriter, mr models.MessageReject){
-	log.Printf("value is: %+v\n", mr)
-	ch, conn := createChanel(w,false)
-	if ch != nil {
-		defer conn.Close()
-		defer ch.Close()
-		err := ch.Ack(
-				mr.ID,
-				mr.Requeue,
-		)
-		checkError(w,err,false)
-		if mr.Requeue {
-			messages[mr.ID] += 1
-		}
+		return true
 	}
 }
 
@@ -244,19 +283,25 @@ func subscribeInit(w http.ResponseWriter, msgs <-chan amqp.Delivery, url string,
 	maxRetry int, timeout time.Duration, ch *amqp.Channel, conn *amqp.Connection) {
 		id,err := util.NewUUID()
 		log.Println(id)
-		if !checkError(w,err,false){
-			consumers[id] = make(chan bool,1)
-			for i:= 0 ; i < configs.Threads ; i++ {
-				go subscribeLoop(msgs, id, url, maxRetry, timeout, ch, conn)
-			}
-			subscribe := models.QueueSubscribeId {
+		subscribe := models.QueueSubscribeId {
 				ID: id,
-			}
+		}
+		if !checkError(w,err,false){
 			w.Header().Set("Content-Type", "application/json")
 			jsonErr := json.NewEncoder(w).Encode(subscribe)
-			checkError(w,jsonErr,false)
-			log.Println("new subscriber: %s",id)
-			return
+			if !checkError(w,jsonErr,false) {
+				log.Println("new subscriber: %s",id)
+				consumers[id] = make(chan bool,1)
+				messages[id] = map[uint64](uint64){}
+				connections[id] = &subscriber {
+					Channel: ch,
+					MaxRetry: maxRetry,
+				}
+				for i:= 0 ; i < configs.Threads ; i++ {
+					go subscribeLoop(msgs, id, url, maxRetry, timeout, ch, conn)
+				}
+				return
+			}
 		}
 		close(ch,conn)
 }
@@ -264,18 +309,20 @@ func subscribeInit(w http.ResponseWriter, msgs <-chan amqp.Delivery, url string,
 func subscribeLoop(msgs <-chan amqp.Delivery, id string, url string, maxRetry int,
 	timeout time.Duration, ch *amqp.Channel, conn *amqp.Connection){
 	b := consumers[id]
+	m := messages[id]
 	for {
 		time.Sleep(1 * time.Second) //slows down loop
 		select {
 			case v,_ := <- b:
 				delete(consumers,id) //clear reference outside thread
 				b <- v               //stops other threads
+				delete(messages,id)
 				close(ch, conn)
 				log.Println("closed connection ",id)
 				return
 			case msg := <-msgs:
-				if !maxRetryExceeded(msg, messages[msg.DeliveryTag], maxRetry, ch) {
-					go send(id, msg, url, timeout)
+				if !checkRetry(ch, id, msg.DeliveryTag, messages[id][msg.DeliveryTag], maxRetry, msg.Body) {
+					go send(id, msg, url, timeout,m[msg.DeliveryTag])
 				}
 			default:
 				continue
@@ -283,47 +330,10 @@ func subscribeLoop(msgs <-chan amqp.Delivery, id string, url string, maxRetry in
 	}
 }
 
-func maxRetryExceeded(msg amqp.Delivery, count uint64, max int, ch *amqp.Channel) bool {
-	if count > uint64(max) {
-		return rejectMessage(msg, messages[msg.DeliveryTag], max, ch)
-	}
-	return false
-}
-
-func rejectMessage(msg amqp.Delivery, count uint64, max int, ch *amqp.Channel) bool {
-	id := msg.DeliveryTag
-	body := msg.Body
-	log.Printf("rejected message id [%d]",id)
-	m := models.QueueFailedMessage{
-		ID: id,
-		Body: body,
-		RetryCount: count,
-		Reason: "Message requeued more than " + strconv.Itoa(max),
-	}
-	json, jsonError := json.Marshal(&m)
-	if !checkError(nil,jsonError,false){
-		publish := amqp.Publishing{
-			Body: []byte(json),
-		}
-		err := ch.Publish(
-			configs.FailedMessageQueue,
-			"",
-			false,
-			false,
-			publish,
-		)
-		if !checkError(nil,err,false){
-			if err1 := msg.Reject(false) ; err1 != nil {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func send(id string, msg amqp.Delivery, url string, timeout time.Duration){
+func send(id string, msg amqp.Delivery, url string, timeout time.Duration, retryCount uint64){
 	m := models.QueueMessage{
 		ID: msg.DeliveryTag,
+		RetryCount: retryCount,
 		Body: msg.Body,
 	}
 	message,err := json.Marshal(&m)
@@ -351,15 +361,64 @@ func send(id string, msg amqp.Delivery, url string, timeout time.Duration){
 				RabbitUnsubscribe(id)
 				log.Printf("Error: [404] ending subscription id [%s]",id)
 			default:
-				messages[msg.DeliveryTag] += 1
+				messages[id][msg.DeliveryTag] += 1
 				log.Printf("failed to post message %d %v",resp.StatusCode,resp)
 		}
 	}
 }
 
+func checkRetry(ch *amqp.Channel, id string, tag uint64, count uint64, maxRetry int, body []byte) bool {
+	if messages[id] != nil && maxRetry != -1 && int(count) > maxRetry {
+		return rejectMessage(ch, id, tag, count, maxRetry, body)
+	}
+	return false
+}
+
+func rejectMessage(ch *amqp.Channel, id string, tag uint64, count uint64, max int, body []byte) bool {
+	log.Printf("rejected message id [%d]",tag)
+	m := models.QueueFailedMessage{
+		ID: tag,
+		Body: body,
+		RetryCount: count,
+		Reason: "Message re-queued more than " + strconv.Itoa(max),
+	}
+	json, jsonError := json.Marshal(&m)
+	if !checkError(nil,jsonError,false){
+		publish := amqp.Publishing{
+			Body: []byte(json),
+		}
+		pCh, conn := createChanel(nil,false)
+		if pCh != nil {
+			defer conn.Close()
+			defer pCh.Close()
+			log.Println("reject was called for max retry ",count, publish, m)
+			err := pCh.Publish(
+				"",
+				configs.FailedMessageQueue,
+				false,
+				false,
+				publish,
+			)
+			if !checkError(nil,err,false){
+				if err1 := ch.Reject(tag,false) ; err1 == nil {
+					m := messages[id]
+					if _, exist := m[tag]; exist {
+						log.Println("success on removing ",tag)
+						delete(m,tag)
+					}
+					return true
+				}else{
+					log.Printf("error rejecting message id [%d] %+v",tag,err1)
+				}
+			}
+		}
+	}
+	return false
+}
+
 type data struct {
-	Consumers               map[string](chan bool)     `json:"consumers"`
-	FailedMessages          map[uint64](uint64)        `json:"failedmessages"`
+	Consumers       map[string](chan bool)               `json:"consumers"`
+	Messages        map[string](map[uint64](uint64))     `json:"messages"`
 }
 
 func ArrayDump(w http.ResponseWriter, password string){
@@ -367,7 +426,7 @@ func ArrayDump(w http.ResponseWriter, password string){
 	if pass != "" && password == pass {
 		dump := data{
 			Consumers: consumers,
-			FailedMessages: messages,
+			Messages: messages,
 		}	
 		log.Println("dump: %+v",dump)
 		w.Header().Set("Content-Type", "application/json")
