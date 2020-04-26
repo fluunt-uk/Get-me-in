@@ -3,8 +3,9 @@ package api
 import (
 	"github.com/ProjectReferral/Get-me-in/queueing-api/configs"
 	"github.com/gorilla/mux"
-	"net/http"
+	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 func wrapHandlerWithBodyCheck(handler http.HandlerFunc) http.HandlerFunc {
@@ -55,6 +56,14 @@ func SetupEndpoints() {
 	//dump data - requires password
 	_router.HandleFunc("/dump", wrapHandlerWithBodyCheck(DumpData)).Methods("POST")
 
+	_router.HandleFunc("/log", displayLog).Methods("GET")
+
 	log.Println("Service started")
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
+}
+
+func displayLog(w http.ResponseWriter, r *http.Request){
+	b, _ := ioutil.ReadFile("log.txt")
+
+	w.Write(b)
 }
