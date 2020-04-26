@@ -21,7 +21,6 @@ var h = hermes.Hermes{
     },
 }
 
-
 func ToStruct(d []byte, p interface{}){
 	err := json.Unmarshal(d, &p)
 	if err != nil {

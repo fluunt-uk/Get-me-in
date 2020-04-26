@@ -2,7 +2,7 @@ package smtp
 
 import (
 	s "github.com/ProjectReferral/Get-me-in/customer-api/models"
-	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
+	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	)
 
 func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
@@ -12,9 +12,9 @@ func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
 	case s.NEW_USER_VERIFY:
 
 		p := s.IncomingActionDataStruct{}
-		templates.ToStruct(d, &p)
+		t.ToStruct(d, &p)
 
-		return templates.GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
+		return t.GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
 			Intro:       "Welcome to GMI! We're very excited to have you on board.",
 			Instruct:    "To get started, please click here:",
 			ButtonText:  "Confirm your account",
@@ -26,9 +26,9 @@ func BaseTypeActionEmail(typeof string, d []byte) (string, string) {
 	case s.RESET_PASSWORD:
 
 		p := s.IncomingActionDataStruct{}
-		templates.ToStruct(d, &p)
+		t.ToStruct(d, &p)
 
-		return templates.GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
+		return t.GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
 			Intro:       "You recently made a request to reset your password.",
 			Instruct:    "Please click the link below to continue.",
 			ButtonText:  "Reset Password",
