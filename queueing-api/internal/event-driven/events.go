@@ -391,7 +391,7 @@ func rejectMessage(ch *amqp.Channel, id string, tag uint64, count uint64, max in
 		if pCh != nil {
 			defer conn.Close()
 			defer pCh.Close()
-			log.Println("reject was called for max retry ",count, publish, m)
+			log.Printf("reject was called for max retry [%d] message [%+v]",count, m)
 			err := pCh.Publish(
 				"",
 				configs.FailedMessageQueue,
