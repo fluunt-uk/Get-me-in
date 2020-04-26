@@ -10,10 +10,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type HandleMessage func(qm *models.QueueMessage, err error, qc QueueClient)
+type HttpReponse func(*http.Response, error)
+
+type HandleMessage func(qm *models.QueueMessage, err error, qc QueueClient) (sm models.SubscribeMessage, hr HttpReponse)
 
 type QueueClient interface {
 	SetupURL(url string)
+	
+	GetURL() string
 	
 	CreateQueue(client *http.Client, queue models.QueueDeclare) (resp *http.Response, err error)
 	
@@ -25,15 +29,15 @@ type QueueClient interface {
 	
 	Consume(client *http.Client, consume models.QueueConsume) (resp *http.Response, err error)
 	
-	SetupRoute(router *mux.Router, route string, hm HandleMessage)
+	SetupRoute(router *mux.Router, route string, client *http.Client, hm HandleMessage)
 
 	Subscribe(client *http.Client, subscribe models.QueueSubscribe) (resp *http.Response, err error)
 	
 	UnSubscribe(client *http.Client, subscribeID models.QueueSubscribeId) (resp *http.Response, err error)
 
-	Acknowledge(client *http.Client, acknowledge models.MessageAcknowledge) (resp *http.Response, err error)
+	acknowledge(client *http.Client, acknowledge models.MessageAcknowledge) (resp *http.Response, err error)
 	
-	Reject(client *http.Client, reject models.MessageReject) (resp *http.Response, err error)
+	reject(client *http.Client, reject models.MessageReject) (resp *http.Response, err error)
 }
 
 type DefaultQueueClient struct {
@@ -45,7 +49,11 @@ func (dqc *DefaultQueueClient) SetupURL(url string){
 	dqc.url = url
 }
 
-func (dqc DefaultQueueClient) CreateQueue(client *http.Client, queue models.QueueDeclare) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) GetURL() string {
+	return dqc.url
+}
+
+func (dqc *DefaultQueueClient) CreateQueue(client *http.Client, queue models.QueueDeclare) (resp *http.Response, err error) {
 	body,err := json.Marshal(queue)
 	if err != nil {
 		log.Printf("failed to make json [%v]",queue)
@@ -54,7 +62,7 @@ func (dqc DefaultQueueClient) CreateQueue(client *http.Client, queue models.Queu
 	return client.Post(dqc.url + "/queue","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc DefaultQueueClient) CreateExchange(client *http.Client, exchange models.ExchangeDeclare) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) CreateExchange(client *http.Client, exchange models.ExchangeDeclare) (resp *http.Response, err error) {
 	body,err := json.Marshal(exchange)
 	if err != nil {
 		log.Printf("failed to make json [%v]",exchange)
@@ -63,7 +71,7 @@ func (dqc DefaultQueueClient) CreateExchange(client *http.Client, exchange model
 	return client.Post(dqc.url + "/exchange","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc DefaultQueueClient) QueueBind(client *http.Client, bind models.QueueBind) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) QueueBind(client *http.Client, bind models.QueueBind) (resp *http.Response, err error) {
 	body,err := json.Marshal(bind)
 	if err != nil {
 		log.Printf("failed to make json [%v]",bind)
@@ -78,7 +86,7 @@ func (dqc DefaultQueueClient) QueueBind(client *http.Client, bind models.QueueBi
     return client.Do(PutReq)
 }
 
-func (dqc DefaultQueueClient) Publish(client *http.Client, publish models.ExchangePublish) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) Publish(client *http.Client, publish models.ExchangePublish) (resp *http.Response, err error) {
 	body,err := json.Marshal(publish)
 	if err != nil {
 		log.Printf("failed to make json [%v]",publish)
@@ -87,7 +95,7 @@ func (dqc DefaultQueueClient) Publish(client *http.Client, publish models.Exchan
 	return client.Post(dqc.url + "/publish","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc DefaultQueueClient) Consume(client *http.Client, consume models.QueueConsume) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) Consume(client *http.Client, consume models.QueueConsume) (resp *http.Response, err error) {
 	body,err := json.Marshal(consume)
 	if err != nil {
 		log.Printf("failed to make json [%v]",consume)
@@ -96,8 +104,8 @@ func (dqc DefaultQueueClient) Consume(client *http.Client, consume models.QueueC
 	return client.Post(dqc.url + "/consume","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc *DefaultQueueClient) SetupRoute(router *mux.Router, route string, hm HandleMessage){
-	router.HandleFunc(route, handleResponse(hm,dqc)).Methods("POST")
+func (dqc *DefaultQueueClient) SetupRoute(router *mux.Router, route string, client *http.Client, hm HandleMessage){
+	router.HandleFunc(route, handleResponse(hm,client,dqc)).Methods("POST")
 }
 
 func (dqc DefaultQueueClient) Subscribe(client *http.Client, subscribe models.QueueSubscribe) (resp *http.Response, err error) {
@@ -109,7 +117,7 @@ func (dqc DefaultQueueClient) Subscribe(client *http.Client, subscribe models.Qu
 	return client.Post(dqc.url + "/subscribe","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID models.QueueSubscribeId) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID models.QueueSubscribeId) (resp *http.Response, err error) {
 	body,err := json.Marshal(subscribeID)
 	if err != nil {
 		log.Printf("failed to make json [%v]",subscribeID)
@@ -118,7 +126,7 @@ func (dqc DefaultQueueClient) UnSubscribe(client *http.Client, subscribeID model
 	return client.Post(dqc.url + "/unsubscribe","application/json",bytes.NewBuffer(body))
 }
 
-func (dqc DefaultQueueClient) Acknowledge(client *http.Client, acknowledge models.MessageAcknowledge) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) acknowledge(client *http.Client, acknowledge models.MessageAcknowledge) (resp *http.Response, err error) {
 	body,err := json.Marshal(acknowledge)
 	if err != nil {
 		log.Printf("failed to make json [%v]",acknowledge)
@@ -128,7 +136,7 @@ func (dqc DefaultQueueClient) Acknowledge(client *http.Client, acknowledge model
 }
 
 
-func (dqc DefaultQueueClient) Reject(client *http.Client, reject models.MessageReject) (resp *http.Response, err error) {
+func (dqc *DefaultQueueClient) reject(client *http.Client, reject models.MessageReject) (resp *http.Response, err error) {
 	body,err := json.Marshal(reject)
 	if err != nil {
 		log.Printf("failed to make json [%v]",reject)
@@ -146,7 +154,7 @@ func ExtractJsonString(r *http.Request) (json string, err error) {
 	return "", err
 }
 
-func handleResponse(handleMessage HandleMessage, qc QueueClient) http.HandlerFunc {
+func handleResponse(handleMessage HandleMessage, client *http.Client, qc QueueClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request){
 		message := models.QueueMessage{}
 		jsonErr := json.NewDecoder(req.Body).Decode(&message)
@@ -157,6 +165,18 @@ func handleResponse(handleMessage HandleMessage, qc QueueClient) http.HandlerFun
 			w.Write([]byte(jsonErr.Error()))
 			w.WriteHeader(400)
 		}
-		go handleMessage(&message, jsonErr, qc) //run in another thread to avoid blocking
+		go func(){
+			result,handler := handleMessage(&message, jsonErr, qc) //run in another thread to avoid blocking
+			if result != nil && handler != nil {
+				if ma,ok := result.(models.MessageAcknowledge) ; ok {
+					ma.Body = message.Body
+					handler(qc.acknowledge(client,ma))
+				}
+				if mr,ok := result.(models.MessageReject) ; ok {
+					mr.Body = message.Body
+					handler(qc.reject(client,mr))
+				}
+			}
+		}()
 	}
 }
