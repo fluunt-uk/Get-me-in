@@ -1,7 +1,11 @@
 package event_driven
 
 import (
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/smtp"
+	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -19,44 +23,64 @@ var Emails EmailBuilder
 
 func (c *EmailStruct) CreateActionEmail(w http.ResponseWriter, r *http.Request) {
 
-	CheckNoBody(w, r)
+	CheckBodyStatus(w, r)
+	s, err := ioutil.ReadAll(r.Body)
 
-	body := r.Body
+	if(err != nil){
+		fmt.Println(err)
+	}
 
-	//template, body
-	template, subject := smtp.BaseTypeActionEmail()
+	p := models.IncomingActionDataStruct{}
+	t.ToStruct(s, &p)
 
-	smtp.SendEmail([]string{email}, subject, template)
+	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
+
+	smtp.SendEmail([]string{p.Email}, subject, template)
 	log.Printf("Email sent")
 
 }
 
-
 func (c *EmailStruct) CreateNotificationEmail(w http.ResponseWriter, r *http.Request) {
 
-	CheckNoBody(w, r)
+	CheckBodyStatus(w, r)
 
-	body := r.Body
-	template, subject := smtp.BaseTypeNotificationEmail()
+	s, err := ioutil.ReadAll(r.Body)
 
-	smtp.SendEmail([]string{email}, subject, template)
+	if(err != nil){
+		fmt.Println(err)
+	}
+
+	p := models.IncomingNotificationDataStruct{}
+	t.ToStruct(s, &p)
+
+	template, subject := smtp.BaseTypeNotificationEmail(p.Template, p)
+
+	smtp.SendEmail([]string{p.Email}, subject, template)
 	log.Printf("Email sent")
 
 }
 
 func (c *EmailStruct) CreateSubscriptionEmail(w http.ResponseWriter, r *http.Request) {
 
-	CheckNoBody(w, r)
+	CheckBodyStatus(w, r)
 
-	body := r.Body
-	template, subject := smtp.BaseTypeSubscriptionEmail()
+	s, err := ioutil.ReadAll(r.Body)
 
-	smtp.SendEmail([]string{email}, subject, template)
+	if(err != nil){
+		fmt.Println(err)
+	}
+
+	p := models.IncomingPaymentDataStruct{}
+	t.ToStruct(s, &p)
+
+	template, subject := smtp.BaseTypeSubscriptionEmail(p.Template, p)
+
+	smtp.SendEmail([]string{p.Email}, subject, template)
 	log.Printf("Email sent")
 
 }
 
-func CheckNoBody(w http.ResponseWriter, r *http.Request) {
+func CheckBodyStatus(w http.ResponseWriter, r *http.Request) {
 	if r.ContentLength < 1 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("No body error"))

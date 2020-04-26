@@ -1,8 +1,8 @@
 package email
 
 import (
-	"net/http"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
+	"net/http"
 )
 
 

@@ -26,12 +26,14 @@ type PaymentEmailStruct struct {
 }
 
 type IncomingNotificationDataStruct struct {
+	Template 	string	`json:"template"`
 	Email 		string 	`json:"email"`
 	Firstname 	string 	`json:"firstname"`
 	Surname 	string 	`json:"surname"`
 }
 
 type IncomingPaymentDataStruct struct {
+	Template 	string	`json:"template"`
 	Email 		string 	`json:"email"`
 	Firstname 	string	`json:"firstname"`
 	Surname 	string	`json:"surname"`
@@ -41,6 +43,7 @@ type IncomingPaymentDataStruct struct {
 }
 
 type IncomingActionDataStruct struct {
+	Template 	string	`json:"template"`
 	Email 		string 	`json:"email"`
 	Firstname 	string 	`json:"firstname"`
 	Surname 	string 	`json:"surname"`
