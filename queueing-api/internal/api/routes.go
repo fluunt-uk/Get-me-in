@@ -29,18 +29,27 @@ func SetupEndpoints() {
 
 	//create queue
 	_router.HandleFunc("/queue", wrapHandlerWithBodyCheck(CreateQueue)).Methods("POST")
-	
+
 	//create echange
 	_router.HandleFunc("/exchange", wrapHandlerWithBodyCheck(CreateExchange)).Methods("POST")
-	
+
 	//put bind
 	_router.HandleFunc("/bind", wrapHandlerWithBodyCheck(BindExchange)).Methods("PUT")
-	
+
 	//publish message
 	_router.HandleFunc("/publish", wrapHandlerWithBodyCheck(PublishToExchange)).Methods("POST")
-	
+
 	//consume message
 	_router.HandleFunc("/consume", wrapHandlerWithBodyCheck(ConsumeQueue)).Methods("POST")
+
+	//subscribe queue
+	_router.HandleFunc("/subscribe", wrapHandlerWithBodyCheck(SuscribeQueue)).Methods("POST")
+
+	//unsubscribe queue
+	_router.HandleFunc("/unsubscribe", wrapHandlerWithBodyCheck(UnSuscribeQueue)).Methods("POST")
+
+	//unsubscribe queue
+	_router.HandleFunc("/dump", wrapHandlerWithBodyCheck(DumpData)).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
 }
