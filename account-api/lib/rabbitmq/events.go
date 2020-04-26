@@ -7,6 +7,7 @@ import (
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -45,4 +46,19 @@ func NewUUID() string {
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 
 	return uuid
+}
+
+func SubscribeTo(m models.QueueSubscribe) {
+	client := &http.Client{}
+
+	//not dependant on the response
+	resp, err := Client.Subscribe(client, m)
+
+	b, _ := ioutil.ReadAll(resp.Body)
+
+	log.Printf("Client responded with [%s]", string(b))
+
+	if err != nil {
+		log.Printf("Failed subscribing with error [%s]", err.Error())
+	}
 }
