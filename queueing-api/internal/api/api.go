@@ -63,7 +63,10 @@ func ConsumeQueue(w http.ResponseWriter, r *http.Request) {
 }
 
 func SuscribeQueue(w http.ResponseWriter, r *http.Request) {
-	subscribe := models.QueueSubscribe{Arguments: nil}
+	subscribe := models.QueueSubscribe{
+		MaxRetry: -1,   //default limit is none
+		Arguments: nil,
+	}
 	err := json.NewDecoder(r.Body).Decode(&subscribe)
 	if !HandleError(err, w) {
 		events.RabbitSubscribe(w,subscribe)
@@ -82,7 +85,11 @@ func MessageAck(w http.ResponseWriter, r *http.Request){
 	acknowledge := models.MessageAcknowledge{}
 	err := json.NewDecoder(r.Body).Decode(&acknowledge)
 	if !HandleError(err, w) {
-		events.RabbitAck(w,acknowledge)
+		if acknowledge.GetID() != "" {
+			events.RabbitAck(w,acknowledge)
+			return
+		}
+		w.WriteHeader(403)
 	}
 }
 
@@ -90,7 +97,11 @@ func MessageReject(w http.ResponseWriter, r *http.Request){
 	reject := models.MessageReject{}
 	err := json.NewDecoder(r.Body).Decode(&reject)
 	if !HandleError(err, w) {
-		events.RabbitReject(w,reject)
+		if reject.GetID() != "" {
+			events.RabbitReject(w,reject)
+			return
+		}
+		w.WriteHeader(403)
 	}
 }
 

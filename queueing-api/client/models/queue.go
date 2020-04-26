@@ -8,6 +8,9 @@ import (
 //'json:' is the value that will be picked up from the JSON body
 //JSON must contain the value after 'json:...'  instead of the attribute name
 
+type SubscribeMessage interface {
+	GetID() string
+}
 
 type QueueDeclare struct {
 	Name             string     `json:"name"`
@@ -79,6 +82,7 @@ type QueueSubscribeId struct {
 
 type QueueMessage struct {
 	ID               uint64     `json:"id"`
+	RetryCount       uint64     `json:"retrycount"`
 	Body           []byte       `json:"body"`
 }
 
@@ -90,13 +94,25 @@ type QueueFailedMessage struct {
 }
 
 type MessageAcknowledge struct {
-	ID               uint64     `json:"id"`
-	Acknowledge      bool       `json:"acknowledge"`
-	Requeue          bool       `json:"requeue,omitempty"` //only valid if acknowledge is false
-	Multiple         bool       `json:"multiple"`
+	SubID            QueueSubscribeId  `json:"subID"`
+	ID               uint64            `json:"id"`
+	Body           []byte              `json:"body"`	
+	Acknowledge      bool              `json:"acknowledge"`
+	Requeue          bool              `json:"requeue,omitempty"` //only valid if acknowledge is false
+	Multiple         bool              `json:"multiple"`
 }
 
 type MessageReject struct {
-	ID               uint64     `json:"id"`
-	Requeue          bool       `json:"requeue"`
+	SubID            QueueSubscribeId  `json:"subID"`
+	ID               uint64            `json:"id"`
+	Body           []byte              `json:"body"`
+	Requeue          bool              `json:"requeue"`
+}
+
+func (ma MessageAcknowledge) GetID() string {
+	return ma.SubID.ID
+}
+
+func (mr MessageReject) GetID() string {
+	return mr.SubID.ID
 }
