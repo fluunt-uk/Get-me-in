@@ -6,7 +6,7 @@ import (
 	"net/smtp"
 )
 
-func SendEmail(to []string, subject string, html_template string) {
+func SendEmail(to []string, subject string, html_template string){
 
 	auth := smtp.PlainAuth(
 				"",
@@ -22,7 +22,7 @@ func SendEmail(to []string, subject string, html_template string) {
 		"project181219@gmail.com", to, msg,)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
