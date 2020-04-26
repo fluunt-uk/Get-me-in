@@ -8,7 +8,7 @@ import (
 var Service event_driven.EmailBuilder
 
 func SendActionEmail(w http.ResponseWriter, r *http.Request) {
-	Service.CreateActionEmail(w, r)
+	Service.CreateActionEmail()
 }
 
 func SendNotificationEmail(w http.ResponseWriter, r *http.Request) {

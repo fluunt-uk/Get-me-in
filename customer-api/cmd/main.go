@@ -11,8 +11,9 @@ import (
 func main() {
 
 	dep.Inject(&util.ServiceConfigs{
-		Environment: os.Getenv("ENV"),
-		Port:		  configs.PORT,
+		Environment: 	os.Getenv("ENV"),
+		Port:		 	configs.PORT,
+		BrokerUrl: 		configs.QAPI_URL,
 	})
 
 	api.SetupEndpoints()

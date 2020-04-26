@@ -8,11 +8,12 @@ import (
 	"net/http"
 )
 
-func SetupEndpoints() {
-	_router := mux.NewRouter()
+var Router = *mux.NewRouter()
 
-	_router.HandleFunc("/email/action", s.SendActionEmail).Methods("POST")
-	_router.HandleFunc("/email/notification", s.SendNotificationEmail).Methods("POST")
-	_router.HandleFunc("/email/subscription", s.SendSubscriptionEmail).Methods("POST")
-	log.Fatal(http.ListenAndServe(configs.PORT, _router))
+func SetupEndpoints() {
+
+	Router.HandleFunc("/email/notification", s.SendNotificationEmail).Methods("POST")
+	Router.HandleFunc("/email/subscription", s.SendSubscriptionEmail).Methods("POST")
+
+	log.Fatal(http.ListenAndServe(configs.PORT, &Router))
 }

@@ -14,26 +14,26 @@ type EmailStruct struct {
 }
 
 type EmailBuilder interface{
-	 CreateActionEmail(http.ResponseWriter, *http.Request)
+	 CreateActionEmail()
 	 CreateNotificationEmail(http.ResponseWriter, *http.Request)
 	 CreateSubscriptionEmail(http.ResponseWriter, *http.Request)
 }
 
-func (c *EmailStruct) CreateActionEmail(w http.ResponseWriter, r *http.Request) {
+func (c *EmailStruct) CreateActionEmail() {
 
-	CheckBodyStatus(w, r)
-	s, err := ioutil.ReadAll(r.Body)
+	//CheckBodyStatus(w, r)
+	//s, err := ioutil.ReadAll(r.Body)
+	//
+	//if(err != nil){
+	//	fmt.Println(err)
+	//}
+	//
+	//p := models.IncomingActionDataStruct{}
+	//t.ToStruct(s, &p)
 
-	if(err != nil){
-		fmt.Println(err)
-	}
+	template, subject := smtp.BaseTypeActionEmail("reset-password", models.IncomingActionDataStruct{})
 
-	p := models.IncomingActionDataStruct{}
-	t.ToStruct(s, &p)
-
-	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
-
-	smtp.SendEmail([]string{p.Email}, subject, template)
+	smtp.SendEmail([]string{"project181219@gmail.com"}, subject, template)
 	log.Printf("Email sent")
 
 }
