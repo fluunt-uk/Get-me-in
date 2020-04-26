@@ -19,7 +19,6 @@ func BaseTypeActionEmail(typeof string, p s.IncomingActionDataStruct) (string, s
 			Outro:       "Need help, or have questions? Just reply to this email, we'd love to help.",
 		}), "This is the subject"
 
-
 	case s.RESET_PASSWORD:
 
 		return t.GenerateActionHTMLTemplate(p, s.ActionEmailStruct{
