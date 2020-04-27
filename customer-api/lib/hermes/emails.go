@@ -1,4 +1,4 @@
-package event_driven
+package hermes
 
 import (
 	"fmt"
