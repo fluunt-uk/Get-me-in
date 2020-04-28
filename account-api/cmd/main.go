@@ -20,7 +20,7 @@ func main() {
 		Table:        configs.TABLE_NAME,
 		SearchParam:  configs.UNIQUE_IDENTIFIER,
 		GenericModel: models.User{},
-		BrokerUrl:    os.Getenv("BROKERURL"),
+		BrokerUrl:    configs.QAPI_URL,
 		Port:		  configs.PORT,
 	})
 
