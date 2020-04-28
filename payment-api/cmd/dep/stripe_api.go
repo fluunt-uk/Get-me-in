@@ -6,5 +6,5 @@ import (
 )
 
 func LoadCardService(b card.Builder){
-	api.Service = b
+	api.StripeClient = b
 }

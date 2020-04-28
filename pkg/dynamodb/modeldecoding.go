@@ -23,44 +23,6 @@ func DecodeToDynamoAttribute(readBody io.ReadCloser, m interface{}) (map[string]
 	}
 
 	return av, nil
-<<<<<<< HEAD
-
-}
-
-// Have to change this so it can accommodate all types of structs, need to pass in interface as param
-func ConvertStructToDynamoAttribute(sub interface{}) (map[string]*dynamodb.AttributeValue, error) {
-
-	av, errM := dynamodbattribute.MarshalMap(sub)
-
-	if errM != nil {
-		return nil, errM
-	}
-
-	return av, nil
-}
-
-/**
-* Convert type interface to dynamodb readable object and JSON
-**/
-func DecodeToDynamoAttributeAndJson(readBody io.ReadCloser, m interface{}) (map[string]*dynamodb.AttributeValue, error, string) {
-
-	bodyMap, err := DecodeToMap(readBody, m)
-	jsonString, err := json.Marshal(bodyMap)
-
-	if err != nil {
-		return nil, err, ""
-	}
-
-	av, errM := dynamodbattribute.MarshalMap(bodyMap)
-
-	if errM != nil {
-		return nil, errM, ""
-	}
-
-	return av, nil, string(jsonString)
-
-=======
->>>>>>> ef8155820d93a627b42eccadab034a303e096200
 }
 
 /**

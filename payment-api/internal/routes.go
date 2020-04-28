@@ -21,7 +21,7 @@ func SetupEndpoints() {
 	_router.HandleFunc("/customer/delete", customer.DeleteCustomer).Methods("DELETE")
 	_router.HandleFunc("/customer/getAll", customer.ListAllCustomers).Methods("GET")
 
-	_router.HandleFunc("/sub/create", subscription.CreateSub).Methods("POST")
+	_router.HandleFunc("/sub/create", subscription.NewSub).Methods("POST")
 	_router.HandleFunc("/sub/get", subscription.RetrieveSub).Methods("GET")
 	_router.HandleFunc("/sub/update", subscription.UpdateSub).Methods("POST")
 	_router.HandleFunc("/sub/cancel", subscription.CancelSub).Methods("DELETE")

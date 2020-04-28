@@ -2,6 +2,7 @@ package subscription
 
 import (
 	"fmt"
+	sub_builder "github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/sub-builder"
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
@@ -9,7 +10,10 @@ import (
 	"net/http"
 )
 
-func CreateSub(w http.ResponseWriter, r *http.Request) {
+//interface with the implemented methods will be injected in this variable
+var SubRepo sub_builder.Builder
+
+func NewSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 
@@ -31,7 +35,7 @@ func CreateSub(w http.ResponseWriter, r *http.Request) {
 	//	PlanType:       "Hamuzzz",
 	//})
 
-	status, err := AddSubscription(models.Subscription{
+	status, err := SubRepo.Create(models.Subscription{
 		Email:          "hamza@gmail.com",
 	})
 
