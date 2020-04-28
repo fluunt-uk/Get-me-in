@@ -7,3 +7,6 @@ var (
 	DevEmailPw = "kowbu1-nuQjik-zyxput"
 )
 
+const (
+	SUB_ACTION_EMAIL = "http://localhost:5005/email/action"
+)

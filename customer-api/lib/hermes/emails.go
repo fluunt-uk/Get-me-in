@@ -14,22 +14,22 @@ type EmailStruct struct {
 }
 
 type EmailBuilder interface{
-	 CreateActionEmail(http.ResponseWriter, *http.Request)
+	 CreateActionEmail([]byte)
 	 CreateNotificationEmail(http.ResponseWriter, *http.Request)
 	 CreateSubscriptionEmail(http.ResponseWriter, *http.Request)
 }
 
-func (c *EmailStruct) CreateActionEmail(w http.ResponseWriter, r *http.Request) {
+func (c *EmailStruct) CreateActionEmail(body []byte) {
 
-	CheckBodyStatus(w, r)
-	s, err := ioutil.ReadAll(r.Body)
-
-	if(err != nil){
-		fmt.Println(err)
-	}
+	//CheckBodyStatus(w, r)
+	//s, err := ioutil.ReadAll(r.Body)
+	//
+	//if(err != nil){
+	//	fmt.Println(err)
+	//}
 
 	p := models.IncomingActionDataStruct{}
-	t.ToStruct(s, &p)
+	//t.ToStruct(s, &p)
 
 	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
 

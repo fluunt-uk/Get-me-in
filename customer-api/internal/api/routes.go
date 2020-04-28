@@ -59,7 +59,7 @@ func (r *EndpointBuilder) handle(qm *models.QueueMessage, err error, qc client.Q
 	var sm models.SubscribeMessage
 
 	//do some processing with the qm.body
-	r.emailService.CreateActionEmail()
+	//r.emailService.CreateActionEmail()
 
 	//hermes.CheckBodyStatus()
 

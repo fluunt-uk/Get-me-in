@@ -16,6 +16,7 @@ import (
 //and will be used
 type ConfigBuilder interface {
 	LoadEnvConfigs()
+	LoadRabbitMQConfigs() *client.DefaultQueueClient
 }
 
 //internal specific configs are loaded at runtime
@@ -48,6 +49,8 @@ func loadRabbitMQClient(q client.QueueClient) {
 
 func subscribeToChannels() {
 	log.Println("Subscribing to channels ...")
+
+	//subscribe to new user verification email Q
 	event_driven.SubscribeTo(models.QueueSubscribe{
 		//endpoint that will be consuming the messages
 		URL:       configs.SUB_ACTION_EMAIL,
