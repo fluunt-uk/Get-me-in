@@ -1,4 +1,4 @@
-package customer
+package card
 
 import (
 	"encoding/json"
@@ -9,7 +9,17 @@ import (
 	"net/http"
 )
 
-func CreateCustomer(w http.ResponseWriter, r *http.Request) {
+type Builder interface {
+	CreateCustomer(http.ResponseWriter, *http.Request)
+	GetCustomer(http.ResponseWriter, *http.Request)
+	DeleteCustomer(http.ResponseWriter, *http.Request)
+	UpdateCustomer(http.ResponseWriter, *http.Request)
+	ListAllCustomers(http.ResponseWriter, *http.Request)
+}
+
+type Wrapper struct{}
+
+func (cw *Wrapper) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -22,7 +32,7 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func RetrieveCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -32,7 +42,7 @@ func RetrieveCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -47,7 +57,7 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -57,7 +67,7 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func ListAllCustomers(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) ListAllCustomers(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := customer.List(params)

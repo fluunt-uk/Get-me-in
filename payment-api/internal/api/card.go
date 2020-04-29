@@ -5,24 +5,24 @@ import (
 	"net/http"
 )
 
-var StripeClient card.Builder
+var CardClient card.Builder
 
 func CreateCard(w http.ResponseWriter, r *http.Request)  {
-	StripeClient.CreateCard(w, r)
+	CardClient.Put(w, r)
 }
 
 func GetCard(w http.ResponseWriter, r *http.Request)  {
-	StripeClient.GetCard(w, r)
+	CardClient.Get(w, r)
 }
 
 func UpdateCard(w http.ResponseWriter, r *http.Request)  {
-	StripeClient.UpdateCard(w, r)
+	CardClient.Patch(w, r)
 }
 
 func DeleteCard(w http.ResponseWriter, r *http.Request)  {
-	StripeClient.DeleteCard(w, r)
+	CardClient.Del(w, r)
 }
 
 func GetAllCards(w http.ResponseWriter, r *http.Request)  {
-	StripeClient.GetAllCards(w, r)
+	CardClient.GetBatch(w, r)
 }

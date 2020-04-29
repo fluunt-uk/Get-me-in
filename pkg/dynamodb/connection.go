@@ -21,7 +21,7 @@ type Wrapper struct {
 /*******************************************************************/
 
 //Create a connection to DB and assign the session to our struct variable
-//connection variable is shared by other repo-builder(CRUD)
+//connection variable is shared by other repo(CRUD)
 func (d *Wrapper) DefaultConnect() error {
 
 	sess, err := newSession(d.Table, d.SearchParam, d.GenericModel, d.Region, d.Credentials)

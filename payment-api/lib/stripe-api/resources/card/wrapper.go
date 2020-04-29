@@ -8,16 +8,16 @@ import (
 )
 
 type Builder interface {
-	CreateCard(http.ResponseWriter, *http.Request)
-	GetCard(http.ResponseWriter, *http.Request)
-	DeleteCard(http.ResponseWriter, *http.Request)
-	UpdateCard(http.ResponseWriter, *http.Request)
-	GetAllCards(http.ResponseWriter, *http.Request)
+	Put(http.ResponseWriter, *http.Request)
+	Get(http.ResponseWriter, *http.Request)
+	Del(http.ResponseWriter, *http.Request)
+	Patch(http.ResponseWriter, *http.Request)
+	GetBatch(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{}
 
-func (cw *Wrapper) CreateCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
 		Token: stripe.String("tok_1GZ3MzGhy1brUyYIYJiEpaZB"),
@@ -27,7 +27,7 @@ func (cw *Wrapper) CreateCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) GetCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7EDAZGzu81IFr"),
 	}
@@ -39,7 +39,7 @@ func (cw *Wrapper) GetCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) UpdateCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Patch(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 		Name: stripe.String("Jenny Rosen"),
@@ -52,7 +52,7 @@ func (cw *Wrapper) UpdateCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) DeleteCard(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Del(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 	}
@@ -64,7 +64,7 @@ func (cw *Wrapper) DeleteCard(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) GetAllCards(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.CardListParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 	}

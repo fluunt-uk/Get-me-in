@@ -1,4 +1,4 @@
-package sub_builder
+package repo
 
 import (
 	"fmt"

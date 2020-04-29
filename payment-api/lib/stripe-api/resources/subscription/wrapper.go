@@ -1,8 +1,8 @@
-package subscription
+package card
 
 import (
 	"fmt"
-	sub_builder "github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/sub-builder"
+	sub_builder "github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/repo"
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
@@ -11,9 +11,21 @@ import (
 )
 
 //interface with the implemented methods will be injected in this variable
-var SubRepo sub_builder.Builder
 
-func NewSub(w http.ResponseWriter, r *http.Request) {
+
+type Builder interface {
+	NewSub(http.ResponseWriter, *http.Request)
+	GetSub(http.ResponseWriter, *http.Request)
+	CancelSub(http.ResponseWriter, *http.Request)
+	UpdateSub(http.ResponseWriter, *http.Request)
+	ListSubs(http.ResponseWriter, *http.Request)
+}
+
+type Wrapper struct{
+	DynamoSubRepo sub_builder.Builder
+}
+
+func (cw *Wrapper) NewSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 
@@ -35,7 +47,7 @@ func NewSub(w http.ResponseWriter, r *http.Request) {
 	//	PlanType:       "Hamuzzz",
 	//})
 
-	status, err := SubRepo.Create(models.Subscription{
+	status, err := cw.DynamoSubRepo.Create(models.Subscription{
 		Email:          "hamza@gmail.com",
 	})
 
@@ -45,13 +57,13 @@ func NewSub(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(status, err)
 }
 
-func RetrieveSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) GetSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Get("sub_H6qCxUjOuCCmfj", nil)
 
 	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
-func UpdateSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) UpdateSub(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{}
 	params.AddMetadata("order_id", "0001")
 	s, _ := sub.Update("sub_H6qCxUjOuCCmfj", params)
@@ -59,7 +71,7 @@ func UpdateSub(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
-func CancelSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) CancelSub(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Cancel("sub_H6qCxUjOuCCmfj", nil)
 
 	stripe_api.ReturnSuccessJSON(w, &s)
@@ -68,7 +80,7 @@ func CancelSub(w http.ResponseWriter, r *http.Request) {
 
 //it return 3 ReturnSuccessJSON as per the limit
 //but SOMEHOW (to-be figured out) the method is auto called as many times as needed to get all Subs
-func ListSubs(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) ListSubs(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionListParams{}
 	//A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
 	params.Filters.AddFilter("limit", "", "3")

@@ -1,4 +1,4 @@
-package token
+package card
 
 import (
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
@@ -7,8 +7,14 @@ import (
 	"net/http"
 )
 
+type Builder interface {
+	CreateToken(http.ResponseWriter, *http.Request)
+	GetToken(http.ResponseWriter, *http.Request)
+}
 
-func CreateToken(w http.ResponseWriter, r *http.Request)  {
+type Wrapper struct{}
+
+func (cw *Wrapper) CreateToken(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.TokenParams{
 		Card: &stripe.CardParams{
 			Number: stripe.String("4242424242424242"),
@@ -22,7 +28,7 @@ func CreateToken(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &t)
 }
 
-func GetToken(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) GetToken(w http.ResponseWriter, r *http.Request)  {
 	t, _ := token.Get(
 		"tok_1GUZNNGhy1brUyYInPwRWKkA",
 		nil,
