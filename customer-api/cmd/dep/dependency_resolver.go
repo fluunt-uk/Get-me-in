@@ -33,13 +33,22 @@ func Inject(builder ConfigBuilder) {
 
 	subscribeToChannels()
 
+	log.Println("Setting up message handler...")
+	//initialise our message handler
+	mh := &event_driven.MsgHandler{}
+	//inject the hermes service into it
+	mh.InjectService(&hermes.EmailStruct{})
+
+	log.Println("Loading endpoints...")
 	eb := api.EndpointBuilder{}
 
-	eb.InjectService(&hermes.EmailStruct{})
 	eb.SetupRouter(mux.NewRouter())
 	eb.SetupEndpoints()
 
-	eb.SetupSubscriptionEndpoint(rabbitMQClient)
+	eb.SetQueueClient(rabbitMQClient)
+	// we use the message handler here
+	eb.SetupMsgHandler(mh)
+	eb.SetupSubscriptionEndpoint()
 }
 
 func loadRabbitMQClient(q client.QueueClient) {
