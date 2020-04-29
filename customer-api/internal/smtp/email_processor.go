@@ -5,18 +5,12 @@ import (
 	"net/smtp"
 )
 
-//t, errr := template.ParseFiles(html_template)
-//if errr != nil {
-//	log.Fatal(errr)
-//}
-//body.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, mime)))
-
 func SendEmail(to []string, subject string, html_template string) {
 
 	auth := smtp.PlainAuth(
 				"",
 				"project181219@gmail.com",
-				"",
+				"kowbu1-nuQjik-zyxput",
 				"smtp.gmail.com",
 			)
 
@@ -27,7 +21,7 @@ func SendEmail(to []string, subject string, html_template string) {
 		"project181219@gmail.com", to, msg,)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 

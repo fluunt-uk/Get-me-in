@@ -1,4 +1,0 @@
-package configs
-
-
-var BrokerUrl = ""
