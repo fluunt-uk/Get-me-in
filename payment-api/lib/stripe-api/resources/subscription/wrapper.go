@@ -14,18 +14,18 @@ import (
 
 
 type Builder interface {
-	NewSub(http.ResponseWriter, *http.Request)
-	GetSub(http.ResponseWriter, *http.Request)
-	CancelSub(http.ResponseWriter, *http.Request)
-	UpdateSub(http.ResponseWriter, *http.Request)
-	ListSubs(http.ResponseWriter, *http.Request)
+	Put(http.ResponseWriter, *http.Request)
+	Get(http.ResponseWriter, *http.Request)
+	Cancel(http.ResponseWriter, *http.Request)
+	Patch(http.ResponseWriter, *http.Request)
+	GetBatch(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{
 	DynamoSubRepo sub_builder.Builder
 }
 
-func (cw *Wrapper) NewSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{
 		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
 
@@ -57,13 +57,13 @@ func (cw *Wrapper) NewSub(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(status, err)
 }
 
-func (cw *Wrapper) GetSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Get("sub_H6qCxUjOuCCmfj", nil)
 
 	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
-func (cw *Wrapper) UpdateSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Patch(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionParams{}
 	params.AddMetadata("order_id", "0001")
 	s, _ := sub.Update("sub_H6qCxUjOuCCmfj", params)
@@ -71,7 +71,7 @@ func (cw *Wrapper) UpdateSub(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &s)
 }
 
-func (cw *Wrapper) CancelSub(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Cancel(w http.ResponseWriter, r *http.Request) {
 	s, _ := sub.Cancel("sub_H6qCxUjOuCCmfj", nil)
 
 	stripe_api.ReturnSuccessJSON(w, &s)
@@ -80,7 +80,7 @@ func (cw *Wrapper) CancelSub(w http.ResponseWriter, r *http.Request) {
 
 //it return 3 ReturnSuccessJSON as per the limit
 //but SOMEHOW (to-be figured out) the method is auto called as many times as needed to get all Subs
-func (cw *Wrapper) ListSubs(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.SubscriptionListParams{}
 	//A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
 	params.Filters.AddFilter("limit", "", "3")

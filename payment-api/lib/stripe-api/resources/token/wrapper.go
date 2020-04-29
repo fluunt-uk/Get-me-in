@@ -8,13 +8,13 @@ import (
 )
 
 type Builder interface {
-	CreateToken(http.ResponseWriter, *http.Request)
-	GetToken(http.ResponseWriter, *http.Request)
+	Put(http.ResponseWriter, *http.Request)
+	Get(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{}
 
-func (cw *Wrapper) CreateToken(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request)  {
 	params := &stripe.TokenParams{
 		Card: &stripe.CardParams{
 			Number: stripe.String("4242424242424242"),
@@ -28,7 +28,7 @@ func (cw *Wrapper) CreateToken(w http.ResponseWriter, r *http.Request)  {
 	stripe_api.ReturnSuccessJSON(w, &t)
 }
 
-func (cw *Wrapper) GetToken(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request)  {
 	t, _ := token.Get(
 		"tok_1GUZNNGhy1brUyYInPwRWKkA",
 		nil,

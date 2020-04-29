@@ -10,16 +10,16 @@ import (
 )
 
 type Builder interface {
-	CreateCustomer(http.ResponseWriter, *http.Request)
-	GetCustomer(http.ResponseWriter, *http.Request)
-	DeleteCustomer(http.ResponseWriter, *http.Request)
-	UpdateCustomer(http.ResponseWriter, *http.Request)
-	ListAllCustomers(http.ResponseWriter, *http.Request)
+	Put(http.ResponseWriter, *http.Request)
+	Get(http.ResponseWriter, *http.Request)
+	Del(http.ResponseWriter, *http.Request)
+	Patch(http.ResponseWriter, *http.Request)
+	GetBatch(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{}
 
-func (cw *Wrapper) CreateCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -32,7 +32,7 @@ func (cw *Wrapper) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) GetCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -42,7 +42,7 @@ func (cw *Wrapper) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Patch(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -57,7 +57,7 @@ func (cw *Wrapper) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) DeleteCustomer(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Del(w http.ResponseWriter, r *http.Request) {
 	body := models.Customer{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	stripe_api.HandleError(err,w)
@@ -67,7 +67,7 @@ func (cw *Wrapper) DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	stripe_api.ReturnSuccessJSON(w, &c)
 }
 
-func (cw *Wrapper) ListAllCustomers(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request) {
 	params := &stripe.CustomerListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := customer.List(params)

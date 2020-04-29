@@ -50,8 +50,6 @@ func Inject(builder ConfigBuilder) {
 	rabbitMQClient := builder.LoadRabbitMQConfigs()
 
 	LoadRabbitMQClient(rabbitMQClient)
-
-
 }
 
 //variable injected with the interface methods
