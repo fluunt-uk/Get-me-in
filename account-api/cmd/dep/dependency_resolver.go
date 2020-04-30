@@ -1,11 +1,11 @@
 package dep
 
 import (
-	event_driven "github.com/ProjectReferral/Get-me-in/account-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/account-api/lib/dynamodb/repo-builder"
+	"github.com/ProjectReferral/Get-me-in/account-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"log"
-	"os"
 )
 
 //methods that are implemented on util
@@ -13,6 +13,7 @@ import (
 type ConfigBuilder interface{
 	LoadEnvConfigs()
 	LoadDynamoDBConfigs() *dynamodb.Wrapper
+	LoadRabbitMQConfigs() *client.DefaultQueueClient
 }
 
 //internal specific configs are loaded at runtime
@@ -46,16 +47,14 @@ func Inject(builder ConfigBuilder) {
 
 	//dependency injection to our resource
 	//we inject the rabbitmq client
-	//TODO: will be done through the network(REST API)
-	event_driven.MQ = &event_driven.RabbitClient{
-		URL:        os.Getenv("BROKERURL"),
-	}
+	rabbitMQClient := builder.LoadRabbitMQConfigs()
 
+	LoadRabbitMQClient(rabbitMQClient)
 }
 
 //variable injected with the interface methods
 func LoadAccountRepo (r repo_builder.AccountBuilder){
-	log.Println("Injecting Account repo-builder")
+	log.Println("Injecting Account repo")
 	repo_builder.Account = r
 }
 //variable injected with the interface methods
@@ -68,3 +67,9 @@ func LoadSignInRepo (r repo_builder.SignInBuilder){
 	log.Println("Injecting SignIn Repo")
 	repo_builder.SignIn = r
 }
+
+func LoadRabbitMQClient(c client.QueueClient){
+	log.Println("Injecting RabbitMQ Client")
+	rabbitmq.Client = c
+}
+

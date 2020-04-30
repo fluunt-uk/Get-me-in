@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal"
-	event "github.com/ProjectReferral/Get-me-in/account-api/internal/event-driven"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/account-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"net/http"
@@ -45,7 +45,7 @@ func (c *AccountWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	body := r.Body
 
-	u.AccessCode = event.NewUUID()
+	u.AccessCode = rabbitmq.NewUUID()
 
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
 	dynamodb.ParseEmptyCollection(dynamoAttr, configs.APPLICATIONS)
@@ -64,7 +64,7 @@ func (c *AccountWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
 			//triggers email confirmation e-mail
-			go event.BroadcastUserCreatedEvent(string(b))
+			go rabbitmq.BroadcastUserCreatedEvent(b)
 		}
 	}
 }
@@ -177,7 +177,7 @@ func (c *AccountWrapper) ResendVerification(w http.ResponseWriter, r *http.Reque
 	email := security.GetClaimsOfJWT().Subject
 
 	//new access code generated
-	c.UpdateValue(email, &models.ChangeRequest{Field: "access_code", NewString: event.NewUUID(), Type: 1})
+	c.UpdateValue(email, &models.ChangeRequest{Field: "access_code", NewString: rabbitmq.NewUUID(), Type: 1})
 
 	user, err := c.DC.GetItem("lunos4@gmail.com")
 
@@ -192,7 +192,7 @@ func (c *AccountWrapper) ResendVerification(w http.ResponseWriter, r *http.Reque
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
 
-			go event.BroadcastUserCreatedEvent(string(b))
+			go rabbitmq.BroadcastUserCreatedEvent(b)
 		}
 	}
 }

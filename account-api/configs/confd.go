@@ -13,6 +13,9 @@ const (
 	/*********************************************/
 	/************** RabbitMQ configs *************/
 	FANOUT_EXCHANGE = "accounts.fanout"
+	//for dev usage outside of local network
+	//QAPI_URL = "http://35.179.11.178:5004"
+	QAPI_URL = "http://localhost:5004"
 	/*********************************************/
 	/*********** Authentication configs **********/
 	AUTH_REGISTER      = "register_user"

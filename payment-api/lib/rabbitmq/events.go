@@ -3,7 +3,7 @@ package rabbitmq
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/marketing-api/configs"
+	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
@@ -13,16 +13,16 @@ import (
 
 var Client client.QueueClient
 
-func BroadcastNewAdvert(body []byte){
+func BroadcastNewSubEvent(body []byte) {
 
 	client := &http.Client{}
 
 	//not dependant on the response
 	_, err := Client.Publish(client, models.ExchangePublish{
-		Exchange:   configs.FANOUT_EXCHANGE,
-		Key:        "",
-		Mandatory:  false,
-		Immediate:  false,
+		Exchange:  configs.FANOUT_EXCHANGE,
+		Key:       "",
+		Mandatory: false,
+		Immediate: false,
 		Publishing: amqp.Publishing{
 			ContentType:   "text/plain",
 			Body:          body,
@@ -39,7 +39,7 @@ func NewUUID() string {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Print(err)
+		log.Fatal(err)
 	}
 	uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])

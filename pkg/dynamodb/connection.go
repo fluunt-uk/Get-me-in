@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"log"
 	"net/http"
 )
 
@@ -20,12 +21,13 @@ type Wrapper struct {
 /*******************************************************************/
 
 //Create a connection to DB and assign the session to our struct variable
-//connection variable is shared by other repo-builder(CRUD)
+//connection variable is shared by other repo(CRUD)
 func (d *Wrapper) DefaultConnect() error {
 
 	sess, err := newSession(d.Table, d.SearchParam, d.GenericModel, d.Region, d.Credentials)
 
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
