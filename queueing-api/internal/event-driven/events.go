@@ -311,7 +311,7 @@ func subscribeLoop(msgs <-chan amqp.Delivery, id string, url string, maxRetry in
 	b := consumers[id]
 	m := messages[id]
 	for {
-		time.Sleep(1 * time.Second) //slows down loop
+		time.Sleep(configs.SleepTime) //slows down loop
 		select {
 			case v,_ := <- b:
 				delete(consumers,id) //clear reference outside thread
