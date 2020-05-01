@@ -6,6 +6,7 @@ import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/ProjectReferral/Get-me-in/util"
+	"github.com/stripe/stripe-go"
 	"os"
 )
 
@@ -23,5 +24,6 @@ func main() {
 		Port:		  configs.PORT,
 	})
 
+	stripe.Key = configs.StripeKey
 	internal.SetupEndpoints()
 }

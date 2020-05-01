@@ -7,8 +7,10 @@ import (
 
 var SubClient sub.Builder
 
+
 func CreateSub(w http.ResponseWriter, r *http.Request)  {
 	SubClient.Put(w, r)
+
 }
 
 func GetSub(w http.ResponseWriter, r *http.Request)  {

@@ -11,14 +11,13 @@ import (
 )
 
 //interface with the implemented methods will be injected in this variable
-
-
 type Builder interface {
 	Put(http.ResponseWriter, *http.Request)
 	Get(http.ResponseWriter, *http.Request)
 	Cancel(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
 	GetBatch(http.ResponseWriter, *http.Request)
+	TestCreate(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{
@@ -35,20 +34,21 @@ func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	}
-	s, _ := sub.New(params)
+	s, e := sub.New(params)
+
+	if e != nil {
+		http.Error(w, e.Error(), 400)
+		return
+	}
 
 	stripe_api.ReturnSuccessJSON(w, &s)
 
-	//status, err := AddSubscription(models.Subscription{
-	//	Email:          "hamza@gmail.com",
-	//	AccountID:      s.Customer.ID,
-	//	SubscriptionID: s.ID,
-	//	PlanID:         s.Plan.ID,
-	//	PlanType:       "Hamuzzz",
-	//})
-
 	status, err := cw.DynamoSubRepo.Create(models.Subscription{
 		Email:          "hamza@gmail.com",
+		AccountID:      s.Customer.ID,
+		SubscriptionID: s.ID,
+		PlanID:         s.Plan.ID,
+		PlanType:       "Hamuzzz",
 	})
 
 	if err != nil{
@@ -89,4 +89,17 @@ func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request) {
 		s := i.Subscription()
 		stripe_api.ReturnSuccessJSON(w, &s)
 	}
+}
+
+func (cw *Wrapper) TestCreate(w http.ResponseWriter, r *http.Request) {
+
+	status, err := cw.DynamoSubRepo.Create(models.Subscription{
+		Email:          "hamza@gmail.com",
+	})
+
+	if err != nil{
+		fmt.Println(status, err)
+	}
+	fmt.Println(status, err)
+
 }
