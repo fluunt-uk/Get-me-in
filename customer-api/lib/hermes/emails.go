@@ -1,11 +1,9 @@
 package hermes
 
 import (
-	"fmt"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/smtp"
 	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	"github.com/ProjectReferral/Get-me-in/customer-api/models"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -15,21 +13,14 @@ type EmailStruct struct {
 
 type EmailBuilder interface{
 	 CreateActionEmail([]byte)
-	 CreateNotificationEmail(http.ResponseWriter, *http.Request)
-	 CreateSubscriptionEmail(http.ResponseWriter, *http.Request)
+	 CreateNotificationEmail([]byte)
+	 CreateSubscriptionEmail([]byte)
 }
 
 func (c *EmailStruct) CreateActionEmail(body []byte) {
 
-	//CheckBodyStatus(w, r)
-	//s, err := ioutil.ReadAll(r.Body)
-	//
-	//if(err != nil){
-	//	fmt.Println(err)
-	//}
-
 	p := models.IncomingActionDataStruct{}
-	//t.ToStruct(s, &p)
+	t.ToStruct(body, &p)
 
 	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
 
@@ -38,18 +29,10 @@ func (c *EmailStruct) CreateActionEmail(body []byte) {
 
 }
 
-func (c *EmailStruct) CreateNotificationEmail(w http.ResponseWriter, r *http.Request) {
-
-	CheckBodyStatus(w, r)
-
-	s, err := ioutil.ReadAll(r.Body)
-
-	if(err != nil){
-		fmt.Println(err)
-	}
+func (c *EmailStruct) CreateNotificationEmail(body []byte) {
 
 	p := models.IncomingNotificationDataStruct{}
-	t.ToStruct(s, &p)
+	t.ToStruct(body, &p)
 
 	template, subject := smtp.BaseTypeNotificationEmail(p.Template, p)
 
@@ -58,18 +41,10 @@ func (c *EmailStruct) CreateNotificationEmail(w http.ResponseWriter, r *http.Req
 
 }
 
-func (c *EmailStruct) CreateSubscriptionEmail(w http.ResponseWriter, r *http.Request) {
-
-	CheckBodyStatus(w, r)
-
-	s, err := ioutil.ReadAll(r.Body)
-
-	if(err != nil){
-		fmt.Println(err)
-	}
+func (c *EmailStruct) CreateSubscriptionEmail(body []byte) {
 
 	p := models.IncomingPaymentDataStruct{}
-	t.ToStruct(s, &p)
+	t.ToStruct(body, &p)
 
 	template, subject := smtp.BaseTypeSubscriptionEmail(p.Template, p)
 
