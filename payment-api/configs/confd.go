@@ -8,7 +8,12 @@ const (
 	EU_WEST_2         	= "eu-west-2"
 	UNIQUE_IDENTIFIER 	= "email"
 	TABLE				= "subs"
-	/*********************************************/)
+	/*********************************************/
+	/************** Payments configs *************/
+	PREMIUM_PLAN         	= "eu-west-2"
+	/*********************************************/
+
+	)
 
 var (
 	//TODO: this key will need to be changed

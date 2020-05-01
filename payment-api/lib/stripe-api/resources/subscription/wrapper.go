@@ -7,12 +7,13 @@ import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/sub"
+	"log"
 	"net/http"
 )
 
 //interface with the implemented methods will be injected in this variable
 type Builder interface {
-	Put(http.ResponseWriter, *http.Request)
+	Put(c *stripe.Customer, pt string)
 	Get(http.ResponseWriter, *http.Request)
 	Cancel(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
@@ -24,9 +25,9 @@ type Wrapper struct{
 	DynamoSubRepo sub_builder.Builder
 }
 
-func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Put(c *stripe.Customer, pt string) {
 	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
+		Customer: stripe.String(c.ID),
 
 		Items: []*stripe.SubscriptionItemsParams{
 			{
@@ -37,14 +38,12 @@ func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
 	s, e := sub.New(params)
 
 	if e != nil {
-		http.Error(w, e.Error(), 400)
+		log.Println(e.Error())
 		return
 	}
 
-	stripe_api.ReturnSuccessJSON(w, &s)
-
 	status, err := cw.DynamoSubRepo.Create(models.Subscription{
-		Email:          "hamza@gmail.com",
+		Email:          c.Email,
 		AccountID:      s.Customer.ID,
 		SubscriptionID: s.ID,
 		PlanID:         s.Plan.ID,

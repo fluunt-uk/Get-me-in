@@ -9,7 +9,7 @@ var SubClient sub.Builder
 
 
 func CreateSub(w http.ResponseWriter, r *http.Request)  {
-	SubClient.Put(w, r)
+	//SubClient.Put(w, r)
 
 }
 

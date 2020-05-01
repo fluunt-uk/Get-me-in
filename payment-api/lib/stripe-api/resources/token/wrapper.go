@@ -2,30 +2,35 @@ package card
 
 import (
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
+	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/token"
 	"net/http"
 )
 
 type Builder interface {
-	Put(http.ResponseWriter, *http.Request)
+	Put(details models.CardDetails) (*stripe.Token, error)
 	Get(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{}
 
-func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Put(m models.CardDetails) (*stripe.Token, error) {
 	params := &stripe.TokenParams{
 		Card: &stripe.CardParams{
-			Number: stripe.String("4242424242424242"),
-			ExpMonth: stripe.String("12"),
-			ExpYear: stripe.String("2021"),
-			CVC: stripe.String("123"),
+			Number: stripe.String(m.Number),
+			ExpMonth: stripe.String(m.ExpMonth),
+			ExpYear: stripe.String(m.ExpYear),
+			CVC: stripe.String(m.CVC),
 		},
 	}
-	t, _ := token.New(params)
+	t, err := token.New(params)
 
-	stripe_api.ReturnSuccessJSON(w, &t)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }
 
 func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request)  {

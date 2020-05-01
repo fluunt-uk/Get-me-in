@@ -8,7 +8,7 @@ import (
 var CardClient card.Builder
 
 func CreateCard(w http.ResponseWriter, r *http.Request)  {
-	CardClient.Put(w, r)
+	//CardClient.Put(w, r)
 }
 
 func GetCard(w http.ResponseWriter, r *http.Request)  {

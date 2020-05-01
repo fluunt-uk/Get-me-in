@@ -8,7 +8,7 @@ import (
 var CustomerClient customer.Builder
 
 func CreateCustomer(w http.ResponseWriter, r *http.Request)  {
-	CustomerClient.Put(w, r)
+	//CustomerClient.Put(w, r)
 }
 
 func GetCustomer(w http.ResponseWriter, r *http.Request)  {

@@ -1,6 +1,7 @@
 package dep
 
 import (
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/repo"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/card"
@@ -9,6 +10,7 @@ import (
 	token "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/token"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
+	"github.com/stripe/stripe-go"
 	"log"
 )
 
@@ -35,6 +37,7 @@ func Inject(builder ConfigBuilder){
 	//we inject the rabbitmq client
 	LoadRabbitMQClient(rabbitMQClient)
 
+	stripe.Key = configs.StripeKey
 	LoadCardClient(&card.Wrapper{})
 	LoadCustomerClient(&customer.Wrapper{})
 	LoadSubClient(&sub.Wrapper{DynamoSubRepo:&repo.Wrapper{DC:dynamoClient}})

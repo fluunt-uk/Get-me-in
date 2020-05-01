@@ -8,7 +8,7 @@ import (
 )
 
 type Builder interface {
-	Put(http.ResponseWriter, *http.Request)
+	Put(c *stripe.Customer, t *stripe.Token) (*stripe.Card, error)
 	Get(http.ResponseWriter, *http.Request)
 	Del(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
@@ -17,14 +17,18 @@ type Builder interface {
 
 type Wrapper struct{}
 
-func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request)  {
+func (cw *Wrapper) Put(c *stripe.Customer, t *stripe.Token) (*stripe.Card, error) {
 	params := &stripe.CardParams{
-		Customer: stripe.String("cus_H7HyJY5cWLA7Uf"),
-		Token: stripe.String("tok_1GZ3MzGhy1brUyYIYJiEpaZB"),
+		Customer: stripe.String(c.ID),
+		Token: stripe.String(t.ID),
 	}
-	c, _ := card.New(params)
+	card, err := card.New(params)
 
-	stripe_api.ReturnSuccessJSON(w, &c)
+	if err != nil {
+		return nil, err
+	}
+
+	return card, nil
 }
 
 func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request)  {

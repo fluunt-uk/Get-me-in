@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
-	"github.com/ProjectReferral/Get-me-in/payment-api/internal/api"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal/service"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ func SetupEndpoints() {
 
 	_router := mux.NewRouter()
 
-	_router.HandleFunc("/customer/create", api.CreateCustomer).Methods("POST")
+	_router.HandleFunc("/premium/subscribe", service.SubscribeToPremiumPlan).Methods("POST")
 
 	// At the current stage, not open to the world
 	//_router.HandleFunc("/customer/get", api.GetCustomer).Methods("GET")

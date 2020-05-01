@@ -8,7 +8,7 @@ import (
 var TokenClient token.Builder
 
 func CreateToken(w http.ResponseWriter, r *http.Request)  {
-	TokenClient.Put(w, r)
+	//TokenClient.Put(w, r)
 }
 
 func GetToken(w http.ResponseWriter, r *http.Request)  {
