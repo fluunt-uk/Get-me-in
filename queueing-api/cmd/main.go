@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/ProjectReferral/Get-me-in/queueing-api/internal/api"
+	"log"
+	"os"
 )
 
 func main() {
