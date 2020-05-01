@@ -3,7 +3,6 @@ package event_driven
 import (
 	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes"
 	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
-	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	queue_models "github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"log"

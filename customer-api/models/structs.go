@@ -59,12 +59,12 @@ type IncomingActionDataStruct struct {
 //}
 
 const (
-	CANCEL_SUBSCRIPTION		= "cancel-subscription"
-	NEW_USER_VERIFY 		= "new-user-verify"
-	RESET_PASSWORD 			= "reset-password"
-	CREATE_SUBSCRIPTION 	= "create-subscription"
-	PAYMENT_INVOICE 		= "payment-invoice"
-	PAYMENT_CONFIRMATION 	= "payment-confirmation"
-	REMINDER 				= "reminder"
+	CANCEL_SUBSCRIPTION		= "cancel-subscription-notification"
+	NEW_USER_VERIFY 		= "new-user-verify-action"
+	RESET_PASSWORD 			= "reset-password-action"
+	CREATE_SUBSCRIPTION 	= "create-subscription-notification"
+	PAYMENT_INVOICE 		= "payment-invoice-payment"
+	PAYMENT_CONFIRMATION 	= "payment-confirmation-payment"
+	REMINDER 				= "reminder-notification"
 	REFEREE_APPLICATION 	= "referee-application"
 )
