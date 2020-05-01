@@ -18,9 +18,6 @@ func (r *MsgHandler) InjectService(builder hermes.EmailBuilder) {
 //how we want to handle the incoming message
 func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err error, qc client.QueueClient) (queue_models.SubscribeMessage, client.HttpReponse) {
 
-	//TODO: testing purposes only, we need to store all sub id's in memory
-	var subID = queue_models.QueueSubscribeId{ID: "test-sub"}
-
 	if err != nil {
 		log.Printf("error converting message [%s]", err)
 	} else {
@@ -35,13 +32,13 @@ func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err erro
 
 	if false {
 		sm = queue_models.MessageReject{
-			SubID:   subID,
+			SubID:   subcriberStore["new-user-verify-email"],
 			ID:      qm.ID,
 			Requeue: true,
 		}
 	} else {
 		sm = queue_models.MessageAcknowledge{
-			SubID:       subID,
+			SubID:       subcriberStore["new-user-verify-email"],
 			ID:          qm.ID,
 			Acknowledge: true,
 			Requeue:     false,
