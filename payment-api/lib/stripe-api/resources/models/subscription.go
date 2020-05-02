@@ -6,4 +6,5 @@ type Subscription struct {
 	SubscriptionID 	string	`json:"sub_id"`
 	PlanID 			string	`json:"plan_id"`
 	PlanType 		string	`json:"plan_type"`
+	Price 			int64 	`json:"price"`
 }

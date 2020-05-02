@@ -7,13 +7,12 @@ import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/sub"
-	"log"
 	"net/http"
 )
 
 //interface with the implemented methods will be injected in this variable
 type Builder interface {
-	Put(c *stripe.Customer, pt string)
+	Put(c *stripe.Customer, pt string) (*models.Subscription, error)
 	Get(http.ResponseWriter, *http.Request)
 	Cancel(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
@@ -25,35 +24,38 @@ type Wrapper struct{
 	DynamoSubRepo sub_builder.Builder
 }
 
-func (cw *Wrapper) Put(c *stripe.Customer, pt string) {
+func (cw *Wrapper) Put(c *stripe.Customer, pt string) (*models.Subscription, error){
 	params := &stripe.SubscriptionParams{
 		Customer: stripe.String(c.ID),
 
 		Items: []*stripe.SubscriptionItemsParams{
 			{
-				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
+				Plan: stripe.String(pt),
 			},
 		},
 	}
 	s, e := sub.New(params)
 
 	if e != nil {
-		log.Println(e.Error())
-		return
+		return nil, e
 	}
 
-	status, err := cw.DynamoSubRepo.Create(models.Subscription{
+	var sm = &models.Subscription{
 		Email:          c.Email,
 		AccountID:      s.Customer.ID,
 		SubscriptionID: s.ID,
 		PlanID:         s.Plan.ID,
-		PlanType:       "Hamuzzz",
-	})
+		PlanType:       s.Plan.Nickname,
+		Price:			s.Plan.Amount,
+	}
+
+	status, err := cw.DynamoSubRepo.Create(sm)
 
 	if err != nil{
 		fmt.Println(status, err)
 	}
-	fmt.Println(status, err)
+
+	return sm, nil
 }
 
 func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +94,7 @@ func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request) {
 
 func (cw *Wrapper) TestCreate(w http.ResponseWriter, r *http.Request) {
 
-	status, err := cw.DynamoSubRepo.Create(models.Subscription{
+	status, err := cw.DynamoSubRepo.Create(&models.Subscription{
 		Email:          "hamza@gmail.com",
 	})
 

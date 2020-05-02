@@ -2,20 +2,24 @@ package rabbitmq
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"github.com/ProjectReferral/Get-me-in/account-api/configs"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
+	"github.com/stripe/stripe-go"
 	"log"
 	"net/http"
 )
 
 var Client client.QueueClient
 
-func BroadcastNewSubEvent(body []byte) {
+func BroadcastNewSubEvent(s *stripe.Subscription) {
 
 	client := &http.Client{}
+
+	b, _ := json.Marshal(s)
 
 	//not dependant on the response
 	_, err := Client.Publish(client, models.ExchangePublish{
@@ -25,7 +29,7 @@ func BroadcastNewSubEvent(body []byte) {
 		Immediate: false,
 		Publishing: amqp.Publishing{
 			ContentType:   "text/plain",
-			Body:          body,
+			Body:          b,
 			CorrelationId: NewUUID(),
 		},
 	})
