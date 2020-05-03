@@ -4,7 +4,8 @@ import (
 	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
-	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes"
+	"github.com/ProjectReferral/Get-me-in/customer-api/internal/service"
+	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/gorilla/mux"
@@ -37,7 +38,7 @@ func Inject(builder ConfigBuilder) {
 	//initialise our message handler
 	mh := &event_driven.MsgHandler{}
 	//inject the hermes service into it
-	mh.InjectService(&hermes.EmailStruct{})
+	mh.InjectService(&service.EmailService{AEB: &templates.EmailBuilder{}})
 
 	log.Println("Loading endpoints...")
 	eb := api.EndpointBuilder{}

@@ -23,6 +23,8 @@ func SendEmail(to []string, subject string, html_template string) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	log.Printf("Email sent")
 }
 
 

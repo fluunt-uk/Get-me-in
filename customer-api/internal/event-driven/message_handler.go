@@ -1,25 +1,21 @@
 package event_driven
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes"
+	"github.com/ProjectReferral/Get-me-in/customer-api/internal/service"
 	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	queue_models "github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type MsgHandler struct {
-	emailService 	hermes.EmailBuilder
+	emailService *service.EmailService
 }
 
-type TemplateType struct {
-	template 		string
-}
-
-func (r *MsgHandler) InjectService(builder hermes.EmailBuilder) {
-	r.emailService = builder
+func (r *MsgHandler) InjectService(s *service.EmailService) {
+	r.emailService = s
 }
 //how we want to handle the incoming message
 func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err error, qc client.QueueClient) (queue_models.SubscribeMessage, client.HttpReponse) {
@@ -31,18 +27,10 @@ func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err erro
 	}
 	var sm queue_models.SubscribeMessage
 
-	p := TemplateType{}
+	p := models.IncomingData{}
 	t.ToStruct(qm.Body, &p)
 
-	if strings.Contains(p.template, "action") {
-		r.emailService.CreateActionEmail(qm.Body)
-	} else if strings.Contains(p.template, "payment") {
-		r.emailService.CreateSubscriptionEmail(qm.Body)
-	} else {
-		r.emailService.CreateNotificationEmail(qm.Body)
-	}
-
-	//hermes.CheckBodyStatus()
+	r.emailService.SendEmail(qm.Body)
 
 	if false {
 		sm = queue_models.MessageReject{

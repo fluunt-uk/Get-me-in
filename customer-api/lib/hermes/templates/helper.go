@@ -3,9 +3,12 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	s "github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
 	"log"
 )
+
+var staticTemplates = make(map[string]*s.BaseEmail)
 
 // Configure templates by setting a theme and your product info
 var h = hermes.Hermes{
