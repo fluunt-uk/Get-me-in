@@ -1,54 +1,43 @@
 package models
 
-type ActionEmailStruct struct {
-	Name 		string
-	Intro 		string
+type ActionEmail struct {
 	Instruct 	string
 	ButtonText 	string
 	ButtonColor string
 	ButtonLink 	string
-	Outro 		string
 }
 
-type NotificationEmailStruct struct {
-	Name  		string
-	Intro 		string
-	Outro 		string
-}
-
-type PaymentEmailStruct struct {
-	Firstname 	string
-	Intro       string
-	Outro		string
+type PaymentEmail struct {
 	Premium 	string
 	Description string
 	Price 		int
 }
 
-type IncomingNotificationDataStruct struct {
-	Template 	string	`json:"template"`
-	Email 		string 	`json:"email"`
-	Firstname 	string 	`json:"firstname"`
-	Surname 	string 	`json:"surname"`
+type BaseEmail struct {
+	Name  		string
+	Intro 		string
+	Outro 		string
+	Payment		PaymentEmail
+	Action		ActionEmail
 }
 
-type IncomingPaymentDataStruct struct {
-	Template 	string	`json:"template"`
-	Email 		string 	`json:"email"`
-	Firstname 	string	`json:"firstname"`
-	Surname 	string	`json:"surname"`
+type IncomingData struct{
+	Template 	string				`json:"template"`
+	Email 		string 				`json:"email"`
+	FirstName 	string 				`json:"first_name"`
+	Surname 	string 				`json:"surname"`
+	AccessCode 	string 				`json:"access_code"`
+	Token 		string 				`json:"token"`
+	Payment		IncomingPaymentData	`json:"payment"`
+
+}
+
+type IncomingPaymentData struct {
 	Premium 	string	`json:"premium"`
 	Description string	`json:"description"`
 	Price 		int 	`json:"price"`
 }
 
-type IncomingActionDataStruct struct {
-	Template 	string	`json:"template"`
-	Email 		string 	`json:"email"`
-	Firstname 	string 	`json:"firstname"`
-	Surname 	string 	`json:"surname"`
-	Accesscode 	string 	`json:"accesscode"`
-}
 
 //{
 //"template":"reset-password",
@@ -59,12 +48,12 @@ type IncomingActionDataStruct struct {
 //}
 
 const (
-	CANCEL_SUBSCRIPTION		= "cancel-subscription"
+	CANCEL_SUBSCRIPTION		= "cancel-subscription-notification"
 	NEW_USER_VERIFY 		= "new-user-verify"
 	RESET_PASSWORD 			= "reset-password"
-	CREATE_SUBSCRIPTION 	= "create-subscription"
-	PAYMENT_INVOICE 		= "payment-invoice"
-	PAYMENT_CONFIRMATION 	= "payment-confirmation"
-	REMINDER 				= "reminder"
+	CREATE_SUBSCRIPTION 	= "create-subscription-notification"
+	PAYMENT_INVOICE 		= "payment-invoice-payment"
+	PAYMENT_CONFIRMATION 	= "payment-confirmation-payment"
+	REMINDER 				= "reminder-notification"
 	REFEREE_APPLICATION 	= "referee-application"
 )

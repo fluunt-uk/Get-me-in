@@ -1,7 +1,9 @@
 package event_driven
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes"
+	"github.com/ProjectReferral/Get-me-in/customer-api/internal/service"
+	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
+	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	queue_models "github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"log"
@@ -9,17 +11,14 @@ import (
 )
 
 type MsgHandler struct {
-	emailService 	hermes.EmailBuilder
+	emailService *service.EmailService
 }
 
-func (r *MsgHandler) InjectService(builder hermes.EmailBuilder) {
-	r.emailService = builder
+func (r *MsgHandler) InjectService(s *service.EmailService) {
+	r.emailService = s
 }
 //how we want to handle the incoming message
 func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err error, qc client.QueueClient) (queue_models.SubscribeMessage, client.HttpReponse) {
-
-	//TODO: testing purposes only, we need to store all sub id's in memory
-	var subID = queue_models.QueueSubscribeId{ID: "test-sub"}
 
 	if err != nil {
 		log.Printf("error converting message [%s]", err)
@@ -28,20 +27,20 @@ func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err erro
 	}
 	var sm queue_models.SubscribeMessage
 
-	//do some processing with the qm.body
-	//r.emailService.CreateActionEmail()
+	p := models.IncomingData{}
+	t.ToStruct(qm.Body, &p)
 
-	//hermes.CheckBodyStatus()
+	//r.emailService.SendEmail(qm.Body)
 
 	if false {
 		sm = queue_models.MessageReject{
-			SubID:   subID,
+			SubID:   subcriberStore["new-user-verify-email"],
 			ID:      qm.ID,
 			Requeue: true,
 		}
 	} else {
 		sm = queue_models.MessageAcknowledge{
-			SubID:       subID,
+			SubID:       subcriberStore["new-user-verify-email"],
 			ID:          qm.ID,
 			Acknowledge: true,
 			Requeue:     false,

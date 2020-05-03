@@ -11,7 +11,9 @@ import (
 
 var Client client.QueueClient
 
-var subID = models.QueueSubscribeId{}
+var SubID = models.QueueSubscribeId{}
+
+var subcriberStore = make(map[string]models.QueueSubscribeId)
 
 func SubscribeTo(sub models.QueueSubscribe){
 
@@ -23,15 +25,12 @@ func SubscribeTo(sub models.QueueSubscribe){
 	resp,err := Client.Subscribe(hc, sub)
 	if err == nil || resp != nil{
 		defer resp.Body.Close()
-		jsonError := json.NewDecoder(resp.Body).Decode(&subID)
+		jsonError := json.NewDecoder(resp.Body).Decode(&SubID)
 		if jsonError != nil{
 			log.Printf("failed to make json read [%+v] status[%d]",jsonError,resp.StatusCode)
 		}else{
-			log.Printf("body: %+v",subID)
-			go func(){
-				time.Sleep(10 * time.Second)
-				//testUnSub(hc,subId,dqc)
-			}()
+			log.Printf("body: %+v",SubID)
+			subcriberStore["new-user-verify-email"] = SubID
 		}
 	}else{
 		log.Printf("error sending POST err[%+v] resp[%+v]",err, resp)

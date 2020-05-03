@@ -8,5 +8,8 @@ var (
 )
 
 const (
+	EXPIRY = 15
+	ISSUER = "customer-api"
+	AUDIENCE = "verify_user"
 	SUB_ACTION_EMAIL = "http://localhost:5005/email/action"
 )

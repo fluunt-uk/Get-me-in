@@ -12,6 +12,6 @@ func main() {
 	dep.Inject(&util.ServiceConfigs{
 		Environment: os.Getenv("ENV"),
 		Port:        configs.PORT,
-		BrokerUrl:   "http:localhost:5004",
+		BrokerUrl:   "http://localhost:5004",
 	})
 }
