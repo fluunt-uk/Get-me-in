@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/ProjectReferral/Get-me-in/customer-api/cmd/dep"
 	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
-	"github.com/ProjectReferral/Get-me-in/customer-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/util"
 	"os"
 )
@@ -11,10 +10,8 @@ import (
 func main() {
 
 	dep.Inject(&util.ServiceConfigs{
-		Environment: 	os.Getenv("ENV"),
-		Port:		 	configs.PORT,
-		BrokerUrl: 		configs.QAPI_URL,
+		Environment: os.Getenv("ENV"),
+		Port:        configs.PORT,
+		BrokerUrl:   "http:localhost:5004",
 	})
-
-	api.SetupEndpoints()
 }

@@ -1,20 +1,14 @@
 package email
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
+	event_driven "github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
+	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"net/http"
 )
 
-var Service event_driven.EmailBuilder
+func CustomSubscribe(w http.ResponseWriter, r *http.Request) {
 
-func SendActionEmail(w http.ResponseWriter, r *http.Request) {
-	Service.CreateActionEmail()
-}
+	//TODO: get the data from the body
 
-func SendNotificationEmail(w http.ResponseWriter, r *http.Request) {
-	Service.CreateNotificationEmail(w, r)
-}
-
-func SendSubscriptionEmail(w http.ResponseWriter, r *http.Request) {
-	Service.CreateSubscriptionEmail(w, r)
+	event_driven.SubscribeTo(models.QueueSubscribe{})
 }

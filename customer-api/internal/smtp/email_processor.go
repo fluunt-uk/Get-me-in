@@ -1,7 +1,6 @@
 package smtp
 
 import (
-	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"log"
 	"net/smtp"
 )
@@ -11,7 +10,7 @@ func SendEmail(to []string, subject string, html_template string){
 	auth := smtp.PlainAuth(
 				"",
 				"project181219@gmail.com",
-				configs.DevEmailPw,
+				"kowbu1-nuQjik-zyxput",
 				"smtp.gmail.com",
 			)
 

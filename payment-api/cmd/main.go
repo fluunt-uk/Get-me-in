@@ -1,40 +1,27 @@
 package main
 
 import (
-	configs "github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/cmd/dep"
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
-	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
-	"github.com/stripe/stripe-go"
-	"log"
+	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
+	"github.com/ProjectReferral/Get-me-in/util"
 	"os"
 )
 
 func main() {
-	loadEnvConfigs()
+	//gets all the necessary configs into our object
+	//completes connections
+	//assigns connections to repos
+	dep.Inject(&util.ServiceConfigs{
+		Environment: os.Getenv("ENV"),
+		Region:       configs.EU_WEST_2,
+		Table:        configs.TABLE,
+		SearchParam:  configs.UNIQUE_IDENTIFIER,
+		GenericModel: models.Subscription{},
+		BrokerUrl:    os.Getenv("BROKERURL"),
+		Port:		  configs.PORT,
+	})
 
 	internal.SetupEndpoints()
-}
-
-//internal specific configs are loaded at runtime
-func loadEnvConfigs() {
-	stripe.Key = configs.StripeKey
-	var env = ""
-
-	log.Println("Running on %s \n", configs.PORT)
-
-	configs.BrokerUrl = os.Getenv("BROKERURL")
-	dynamodb.SearchParam = configs.UNIQUE_IDENTIFIER
-
-	switch env := os.Getenv("ENV"); env {
-	case "DEV":
-		dynamodb.DynamoTable = "dev-users"
-	case "UAT":
-		dynamodb.DynamoTable = "uat-users"
-	case "PROD":
-		dynamodb.DynamoTable = "prod-users"
-	default:
-		dynamodb.DynamoTable = "dev-users"
-	}
-
-	log.Println("Environment:" + env)
 }

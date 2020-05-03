@@ -50,13 +50,11 @@ func Inject(builder ConfigBuilder) {
 	rabbitMQClient := builder.LoadRabbitMQConfigs()
 
 	LoadRabbitMQClient(rabbitMQClient)
-
-
 }
 
 //variable injected with the interface methods
 func LoadAccountRepo (r repo_builder.AccountBuilder){
-	log.Println("Injecting Account repo-builder")
+	log.Println("Injecting Account repo")
 	repo_builder.Account = r
 }
 //variable injected with the interface methods

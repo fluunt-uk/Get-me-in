@@ -50,8 +50,16 @@ type IncomingActionDataStruct struct {
 	Accesscode 	string 	`json:"accesscode"`
 }
 
+//{
+//"template":"reset-password",
+//"email":"sharjeel50@hotmail.co.uk",
+//"firstname":"Sharjeel",
+//"surname":"Jan",
+//"accesscode":"1234"
+//}
+
 const (
-	CANCEL_SUBSCRIPTION 	= "cancel-subscription"
+	CANCEL_SUBSCRIPTION		= "cancel-subscription"
 	NEW_USER_VERIFY 		= "new-user-verify"
 	RESET_PASSWORD 			= "reset-password"
 	CREATE_SUBSCRIPTION 	= "create-subscription"

@@ -1,4 +1,4 @@
-package event_driven
+package hermes
 
 import (
 	"fmt"
@@ -14,12 +14,12 @@ type EmailStruct struct {
 }
 
 type EmailBuilder interface{
-	 CreateActionEmail()
+	 CreateActionEmail([]byte)
 	 CreateNotificationEmail(http.ResponseWriter, *http.Request)
 	 CreateSubscriptionEmail(http.ResponseWriter, *http.Request)
 }
 
-func (c *EmailStruct) CreateActionEmail() {
+func (c *EmailStruct) CreateActionEmail(body []byte) {
 
 	//CheckBodyStatus(w, r)
 	//s, err := ioutil.ReadAll(r.Body)
@@ -27,13 +27,13 @@ func (c *EmailStruct) CreateActionEmail() {
 	//if(err != nil){
 	//	fmt.Println(err)
 	//}
-	//
-	//p := models.IncomingActionDataStruct{}
+
+	p := models.IncomingActionDataStruct{}
 	//t.ToStruct(s, &p)
 
-	template, subject := smtp.BaseTypeActionEmail("reset-password", models.IncomingActionDataStruct{})
+	template, subject := smtp.BaseTypeActionEmail(p.Template, p)
 
-	smtp.SendEmail([]string{"project181219@gmail.com"}, subject, template)
+	go smtp.SendEmail([]string{p.Email}, subject, template)
 	log.Printf("Email sent")
 
 }
@@ -85,3 +85,4 @@ func CheckBodyStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
