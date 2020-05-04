@@ -37,8 +37,11 @@ func Inject(builder ConfigBuilder) {
 	log.Println("Setting up message handler...")
 	//initialise our message handler
 	mh := &event_driven.MsgHandler{}
+
+	es := &service.EmailService{AEB: &templates.EmailBuilder{}}
+	es.SetupTemplates()
 	//inject the hermes service into it
-	mh.InjectService(&service.EmailService{AEB: &templates.EmailBuilder{}})
+	mh.InjectService(es)
 
 	log.Println("Loading endpoints...")
 	eb := api.EndpointBuilder{}

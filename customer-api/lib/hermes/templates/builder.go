@@ -1,17 +1,25 @@
 package templates
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
+	"log"
 	"strconv"
 )
 
 type EmailBuilder struct {
 	st	map[string]*models.BaseEmail
+	theme *hermes.Hermes
 }
 
-func (aeb *EmailBuilder) Innit(){
+func (aeb *EmailBuilder) Init(){
 	aeb.st = make(map[string]*models.BaseEmail)
+}
+
+func (aeb *EmailBuilder) SetTheme(t *hermes.Hermes){
+	aeb.theme = t
 }
 
 func (aeb *EmailBuilder) AddStaticTemplate(key string, s *models.BaseEmail) {
@@ -95,4 +103,27 @@ func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) string {
 	})
 
 	return t
+}
+
+
+
+func ToStruct(d []byte, p interface{}){
+	err := json.Unmarshal(d, &p)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func StringParsedHTML(e hermes.Email) string {
+	emailBody, err := h.GenerateHTML(e)
+	if err != nil {
+		failOnError(err, "Failed to generate HTML email")
+	}
+	return emailBody
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
 }
