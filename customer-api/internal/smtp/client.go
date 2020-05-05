@@ -1,6 +1,7 @@
 package smtp
 
 import (
+	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"log"
 	"net/smtp"
 )
@@ -9,8 +10,8 @@ func SendEmail(to []string, subject string, html_template string) {
 
 	auth := smtp.PlainAuth(
 				"",
-				"project181219@gmail.com",
-				"kowbu1-nuQjik-zyxput",
+				configs.DevEmail,
+				configs.DevEmailPw,
 				"smtp.gmail.com",
 			)
 
@@ -18,11 +19,13 @@ func SendEmail(to []string, subject string, html_template string) {
 		"charset=\"UTF-8\";\n\n" + html_template)
 
 	err := smtp.SendMail("smtp.gmail.com:587", auth,
-		"project181219@gmail.com", to, msg,)
+		configs.DevEmail, to, msg,)
 
 	if err != nil {
 		log.Println(err)
 	}
+
+	log.Printf("Email sent")
 }
 
 

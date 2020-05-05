@@ -3,8 +3,9 @@ package dep
 import (
 	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/api"
-	"github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
-	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes"
+	ed "github.com/ProjectReferral/Get-me-in/customer-api/internal/event-driven"
+	"github.com/ProjectReferral/Get-me-in/customer-api/internal/service"
+	"github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/gorilla/mux"
@@ -35,9 +36,12 @@ func Inject(builder ConfigBuilder) {
 
 	log.Println("Setting up message handler...")
 	//initialise our message handler
-	mh := &event_driven.MsgHandler{}
+	mh := &ed.MsgHandler{}
+
+	es := &service.EmailService{EB: &templates.EmailBuilder{}}
+	es.SetupTemplates()
 	//inject the hermes service into it
-	mh.InjectService(&hermes.EmailStruct{})
+	mh.InjectService(es)
 
 	log.Println("Loading endpoints...")
 	eb := api.EndpointBuilder{}
@@ -52,18 +56,21 @@ func Inject(builder ConfigBuilder) {
 }
 
 func loadRabbitMQClient(q client.QueueClient) {
-	log.Println("Injecting RabbitMQ Repo")
-	event_driven.Client = q
+	log.Println("Injecting RabbitMQ Client and dependencies")
+	ed.Client = q
+	ss := &ed.SubscriberStore{}
+	ss.Init()
+	ed.Store = ss
 }
 
 func subscribeToChannels() {
 	log.Println("Subscribing to channels ...")
 
 	//subscribe to new user verification email Q
-	event_driven.SubscribeTo(models.QueueSubscribe{
+	ed.SubscribeTo(models.QueueSubscribe{
 		//endpoint that will be consuming the messages
-		URL:       configs.SUB_ACTION_EMAIL,
-		Name:      "new-user-verify-email",
+		URL:       configs.EMAIL_DISPATCHER_URL,
+		Name:      configs.VERIFY_EMAIL_Q,
 		Consumer:  "",
 		Exclusive: false,
 		NoLocal:   false,
