@@ -1,6 +1,7 @@
 package event_driven
 
 import (
+	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/service"
 	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	"github.com/ProjectReferral/Get-me-in/customer-api/models"
@@ -34,13 +35,13 @@ func (r *MsgHandler) HandleRabbitMessage(qm *queue_models.QueueMessage, err erro
 
 	if false {
 		sm = queue_models.MessageReject{
-			SubID:   subcriberStore["new-user-verify-email"],
-			ID:      qm.ID,
-			Requeue: true,
+			SubID:  	 *Store.GetSubscriber(configs.VERIFY_EMAIL_Q),
+			ID:      	qm.ID,
+			Requeue: 	true,
 		}
 	} else {
 		sm = queue_models.MessageAcknowledge{
-			SubID:       subcriberStore["new-user-verify-email"],
+			SubID:       *Store.GetSubscriber(configs.VERIFY_EMAIL_Q),
 			ID:          qm.ID,
 			Acknowledge: true,
 			Requeue:     false,
