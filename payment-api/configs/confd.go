@@ -13,6 +13,15 @@ const (
 	PREMIUM_PLAN         	= "plan_H4eVnOxhxYYZ7a"
 	ACCOUNT_API_PREMIUM		= "http://localhost:5001/account"
 	/*********************************************/
+	/*********** Authorization configs ***********/
+	AUTH_HEADER         	= "Authorization"
+	/*********************************************/
+	/************** RabbitMQ configs *************/
+	FANOUT_EXCHANGE = "adverts.fanout"
+	//for dev usage outside of local network
+	//QAPI_URL = "http://35.179.11.178:5004"
+	QAPI_URL = "http://localhost:5004"
+	/*********************************************/
 
 	)
 

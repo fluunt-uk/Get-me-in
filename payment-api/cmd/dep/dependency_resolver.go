@@ -2,6 +2,8 @@ package dep
 
 import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal/service"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/repo"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/card"
@@ -38,10 +40,17 @@ func Inject(builder ConfigBuilder){
 	LoadRabbitMQClient(rabbitMQClient)
 
 	stripe.Key = configs.StripeKey
-	LoadCardClient(&card.Wrapper{})
-	LoadCustomerClient(&customer.Wrapper{})
-	LoadSubClient(&sub.Wrapper{DynamoSubRepo:&repo.Wrapper{DC:dynamoClient}})
-	LoadTokenClient(&token.Wrapper{})
+
+	subscriptionServ := service.Subscription{
+		CustomerClient: &customer.Wrapper{},
+		SubClient:      &sub.Wrapper{DynamoSubRepo: &repo.Wrapper{DC: dynamoClient}},
+		TokenClient:    &token.Wrapper{},
+		CardClient:     &card.Wrapper{},
+	}
+
+	//TODO:to be changed and injected the same way as account-api
+	internal.SS = subscriptionServ
+	log.Println("All Dependencies injected")
 }
 
 func LoadRabbitMQClient(c client.QueueClient){

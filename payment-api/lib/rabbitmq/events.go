@@ -4,25 +4,25 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	resource_model "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
-	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
+	qm "github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
-	"github.com/stripe/stripe-go"
 	"log"
 	"net/http"
 )
 
 var Client client.QueueClient
 
-func BroadcastNewSubEvent(s *stripe.Subscription) {
+func BroadcastNewSubEvent(s resource_model.Subscription) {
 
 	client := &http.Client{}
 
 	b, _ := json.Marshal(s)
 
 	//not dependant on the response
-	_, err := Client.Publish(client, models.ExchangePublish{
+	_, err := Client.Publish(client, qm.ExchangePublish{
 		Exchange:  configs.FANOUT_EXCHANGE,
 		Key:       "",
 		Mandatory: false,

@@ -2,43 +2,52 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
-	"github.com/ProjectReferral/Get-me-in/payment-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/payment-api/internal/models"
+	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
+	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/card"
+	customer "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/customer"
+	sub "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/subscription"
+	token "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/token"
 	"github.com/ProjectReferral/Get-me-in/pkg/http_lib"
 	"github.com/stripe/stripe-go"
 	"net/http"
 	"sync"
 )
 
-var (
-	wg sync.WaitGroup
+type Subscription struct {
+	wg *sync.WaitGroup
+
+	CustomerClient customer.Builder
+	SubClient sub.Builder
+	TokenClient token.Builder
+	CardClient card.Builder
+
+	//TODO: these might not be thread safe
 	c *stripe.Customer
 	t *stripe.Token
 	e error
-	)
+}
 
+func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
 
-func SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
-
-	body := models.Subscriber{}
+	body := &models.Subscriber{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if !stripe_api.HandleError(err, w) {
 
 		//create new customer and token
-		AsyncRequest(&body)
-		wg.Wait()
+		s.asyncRequest(body)
+		s.wg.Wait()
 
-		if !stripe_api.HandleError(e, w) {
+		if !stripe_api.HandleError(s.e, w) {
 
 			//link the card with customer
-			_, cardErr := api.CardClient.Put(c, t)
+			_, cardErr := s.CardClient.Put(s.c, s.t)
 			if !stripe_api.HandleError(cardErr, w) {
 
 				//create the sub and make payment
-				_, subErr := api.SubClient.Put(c, configs.PREMIUM_PLAN)
+				s, subErr := s.SubClient.Put(s.c, configs.PREMIUM_PLAN)
 
 				b, _ := json.Marshal(models.ChangeRequest{
 					Field:   "premium",
@@ -46,33 +55,35 @@ func SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
 					Type:    3,
 				})
 
-				res, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
-					map[string]string{"Authorization": r.Header.Get("Authorization")})
+				//change premium field to true on user's account
+				_, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
+					map[string]string{configs.AUTH_HEADER: r.Header.Get(configs.AUTH_HEADER)})
 
-				fmt.Println(res, err)
 
-				if !stripe_api.HandleError(subErr, w){
+				if !stripe_api.HandleError(subErr, w) && !stripe_api.HandleError(err, w){
+
+					//send email confirmation
+					go rabbitmq.BroadcastNewSubEvent(*s)
 					w.WriteHeader(200)
 				}
 			}
 		}
 	}
-	//go rabbitmq.BroadcastNewSubEvent(s)
 
 	w.WriteHeader(400)
 }
 
-func AsyncRequest(body *models.Subscriber){
+func (s *Subscription) asyncRequest(body *models.Subscriber){
 
-	wg.Add(1)
+	s.wg.Add(1)
 	go func(wg *sync.WaitGroup){
 		defer wg.Done()
-		c, e = api.CustomerClient.Put(body.Customer)
-	}(&wg)
+		s.c, s.e = s.CustomerClient.Put(body.Customer)
+	}(s.wg)
 
-	wg.Add(1)
+	s.wg.Add(1)
 	go func(wg *sync.WaitGroup){
 		defer wg.Done()
-		t, e = api.TokenClient.Put(body.PaymentDetails)
-	}(&wg)
+		s.t, s.e = s.TokenClient.Put(body.PaymentDetails)
+	}(s.wg)
 }
