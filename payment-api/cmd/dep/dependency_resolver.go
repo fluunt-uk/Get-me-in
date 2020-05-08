@@ -12,6 +12,7 @@ import (
 	token "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/token"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
+	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go"
 	"log"
 )
@@ -47,9 +48,14 @@ func Inject(builder ConfigBuilder){
 		TokenClient:    &token.Wrapper{},
 		CardClient:     &card.Wrapper{},
 	}
+	subscriptionServ.Init()
 
-	//TODO:to be changed and injected the same way as account-api
-	internal.SS = subscriptionServ
+	log.Println("Loading endpoints...")
+	eb := internal.EndpointBuilder{}
+
+	eb.SetupRouter(mux.NewRouter())
+	eb.InjectSubscriptionServ(subscriptionServ)
+	eb.SetupEndpoints()
 	log.Println("All Dependencies injected")
 }
 

@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/cmd/dep"
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
-	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/ProjectReferral/Get-me-in/util"
 	"os"
@@ -19,9 +18,7 @@ func main() {
 		Table:        configs.TABLE,
 		SearchParam:  configs.UNIQUE_IDENTIFIER,
 		GenericModel: models.Subscription{},
-		BrokerUrl:    os.Getenv("BROKERURL"),
+		BrokerUrl:    configs.QAPI_URL,
 		Port:		  configs.PORT,
 	})
-
-	internal.SetupEndpoints()
 }

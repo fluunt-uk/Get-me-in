@@ -12,6 +12,10 @@ const (
 	/************** Payments configs *************/
 	PREMIUM_PLAN         	= "plan_H4eVnOxhxYYZ7a"
 	ACCOUNT_API_PREMIUM		= "http://localhost:5001/account"
+	CANCEL_SUBSCRIPTION		= "cancel-subscription"
+	CREATE_SUBSCRIPTION 	= "create-subscription"
+	PAYMENT_INVOICE 		= "payment-invoice"
+	PAYMENT_CONFIRMATION 	= "payment-confirmation"
 	/*********************************************/
 	/*********** Authorization configs ***********/
 	AUTH_HEADER         	= "Authorization"
@@ -22,6 +26,7 @@ const (
 	//QAPI_URL = "http://35.179.11.178:5004"
 	QAPI_URL = "http://localhost:5004"
 	/*********************************************/
+
 
 	)
 

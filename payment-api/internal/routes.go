@@ -8,13 +8,22 @@ import (
 	"net/http"
 )
 
-var SS service.Subscription
 
-func SetupEndpoints() {
+type EndpointBuilder struct {
+	router       	*mux.Router
+	ss 				service.Subscription
+}
 
-	_router := mux.NewRouter()
+func (eb *EndpointBuilder) SetupRouter(route *mux.Router) {
+	eb.router = route
+}
 
-	_router.HandleFunc("/premium/subscribe", SS.SubscribeToPremiumPlan).Methods("POST")
+func (eb *EndpointBuilder) InjectSubscriptionServ(ss service.Subscription) {
+	eb.ss = ss
+}
 
-	log.Fatal(http.ListenAndServe(configs.PORT, _router))
+func (eb *EndpointBuilder) SetupEndpoints() {
+
+	eb.router.HandleFunc("/premium/subscribe", eb.ss.SubscribeToPremiumPlan).Methods("POST")
+	log.Fatal(http.ListenAndServe(configs.PORT, eb.router))
 }

@@ -19,6 +19,7 @@ func BroadcastNewSubEvent(s resource_model.Subscription) {
 
 	client := &http.Client{}
 
+	s.SetTemplate(configs.CREATE_SUBSCRIPTION)
 	b, _ := json.Marshal(s)
 
 	//not dependant on the response
@@ -37,6 +38,8 @@ func BroadcastNewSubEvent(s resource_model.Subscription) {
 	if err != nil {
 		log.Printf("Http request to RabbitMQ API failed with :[%s]", err.Error())
 	}
+
+	log.Println("Message sent")
 }
 
 func NewUUID() string {

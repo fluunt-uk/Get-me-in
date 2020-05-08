@@ -30,6 +30,10 @@ type Subscription struct {
 	e error
 }
 
+func (s *Subscription) Init(){
+	s.wg = &sync.WaitGroup{}
+}
+
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
 
 	body := &models.Subscriber{}
@@ -58,7 +62,6 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 				//change premium field to true on user's account
 				_, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
 					map[string]string{configs.AUTH_HEADER: r.Header.Get(configs.AUTH_HEADER)})
-
 
 				if !stripe_api.HandleError(subErr, w) && !stripe_api.HandleError(err, w){
 
