@@ -1,4 +1,4 @@
-package card
+package subscription
 
 import (
 	"fmt"
@@ -40,6 +40,7 @@ func (cw *Wrapper) Put(c *stripe.Customer, pt string) (*models.Subscription, err
 		return nil, e
 	}
 
+	//pick relevant ones that needs to be stored in dynamodb
 	var sm = &models.Subscription{
 		Email:          c.Email,
 		AccountID:      s.Customer.ID,

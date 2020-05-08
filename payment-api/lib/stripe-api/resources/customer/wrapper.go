@@ -1,4 +1,4 @@
-package card
+package customer
 
 import (
 	"encoding/json"

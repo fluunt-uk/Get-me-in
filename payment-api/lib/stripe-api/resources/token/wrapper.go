@@ -1,4 +1,4 @@
-package card
+package token
 
 import (
 	stripe_api "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api"
