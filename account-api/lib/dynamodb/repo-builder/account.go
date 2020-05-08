@@ -9,6 +9,7 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
+	"log"
 	"net/http"
 )
 
@@ -106,6 +107,7 @@ func (c *AccountWrapper) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
+	log.Printf("Updated account details for [%s] to [%v]",email, &cr)
 	w.WriteHeader(http.StatusOK)
 }
 

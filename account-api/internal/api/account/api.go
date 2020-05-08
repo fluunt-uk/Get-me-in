@@ -18,7 +18,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //stored in the subject claim
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	repo_builder.Account.GetUser(w, r)
-
 }
 
 //two ways of updating a user's information

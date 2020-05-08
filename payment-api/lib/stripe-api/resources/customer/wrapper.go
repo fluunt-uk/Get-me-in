@@ -10,7 +10,7 @@ import (
 )
 
 type Builder interface {
-	Put(http.ResponseWriter, *http.Request)
+	Put(models.Customer) (*stripe.Customer, error)
 	Get(http.ResponseWriter, *http.Request)
 	Del(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
@@ -19,17 +19,19 @@ type Builder interface {
 
 type Wrapper struct{}
 
-func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
-	body := models.Customer{}
-	err := json.NewDecoder(r.Body).Decode(&body)
-	stripe_api.HandleError(err,w)
-	params := &stripe.CustomerParams{
-		Name: &body.Name,
-		Email: &body.Email,
-	}
-	c, _ := customer.New(params)
+func (cw *Wrapper) Put(m models.Customer) (*stripe.Customer, error){
 
-	stripe_api.ReturnSuccessJSON(w, &c)
+	params := &stripe.CustomerParams{
+		Name: &m.Name,
+		Email: &m.Email,
+	}
+	c, err := customer.New(params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request) {
