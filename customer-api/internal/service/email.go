@@ -1,63 +1,45 @@
 package service
 
 import (
+	"github.com/ProjectReferral/Get-me-in/customer-api/configs"
 	"github.com/ProjectReferral/Get-me-in/customer-api/internal/smtp"
 	t "github.com/ProjectReferral/Get-me-in/customer-api/lib/hermes/templates"
 	"github.com/ProjectReferral/Get-me-in/customer-api/models"
+	"github.com/matcornic/hermes"
 )
 
 type EmailService struct {
-	AEB *t.EmailBuilder
+	EB *t.EmailBuilder
 }
 
 func (c *EmailService) SendEmail(body []byte) {
 
-	c.setupTemplates()
 	p := models.IncomingData{}
 	t.ToStruct(body, &p)
 
-	template := c.AEB.GenerateHTMLTemplate(p)
+	template := c.EB.GenerateHTMLTemplate(p)
 
 	go smtp.SendEmail([]string{p.Email}, "Subject goes here", template)
 }
 
-//
-//func (c *EmailService) CreateNotificationEmail(body []byte) {
-//
-//	p := models.IncomingData{}
-//	t.ToStruct(body, &p)
-//
-//	template, subject := t.BaseTypeNotificationEmail(p.Template, p)
-//
-//	smtp.SendEmail([]string{p.Email}, subject, template)
-//	log.Printf("Email sent")
-//
-//}
-//
-//func (c *EmailService) CreateSubscriptionEmail(body []byte) {
-//
-//	p := models.IncomingData{}
-//	t.ToStruct(body, &p)
-//
-//	template, subject := t.BaseTypeSubscriptionEmail(p.Template, p)
-//
-//	smtp.SendEmail([]string{p.Email}, subject, template)
-//	log.Printf("Email sent")
-//
-//}
-//
-//func checkBodyStatus(w http.ResponseWriter, r *http.Request) {
-//	if r.ContentLength < 1 {
-//		w.WriteHeader(http.StatusBadRequest)
-//		w.Write([]byte("No body error"))
-//		return
-//	}
-//}
+//all templates added to our map
+func (c *EmailService) SetupTemplates(){
+	c.EB.Init()
 
-func (c *EmailService) setupTemplates(){
-	c.AEB.Innit()
+	c.EB.SetTheme(	&hermes.Hermes{
+		// Optional Theme
+		// Theme: new(Default)
+		Product: hermes.Product{
+			// Appears in header & footer of e-mails
+			Name: "GMI Team",
+			// Optional product logo
+			Logo: "https://www.clipartmax.com/png/middle/425-4252869_blank-raffle-tickets-template-free-ticket-booking-icon-png.png",
+			Copyright: "Copyright © 2020 GMI. All rights reserved.",
+			TroubleText: "",
+		},
+	})
 
-	c.AEB.AddStaticTemplate(models.NEW_USER_VERIFY,
+	c.EB.AddStaticTemplate(configs.NEW_USER_VERIFY,
 		&models.BaseEmail{
 			Intro: "Welcome to GMI! We're very excited to have you on board.",
 			Outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
@@ -69,7 +51,7 @@ func (c *EmailService) setupTemplates(){
 		},
 	)
 
-	c.AEB.AddStaticTemplate(models.RESET_PASSWORD,
+	c.EB.AddStaticTemplate(configs.RESET_PASSWORD,
 		&models.BaseEmail{
 			Intro:       "You recently made a request to reset your password.",
 			Outro:       "If you did not make this change or you believe an unauthorised person has accessed your account, go to {reset-password endpoint} to reset your password without delay.",
@@ -80,4 +62,60 @@ func (c *EmailService) setupTemplates(){
 			},
 		},
 	)
+
+	c.EB.AddStaticTemplate(configs.CREATE_SUBSCRIPTION,
+		&models.BaseEmail{
+			Intro: "Welcome! Your GMI experience just got premium.",
+			Outro: "",
+		},
+	)
+
+	c.EB.AddStaticTemplate(configs.CANCEL_SUBSCRIPTION,
+		&models.BaseEmail{
+			Intro: "This is a confirmation that your GMI account has been canceled at your request.",
+			Outro: "To start applying again, you can reactivate your account at any time. We hope you decide to come back soon.",
+		},
+	)
+
+	c.EB.AddStaticTemplate(configs.CANCEL_SUBSCRIPTION,
+		&models.BaseEmail{
+			Intro: "This is a confirmation that your GMI account has been canceled at your request.",
+			Outro: "To start applying again, you can reactivate your account at any time. We hope you decide to come back soon.",
+		},
+	)
+
+	c.EB.AddStaticTemplate(configs.REFEREE_APPLICATION,
+		&models.BaseEmail{
+		Intro: "",
+			Outro: "",
+		},
+	)
+
+	c.EB.AddStaticTemplate(configs.REMINDER,
+		&models.BaseEmail{
+			Intro: "",
+			Outro: "",
+		},
+	)
+
+	c.EB.AddStaticTemplate(configs.PAYMENT_CONFIRMATION,
+		&models.BaseEmail{
+			Intro: "Your order has been processed successfully.",
+			Outro: "Thank you, enjoy your experience.",
+		},
+	)
+	c.EB.AddStaticTemplate(configs.PAYMENT_INVOICE,
+		&models.BaseEmail{
+			Intro: "Your order has been processed successfully.",
+			Outro: "Thank you, enjoy your experience.",
+		},
+	)
 }
+
+//func checkBodyStatus(w http.ResponseWriter, r *http.Request) {
+//	if r.ContentLength < 1 {
+//		w.WriteHeader(http.StatusBadRequest)
+//		w.Write([]byte("No body error"))
+//		return
+//	}
+//}

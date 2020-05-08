@@ -1,24 +1,31 @@
 package templates
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/customer-api/models"
 	"github.com/matcornic/hermes"
+	"log"
 	"strconv"
 )
 
 type EmailBuilder struct {
 	st	map[string]*models.BaseEmail
+	theme *hermes.Hermes
 }
 
-func (aeb *EmailBuilder) Innit(){
+func (aeb *EmailBuilder) Init(){
 	aeb.st = make(map[string]*models.BaseEmail)
+}
+
+func (aeb *EmailBuilder) SetTheme(t *hermes.Hermes){
+	aeb.theme = t
 }
 
 func (aeb *EmailBuilder) AddStaticTemplate(key string, s *models.BaseEmail) {
 	aeb.st[key] = s
 }
 
-// This will be used for two types of emails currently, reset password and email confirmation.
 func (aeb *EmailBuilder) templateMapping(params models.BaseEmail) string {
 	hermesTable := &hermes.Table{}
 	hermesAction := &[]hermes.Action{}
@@ -72,7 +79,7 @@ func (aeb *EmailBuilder) templateMapping(params models.BaseEmail) string {
 		},
 	}
 
-	return StringParsedHTML(email)
+	return aeb.stringParsedHTML(email)
 }
 
 func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) string {
@@ -95,4 +102,25 @@ func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) string {
 	})
 
 	return t
+}
+
+func ToStruct(d []byte, p interface{}){
+	err := json.Unmarshal(d, &p)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (aeb *EmailBuilder) stringParsedHTML(e hermes.Email) string {
+	emailBody, err := aeb.theme.GenerateHTML(e)
+	if err != nil {
+		failOnError(err, "Failed to generate HTML email")
+	}
+	return emailBody
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
 }
