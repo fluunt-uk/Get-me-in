@@ -23,11 +23,6 @@ type Subscription struct {
 	SubClient sub.Builder
 	TokenClient token.Builder
 	CardClient card.Builder
-
-	//TODO: these might not be thread safe
-	c *stripe.Customer
-	t *stripe.Token
-	e error
 }
 
 func (s *Subscription) Init(){
@@ -40,23 +35,22 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if !stripe_api.HandleError(err, w) {
 
+		c := &stripe.Customer{}
+		t := &stripe.Token{}
+		var err error
 		//create new customer and token
-		s.asyncRequest(body)
+		s.asyncRequest(body, c, t, err)
 		s.wg.Wait()
 
-		if !stripe_api.HandleError(s.e, w) {
+		if !stripe_api.HandleError(err, w) {
 
 			//link the card with customer
-			s.RLock()
-			_, cardErr := s.CardClient.Put(s.c, s.t)
-			s.RUnlock()
+			_, cardErr := s.CardClient.Put(c, t)
 
 			if !stripe_api.HandleError(cardErr, w) {
 
-				s.RLock()
 				//create the sub and make payment
-				sm, subErr := s.SubClient.Put(s.c, configs.PREMIUM_PLAN)
-				s.RUnlock()
+				sm, subErr := s.SubClient.Put(c, configs.PREMIUM_PLAN)
 
 				b, _ := json.Marshal(models.ChangeRequest{
 					Field:   "premium",
@@ -81,21 +75,17 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(400)
 }
 
-func (s *Subscription) asyncRequest(body *models.Subscriber){
+func (s *Subscription) asyncRequest(body *models.Subscriber, c *stripe.Customer, t *stripe.Token, e error){
 
 	s.wg.Add(1)
 	go func(wg *sync.WaitGroup){
 		defer wg.Done()
-		s.Lock()
-		s.c, s.e = s.CustomerClient.Put(body.Customer)
-		s.Unlock()
+		c, e = s.CustomerClient.Put(body.Customer)
 	}(s.wg)
 
 	s.wg.Add(1)
 	go func(wg *sync.WaitGroup){
 		defer wg.Done()
-		s.Lock()
-		s.t, s.e = s.TokenClient.Put(body.PaymentDetails)
-		s.Unlock()
+		t, e = s.TokenClient.Put(body.PaymentDetails)
 	}(s.wg)
 }
