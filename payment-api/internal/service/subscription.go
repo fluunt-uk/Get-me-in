@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/payment-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
@@ -28,6 +27,7 @@ type Subscription struct {
 type asyncResponse struct {
 	c *stripe.Customer
 	t *stripe.Token
+	err error
 }
 
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
@@ -39,19 +39,18 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	if !stripe_api.HandleError(err, w) {
 
 		a := &asyncResponse{}
-		var err error
 		//create new customer and token
-		s.asyncRequest(body, a, err, wg)
+		s.asyncRequest(body, a, wg)
 
 		if !stripe_api.HandleError(err, w) {
 
-			time.Sleep(600 * time.Millisecond)
+			time.Sleep(configs.THROTTLE)
 			//link the card with customer
 			_, cardErr := s.CardClient.Put(a.c, a.t)
 
 			if !stripe_api.HandleError(cardErr, w) {
 
-				time.Sleep(600 * time.Millisecond)
+				time.Sleep(configs.THROTTLE)
 				//create the sub and make payment
 				sm, subErr := s.SubClient.Put(a.c, configs.PREMIUM_PLAN)
 
@@ -79,20 +78,20 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 }
 
 func (s *Subscription) asyncRequest(body *models.Subscriber,
-	a *asyncResponse, e error, wg *sync.WaitGroup){
+	a *asyncResponse, wg *sync.WaitGroup){
 
 	wg.Add(1)
 	go func(){
 		defer wg.Done()
-		a.c, _ = s.CustomerClient.Put(body.Customer)
+		a.c, a.err = s.CustomerClient.Put(body.Customer)
 	}()
 
 	wg.Add(1)
 	go func(){
 		defer wg.Done()
-		time.Sleep(600 * time.Millisecond)
-		a.t, e = s.TokenClient.Put(body.PaymentDetails)
+		time.Sleep(configs.THROTTLE)
+		a.t, a.err = s.TokenClient.Put(body.PaymentDetails)
 	}()
-	fmt.Println(a.c)
+
 	wg.Wait()
 }

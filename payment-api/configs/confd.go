@@ -1,9 +1,9 @@
 package configs
 
+import "time"
 
 const (
 	PORT = ":5003"
-
 	/************** DynamoDB configs *************/
 	EU_WEST_2         	= "eu-west-2"
 	UNIQUE_IDENTIFIER 	= "email"
@@ -26,8 +26,7 @@ const (
 	//QAPI_URL = "http://35.179.11.178:5004"
 	QAPI_URL = "http://localhost:5004"
 	/*********************************************/
-
-
+	THROTTLE = 600 * time.Millisecond
 	)
 
 var (

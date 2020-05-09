@@ -48,6 +48,8 @@ func Inject(builder ConfigBuilder){
 		TokenClient:    &token.Wrapper{},
 		CardClient:     &card.Wrapper{},
 	}
+
+	log.Printf("Slowing requests at [%v]", configs.THROTTLE)
 	log.Println("Loading endpoints...")
 	eb := internal.EndpointBuilder{}
 
