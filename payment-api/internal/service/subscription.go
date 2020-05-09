@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/payment-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
@@ -17,40 +18,40 @@ import (
 )
 
 type Subscription struct {
-	wg *sync.WaitGroup
-	sync.RWMutex
 	CustomerClient customer.Builder
 	SubClient sub.Builder
 	TokenClient token.Builder
 	CardClient card.Builder
 }
 
-func (s *Subscription) Init(){
-	s.wg = &sync.WaitGroup{}
+type asyncResponse struct {
+	c *stripe.Customer
+	t *stripe.Token
 }
 
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
+
+	wg := &sync.WaitGroup{}
 
 	body := &models.Subscriber{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if !stripe_api.HandleError(err, w) {
 
-		c := &stripe.Customer{}
-		t := &stripe.Token{}
+		a := &asyncResponse{}
 		var err error
 		//create new customer and token
-		s.asyncRequest(body, c, t, err)
-		s.wg.Wait()
+		s.asyncRequest(body, a, err, wg)
+
 
 		if !stripe_api.HandleError(err, w) {
 
 			//link the card with customer
-			_, cardErr := s.CardClient.Put(c, t)
+			_, cardErr := s.CardClient.Put(a.c, a.t)
 
 			if !stripe_api.HandleError(cardErr, w) {
 
 				//create the sub and make payment
-				sm, subErr := s.SubClient.Put(c, configs.PREMIUM_PLAN)
+				sm, subErr := s.SubClient.Put(a.c, configs.PREMIUM_PLAN)
 
 				b, _ := json.Marshal(models.ChangeRequest{
 					Field:   "premium",
@@ -75,17 +76,22 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(400)
 }
 
-func (s *Subscription) asyncRequest(body *models.Subscriber, c *stripe.Customer, t *stripe.Token, e error){
+func (s *Subscription) asyncRequest(body *models.Subscriber,
+	a *asyncResponse, e error, wg *sync.WaitGroup){
 
-	s.wg.Add(1)
-	go func(wg *sync.WaitGroup){
+	wg.Add(1)
+	go func(){
 		defer wg.Done()
-		c, e = s.CustomerClient.Put(body.Customer)
-	}(s.wg)
+		a.c, _ = s.CustomerClient.Put(body.Customer)
+	}()
 
-	s.wg.Add(1)
-	go func(wg *sync.WaitGroup){
+	wg.Add(1)
+	go func(){
 		defer wg.Done()
-		t, e = s.TokenClient.Put(body.PaymentDetails)
-	}(s.wg)
+		a.t, e = s.TokenClient.Put(body.PaymentDetails)
+	}()
+
+	fmt.Println(a.c)
+	wg.Wait()
+
 }
