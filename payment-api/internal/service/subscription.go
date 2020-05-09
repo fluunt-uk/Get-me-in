@@ -15,6 +15,7 @@ import (
 	"github.com/stripe/stripe-go"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Subscription struct {
@@ -42,14 +43,15 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 		//create new customer and token
 		s.asyncRequest(body, a, err, wg)
 
-
 		if !stripe_api.HandleError(err, w) {
 
+			time.Sleep(600 * time.Millisecond)
 			//link the card with customer
 			_, cardErr := s.CardClient.Put(a.c, a.t)
 
 			if !stripe_api.HandleError(cardErr, w) {
 
+				time.Sleep(600 * time.Millisecond)
 				//create the sub and make payment
 				sm, subErr := s.SubClient.Put(a.c, configs.PREMIUM_PLAN)
 
@@ -88,10 +90,9 @@ func (s *Subscription) asyncRequest(body *models.Subscriber,
 	wg.Add(1)
 	go func(){
 		defer wg.Done()
+		time.Sleep(600 * time.Millisecond)
 		a.t, e = s.TokenClient.Put(body.PaymentDetails)
 	}()
-
 	fmt.Println(a.c)
 	wg.Wait()
-
 }
