@@ -2,10 +2,12 @@ package rabbitmq
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
-	"github.com/ProjectReferral/Get-me-in/account-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	resource_model "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
-	"github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
+	qm "github.com/ProjectReferral/Get-me-in/queueing-api/client/models"
 	"github.com/streadway/amqp"
 	"log"
 	"net/http"
@@ -13,19 +15,22 @@ import (
 
 var Client client.QueueClient
 
-func BroadcastNewSubEvent(body []byte) {
+func BroadcastNewSubEvent(s resource_model.Subscription) {
 
 	client := &http.Client{}
 
+	s.SetTemplate(configs.CREATE_SUBSCRIPTION)
+	b, _ := json.Marshal(s)
+
 	//not dependant on the response
-	_, err := Client.Publish(client, models.ExchangePublish{
+	_, err := Client.Publish(client, qm.ExchangePublish{
 		Exchange:  configs.FANOUT_EXCHANGE,
 		Key:       "",
 		Mandatory: false,
 		Immediate: false,
 		Publishing: amqp.Publishing{
 			ContentType:   "text/plain",
-			Body:          body,
+			Body:          b,
 			CorrelationId: NewUUID(),
 		},
 	})
@@ -33,6 +38,8 @@ func BroadcastNewSubEvent(body []byte) {
 	if err != nil {
 		log.Printf("Http request to RabbitMQ API failed with :[%s]", err.Error())
 	}
+
+	log.Println("Message sent")
 }
 
 func NewUUID() string {

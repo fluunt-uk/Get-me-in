@@ -1,6 +1,9 @@
 package dep
 
 import (
+	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal"
+	"github.com/ProjectReferral/Get-me-in/payment-api/internal/service"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/dynamodb/repo"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/rabbitmq"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/card"
@@ -9,6 +12,8 @@ import (
 	token "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/token"
 	"github.com/ProjectReferral/Get-me-in/pkg/dynamodb"
 	"github.com/ProjectReferral/Get-me-in/queueing-api/client"
+	"github.com/gorilla/mux"
+	"github.com/stripe/stripe-go"
 	"log"
 )
 
@@ -35,10 +40,21 @@ func Inject(builder ConfigBuilder){
 	//we inject the rabbitmq client
 	LoadRabbitMQClient(rabbitMQClient)
 
-	LoadCardClient(&card.Wrapper{})
-	LoadCustomerClient(&customer.Wrapper{})
-	LoadSubClient(&sub.Wrapper{DynamoSubRepo:&repo.Wrapper{DC:dynamoClient}})
-	LoadTokenClient(&token.Wrapper{})
+	stripe.Key = configs.StripeKey
+
+	subscriptionServ := service.Subscription{
+		CustomerClient: &customer.Wrapper{},
+		SubClient:      &sub.Wrapper{DynamoSubRepo: &repo.Wrapper{DC: dynamoClient}},
+		TokenClient:    &token.Wrapper{},
+		CardClient:     &card.Wrapper{},
+	}
+	log.Println("Loading endpoints...")
+	eb := internal.EndpointBuilder{}
+
+	eb.SetupRouter(mux.NewRouter())
+	eb.InjectSubscriptionServ(subscriptionServ)
+	eb.SetupEndpoints()
+	log.Println("All Dependencies injected")
 }
 
 func LoadRabbitMQClient(c client.QueueClient){

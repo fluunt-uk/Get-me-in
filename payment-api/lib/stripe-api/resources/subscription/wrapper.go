@@ -11,50 +11,51 @@ import (
 )
 
 //interface with the implemented methods will be injected in this variable
-
-
 type Builder interface {
-	Put(http.ResponseWriter, *http.Request)
+	Put(c *stripe.Customer, pt string) (*models.Subscription, error)
 	Get(http.ResponseWriter, *http.Request)
 	Cancel(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request)
 	GetBatch(http.ResponseWriter, *http.Request)
+	TestCreate(http.ResponseWriter, *http.Request)
 }
 
 type Wrapper struct{
 	DynamoSubRepo sub_builder.Builder
 }
 
-func (cw *Wrapper) Put(w http.ResponseWriter, r *http.Request) {
+func (cw *Wrapper) Put(c *stripe.Customer, pt string) (*models.Subscription, error){
 	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_H7Dt44weDWU4s5"),
+		Customer: stripe.String(c.ID),
 
 		Items: []*stripe.SubscriptionItemsParams{
 			{
-				Plan: stripe.String("plan_H4eVnOxhxYYZ7a"),
+				Plan: stripe.String(pt),
 			},
 		},
 	}
-	s, _ := sub.New(params)
+	s, e := sub.New(params)
 
-	stripe_api.ReturnSuccessJSON(w, &s)
+	if e != nil {
+		return nil, e
+	}
 
-	//status, err := AddSubscription(models.Subscription{
-	//	Email:          "hamza@gmail.com",
-	//	AccountID:      s.Customer.ID,
-	//	SubscriptionID: s.ID,
-	//	PlanID:         s.Plan.ID,
-	//	PlanType:       "Hamuzzz",
-	//})
+	var sm = &models.Subscription{
+		Email:          c.Email,
+		AccountID:      s.Customer.ID,
+		SubscriptionID: s.ID,
+		PlanID:         s.Plan.ID,
+		PlanType:       s.Plan.Nickname,
+		Price:			s.Plan.Amount,
+	}
 
-	status, err := cw.DynamoSubRepo.Create(models.Subscription{
-		Email:          "hamza@gmail.com",
-	})
+	status, err := cw.DynamoSubRepo.Create(sm)
 
 	if err != nil{
 		fmt.Println(status, err)
 	}
-	fmt.Println(status, err)
+
+	return sm, nil
 }
 
 func (cw *Wrapper) Get(w http.ResponseWriter, r *http.Request) {
@@ -89,4 +90,17 @@ func (cw *Wrapper) GetBatch(w http.ResponseWriter, r *http.Request) {
 		s := i.Subscription()
 		stripe_api.ReturnSuccessJSON(w, &s)
 	}
+}
+
+func (cw *Wrapper) TestCreate(w http.ResponseWriter, r *http.Request) {
+
+	status, err := cw.DynamoSubRepo.Create(&models.Subscription{
+		Email:          "hamza@gmail.com",
+	})
+
+	if err != nil{
+		fmt.Println(status, err)
+	}
+	fmt.Println(status, err)
+
 }

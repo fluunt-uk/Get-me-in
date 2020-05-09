@@ -14,13 +14,13 @@ type Wrapper struct {
 //implement only the necessary methods for each repository
 //available to be consumed by the API
 type Builder interface{
-	Create(models.Subscription) (string, error)
+	Create(*models.Subscription) (string, error)
 	Del(string) (string, error)
 }
 
 //get all the adverts for a specific account
 //token validated
-func (s *Wrapper) Create(body models.Subscription) (string, error) {
+func (s *Wrapper) Create(body *models.Subscription) (string, error) {
 
 	av, errM := dynamodbattribute.MarshalMap(body)
 
