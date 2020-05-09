@@ -48,8 +48,6 @@ func Inject(builder ConfigBuilder){
 		TokenClient:    &token.Wrapper{},
 		CardClient:     &card.Wrapper{},
 	}
-	subscriptionServ.Init()
-
 	log.Println("Loading endpoints...")
 	eb := internal.EndpointBuilder{}
 

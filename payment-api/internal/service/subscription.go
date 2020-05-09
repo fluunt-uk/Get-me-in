@@ -14,44 +14,45 @@ import (
 	"github.com/stripe/stripe-go"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Subscription struct {
-	wg *sync.WaitGroup
-
 	CustomerClient customer.Builder
 	SubClient sub.Builder
 	TokenClient token.Builder
 	CardClient card.Builder
-
-	//TODO: these might not be thread safe
-	c *stripe.Customer
-	t *stripe.Token
-	e error
 }
 
-func (s *Subscription) Init(){
-	s.wg = &sync.WaitGroup{}
+type asyncResponse struct {
+	c *stripe.Customer
+	t *stripe.Token
+	err error
 }
 
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
+
+	wg := &sync.WaitGroup{}
 
 	body := &models.Subscriber{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if !stripe_api.HandleError(err, w) {
 
+		a := &asyncResponse{}
 		//create new customer and token
-		s.asyncRequest(body)
-		s.wg.Wait()
+		s.asyncRequest(body, a, wg)
 
-		if !stripe_api.HandleError(s.e, w) {
+		if !stripe_api.HandleError(err, w) {
 
+			time.Sleep(configs.THROTTLE)
 			//link the card with customer
-			_, cardErr := s.CardClient.Put(s.c, s.t)
+			_, cardErr := s.CardClient.Put(a.c, a.t)
+
 			if !stripe_api.HandleError(cardErr, w) {
 
+				time.Sleep(configs.THROTTLE)
 				//create the sub and make payment
-				s, subErr := s.SubClient.Put(s.c, configs.PREMIUM_PLAN)
+				sm, subErr := s.SubClient.Put(a.c, configs.PREMIUM_PLAN)
 
 				b, _ := json.Marshal(models.ChangeRequest{
 					Field:   "premium",
@@ -66,7 +67,7 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 				if !stripe_api.HandleError(subErr, w) && !stripe_api.HandleError(err, w){
 
 					//send email confirmation
-					go rabbitmq.BroadcastNewSubEvent(*s)
+					go rabbitmq.BroadcastNewSubEvent(*sm)
 					w.WriteHeader(200)
 				}
 			}
@@ -76,17 +77,21 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(400)
 }
 
-func (s *Subscription) asyncRequest(body *models.Subscriber){
+func (s *Subscription) asyncRequest(body *models.Subscriber,
+	a *asyncResponse, wg *sync.WaitGroup){
 
-	s.wg.Add(1)
-	go func(wg *sync.WaitGroup){
+	wg.Add(1)
+	go func(){
 		defer wg.Done()
-		s.c, s.e = s.CustomerClient.Put(body.Customer)
-	}(s.wg)
+		a.c, a.err = s.CustomerClient.Put(body.Customer)
+	}()
 
-	s.wg.Add(1)
-	go func(wg *sync.WaitGroup){
+	wg.Add(1)
+	go func(){
 		defer wg.Done()
-		s.t, s.e = s.TokenClient.Put(body.PaymentDetails)
-	}(s.wg)
+		time.Sleep(configs.THROTTLE)
+		a.t, a.err = s.TokenClient.Put(body.PaymentDetails)
+	}()
+
+	wg.Wait()
 }

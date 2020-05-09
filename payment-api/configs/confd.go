@@ -1,5 +1,6 @@
 package configs
 
+import "time"
 
 const (
 	PORT = ":5003"
@@ -26,8 +27,7 @@ const (
 	//QAPI_URL = "http://35.179.11.178:5004"
 	QAPI_URL = "http://localhost:5004"
 	/*********************************************/
-
-
+	THROTTLE = 600 * time.Millisecond
 	)
 
 var (
