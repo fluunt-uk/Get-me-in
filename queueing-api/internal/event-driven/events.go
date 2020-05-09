@@ -361,23 +361,26 @@ func send(id string, msg amqp.Delivery, url string, timeout time.Duration, retry
 				RabbitUnsubscribe(id)
 				log.Printf("Error: [404] ending subscription id [%s]",id)
 			default:
-				messages[id][msg.DeliveryTag] += 1
-				var triesLeft int 
-				triesLeft = connections[id].MaxRetry
+				m := messages[id]
+				count := m[msg.DeliveryTag] + 1
+				subscriber := connections[id]
+				var triesLeft int
+				triesLeft = subscriber.MaxRetry
 				if triesLeft == -1 {
 					triesLeft = 10
 				}
 				for triesLeft > 0 {
-					if !checkRetry(connections[id].Channel, id, msg.DeliveryTag, messages[id][msg.DeliveryTag], connections[id].MaxRetry, msg.Body) {
+					if !checkRetry(subscriber.Channel, id, msg.DeliveryTag, count, subscriber.MaxRetry, msg.Body) {
 						errN := msg.Nack(false,true)
 						if errN == nil {
 							break;
 						}else{
-							messages[id][msg.DeliveryTag] += 1
+							count += 1
 							triesLeft--
 						}
 					}
 				}
+				m[msg.DeliveryTag] += count
 				log.Printf("failed to post message %d %v",resp.StatusCode,resp)
 		}
 	}
