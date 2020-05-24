@@ -12,6 +12,7 @@ import (
 	token "github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/token"
 	"github.com/ProjectReferral/Get-me-in/pkg/http_lib"
 	"github.com/stripe/stripe-go"
+	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
@@ -30,6 +31,10 @@ type asyncResponse struct {
 	err error
 }
 
+//makes [3 requests],
+//1 - create new customer
+//2 - create new token
+//3 - update db record
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
 
 	wg := &sync.WaitGroup{}
@@ -39,7 +44,8 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 	if !stripe_api.HandleError(err, w) {
 
 		a := &asyncResponse{}
-		//create new customer and token
+
+		//create new customer and token [2 requests]
 		s.asyncRequest(body, a, wg)
 
 		if !stripe_api.HandleError(err, w) {
@@ -60,9 +66,22 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 					Type:    3,
 				})
 
-				//change premium field to true on user's account
-				_, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
+				//change premium field to true on user's account [1 request]
+				resp, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
 					map[string]string{configs.AUTH_HEADER: r.Header.Get(configs.AUTH_HEADER)})
+
+
+				if resp.StatusCode != 200 {
+					errorBody, errParse := ioutil.ReadAll(resp.Body)
+
+					if errParse != nil {
+						http.Error(w, "Error parsing body", http.StatusBadRequest)
+						return
+					}
+
+					http.Error(w, string(errorBody), resp.StatusCode)
+					return
+				}
 
 				if !stripe_api.HandleError(subErr, w) && !stripe_api.HandleError(err, w){
 

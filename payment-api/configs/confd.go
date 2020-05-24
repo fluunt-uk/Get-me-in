@@ -20,6 +20,7 @@ const (
 	/*********************************************/
 	/*********** Authorization configs ***********/
 	AUTH_HEADER         	= "Authorization"
+	AUTH_AUTHENTICATED = "crud"
 	/*********************************************/
 	/************** RabbitMQ configs *************/
 	FANOUT_EXCHANGE = "adverts.fanout"
