@@ -34,7 +34,10 @@ type asyncResponse struct {
 //makes [3 requests],
 //1 - create new customer
 //2 - create new token
-//3 - update db record
+//3 - create new sub on the DB
+
+
+//4 - update db record[set premium to true]
 func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Request){
 
 	wg := &sync.WaitGroup{}
@@ -61,12 +64,13 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 				sm, subErr := s.SubClient.Put(a.c, configs.PREMIUM_PLAN)
 
 				b, _ := json.Marshal(models.ChangeRequest{
-					Field:   "premium",
-					NewBool: true,
-					Type:    3,
+					Field:   "active_subscription",
+					NewMap: sm,
+					Type:    2,
 				})
 
-				//change premium field to true on user's account [1 request]
+
+				//add subscription to account object
 				resp, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
 					map[string]string{configs.AUTH_HEADER: r.Header.Get(configs.AUTH_HEADER)})
 

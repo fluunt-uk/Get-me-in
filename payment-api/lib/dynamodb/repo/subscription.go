@@ -38,7 +38,6 @@ func (s *Wrapper) Create(body *models.Subscription) (string, error) {
 	return "Success", err
 }
 
-// Will need to get email from somewhere, not sure where yet
 func (s *Wrapper) Del(email string) (string, error) {
 	err := s.DC.DeleteItem(email)
 
