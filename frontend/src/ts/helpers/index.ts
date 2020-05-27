@@ -1,2 +1,4 @@
 export * from "./serviceWorker"
-// export * from "./setupTests"
+export * from "./ValueTypes"
+export * from "./functions"
+export * from "../redux"

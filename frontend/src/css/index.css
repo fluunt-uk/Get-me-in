@@ -1,13 +1,33 @@
+
+/*------------------ Gloabl ------------------*/
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none; 
   -moz-osx-font-smoothing: grayscale;
+  text-align: center;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+li
+{
+  list-style: none;
+}
+
+
+img{
+  position: relative;
+  height: 20%;
+}
+
+button:focus {
+  outline:none;
+}
+
