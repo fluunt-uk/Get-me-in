@@ -49,7 +49,8 @@ func (c *AccountWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 	u.AccessCode = rabbitmq.NewUUID()
 
 	dynamoAttr, errDecode := dynamodb.DecodeToDynamoAttribute(body, &u)
-	dynamodb.ParseEmptyCollection(dynamoAttr, configs.APPLICATIONS)
+	dynamodb.AddEmptyCollection(dynamoAttr, configs.ACTIVE_SUB)
+	dynamodb.AddEmptyCollection(dynamoAttr, configs.APPLICATIONS)
 
 	if !internal.HandleError(errDecode, w) {
 		err := 	c.DC.CreateItem(dynamoAttr)

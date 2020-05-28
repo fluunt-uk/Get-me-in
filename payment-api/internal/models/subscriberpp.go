@@ -12,6 +12,7 @@ type Subscriber struct {
 type ChangeRequest struct {
 	NewString 	string 			`json:"new_value"`
 	Field		string 			`json:"field"`
+	Id			string			`json:"id"`
 	NewMap		interface{} 	`json:"new_map"`
 	NewBool		bool 			`json:"new_bool"`
 	//type 1: single string value

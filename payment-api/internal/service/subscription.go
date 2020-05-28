@@ -65,10 +65,10 @@ func (s *Subscription) SubscribeToPremiumPlan(w http.ResponseWriter, r *http.Req
 
 				b, _ := json.Marshal(models.ChangeRequest{
 					Field:   "active_subscription",
+					Id: sm.SubscriptionID,
 					NewMap: sm,
 					Type:    2,
 				})
-
 
 				//add subscription to account object
 				resp, err := http_lib.Patch(configs.ACCOUNT_API_PREMIUM, b,
