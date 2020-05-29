@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Route,NavLink  } from "react-router-dom"
 import React from "react";
 import '../../css/App.css';
 
-import { Home,Ads,mapStateToProps} from '.'
+import { Home,Ads,mapStateToProps, ComingSoon} from '.'
 import { StateTypes } from "..";
 class NavBar extends Component<StateTypes>{
     render(){
@@ -23,7 +23,7 @@ class NavBar extends Component<StateTypes>{
                             </div>
                         </div>
                     </nav>
-                    <Route path ='/'        exact component={Home} /> 
+                    <Route path ='/'   exact component={ComingSoon} />
                     <Route path='/ads' exact component={Ads} />
                 </div>
             </Router>

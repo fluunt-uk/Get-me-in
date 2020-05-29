@@ -1,11 +1,9 @@
 
 import {SetDefault, PropItems, StateTypes, SetStatus} from '..';
-import {Login, Register, Logo,mapDispatchToProps,mapStateToProps} from '.';
+import {Login, Register, ComingSoon, Logo,mapDispatchToProps,mapStateToProps} from '.';
 
 import React, {Component,SyntheticEvent} from 'react';
 import { connect } from 'react-redux';
-
-
 
 class Home extends Component<PropItems & StateTypes>{
   
