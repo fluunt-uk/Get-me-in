@@ -1,17 +1,15 @@
 /*------------------ Nav Bar ------------------*/
 
 nav{
- 
   background-color: #000;
   height: 3vh;
   width: 100%;
- 
 }
+
 .nav_global{
   overflow: hidden;
   display: inline;
  }
-
 
 #nav_bar_item
 {
@@ -21,9 +19,7 @@ nav{
   float: left;
 }
 
-
-a,
-a:visited {
+a, a:visited {
   color: gray;
   text-decoration: none;
   height: inherit;
@@ -34,9 +30,7 @@ a.active {
   color: white;
 }
 
-
 /*------------------ Home Page ------------------*/
-
 input[type=text], input[type=number],select {
   width: 100%;
   padding: 8px 20px;
@@ -47,9 +41,8 @@ input[type=text], input[type=number],select {
   box-sizing: border-box;
 }
 
-
 .home_container{
-  position: block;
+  display: block;
   margin-top: 10vw;
   margin-left: 35vw;
   height: 30em;
@@ -57,9 +50,7 @@ input[type=text], input[type=number],select {
   background:#fff;
   z-index:1;
   overflow: hidden;
-
 }
-
 
 .home_btn_container{
   background-color:#000;
@@ -105,20 +96,13 @@ input[type=text], input[type=number],select {
   color: #fff;
 }
 
-
 .host_name_input{
-  display:relative;
+  position: relative;
   height:50px;
   width:5vw;
 }
 
-
-
-/* Inpsector inputs */
-
-
-
-
+/* Inspector inputs */
 input[type=submit] {
   width: 100%;
   height: 20px;
@@ -132,8 +116,7 @@ input[type=submit]:hover {
   background-color: #3A99FC;
 }
 
-
-/*------------------ Collapsibles ------------------*/
+/*------------------ Collapsible ------------------*/
 .collapsible_btn
 {
   width: 100%;
@@ -150,10 +133,9 @@ input[type=submit]:hover {
   background: #3A99FC;
 }
 
-
 .templateGridContainer
 {
-  width:"100%";
+  width:100%;
   height: 50px;
   vertical-align: middle;
   color: white;
@@ -167,4 +149,3 @@ input[type=submit]:hover {
 {
   border: 1px solid black;
 }
-

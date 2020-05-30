@@ -10,9 +10,6 @@ import
     // MODIFY_RECEIVER_ELEMENT
 } from "..";
 
-
-
-
 const initialState:Array<CustomerType> =  []
 
 export default function ReceiverReducer(state = initialState, action:AnyAction):Array<CustomerType>{
