@@ -41,3 +41,7 @@ func UpdateAdvert(w http.ResponseWriter, r *http.Request) {
 	repo_builder.Advert.UpdateAdvert(w,r)
 }
 
+func GetBatchAdverts(w http.ResponseWriter, r *http.Request) {
+
+	repo_builder.Advert.GetBatchAdvert(w,r)
+}

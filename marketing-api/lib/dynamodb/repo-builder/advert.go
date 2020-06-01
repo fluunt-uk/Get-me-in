@@ -18,6 +18,7 @@ type AdvertWrapper struct {
 //available to be consumed by the API
 type AdvertBuilder interface {
 	GetAdvert(http.ResponseWriter, *http.Request)
+	GetBatchAdvert(http.ResponseWriter, *http.Request)
 	UpdateAdvert(http.ResponseWriter, *http.Request)
 	CreateAdvert(http.ResponseWriter, *http.Request)
 	DeleteAdvert(http.ResponseWriter, *http.Request)
@@ -134,4 +135,27 @@ func GetQueryString(m url.Values, q string, w http.ResponseWriter) string {
 	}
 
 	return advertID
+}
+
+func (a *AdvertWrapper) GetBatchAdvert(w http.ResponseWriter, r *http.Request) {
+	var am models.Advert
+
+	dynamodb.DecodeToMap(r.Body, &am)
+
+	by := GetQueryString(r.URL.Query(), "by", w)
+
+	if by != "" {
+		result, err := a.DC.GetAll(by)
+
+		if !HandleError(err, w, true) {
+
+			b, err := json.Marshal(&result)
+
+			if !HandleError(err, w, false) {
+
+				w.Write(b)
+				w.WriteHeader(http.StatusOK)
+			}
+		}
+	}
 }
