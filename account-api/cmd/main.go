@@ -6,10 +6,18 @@ import (
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/api"
 	"github.com/ProjectReferral/Get-me-in/account-api/internal/models"
 	"github.com/ProjectReferral/Get-me-in/util"
+	"log"
 	"os"
 )
 
 func main() {
+
+	f, err := os.OpenFile("logs/accountAPI_log.txt", os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 
 	//gets all the necessary configs into our object
 	//completes connections

@@ -7,6 +7,7 @@ import (
 	sign_in "github.com/ProjectReferral/Get-me-in/account-api/internal/api/sign-in"
 	"github.com/ProjectReferral/Get-me-in/pkg/security"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -39,5 +40,13 @@ func SetupEndpoints() {
 	//user must be authenticated before access this endpoint
 	_router.HandleFunc("/account/advert", security.WrapHandlerWithSpecialAuth(account_advert.GetAllAdverts, configs.AUTH_AUTHENTICATED)).Methods("GET")
 
+	_router.HandleFunc("/log", displayLog).Methods("GET")
+
 	log.Fatal(http.ListenAndServe(configs.PORT, _router))
+}
+
+func displayLog(w http.ResponseWriter, r *http.Request){
+	b, _ := ioutil.ReadFile("logs/accountAPI_log.txt")
+
+	w.Write(b)
 }
