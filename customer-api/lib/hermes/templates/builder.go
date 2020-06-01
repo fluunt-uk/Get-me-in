@@ -82,7 +82,7 @@ func (aeb *EmailBuilder) templateMapping(params models.BaseEmail) string {
 	return aeb.stringParsedHTML(email)
 }
 
-func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) string {
+func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) (string, string) {
 
 	t := aeb.templateMapping(models.BaseEmail{
 		Name:  			k.FirstName,
@@ -101,7 +101,7 @@ func (aeb *EmailBuilder) GenerateHTMLTemplate(k models.IncomingData) string {
 		},
 	})
 
-	return t
+	return t, aeb.st[k.Template].Subject
 }
 
 func ToStruct(d []byte, p interface{}){

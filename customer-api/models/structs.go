@@ -14,6 +14,7 @@ type PaymentEmail struct {
 }
 
 type BaseEmail struct {
+	Subject 		string
 	Name  			string
 	Intro 			string
 	Outro 			string
