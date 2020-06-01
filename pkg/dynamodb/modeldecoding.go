@@ -56,7 +56,7 @@ func Unmarshal(result *dynamodb.GetItemOutput, m interface{}) error {
 	return nil
 }
 
-func ParseEmptyCollection(av map[string]*dynamodb.AttributeValue, v string){
+func AddEmptyCollection(av map[string]*dynamodb.AttributeValue, v string){
 
 	av[v].NULL = nil
 	av[v].M = map[string]*dynamodb.AttributeValue{}

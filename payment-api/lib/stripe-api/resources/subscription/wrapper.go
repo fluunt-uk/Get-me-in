@@ -49,11 +49,12 @@ func (cw *Wrapper) Put(c *stripe.Customer, pt string) (*models.Subscription, err
 		Price:			s.Plan.Amount,
 	}
 
-	status, err := cw.DynamoSubRepo.Create(sm)
-
-	if err != nil{
-		fmt.Println(status, err)
-	}
+	//TODO: might not be needed?
+	//status, err := cw.DynamoSubRepo.Create(sm)
+	//
+	//if err != nil{
+	//	fmt.Println(status, err)
+	//}
 
 	return sm, nil
 }

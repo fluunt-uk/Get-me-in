@@ -9,6 +9,7 @@ const (
 	PW                = "password"
 	PREMIUM           = "premium"
 	APPLICATIONS      = "applications"
+	ACTIVE_SUB      = "active_subscription"
 	TABLE_NAME        = "users"
 	/*********************************************/
 	/************** RabbitMQ configs *************/

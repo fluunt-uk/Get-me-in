@@ -13,7 +13,7 @@ func (c *AccountWrapper) UpdateValue(email string, cr *models.ChangeRequest) err
 		break
 	// map value
 	case 2:
-		return c.DC.AppendNewMap(cr.NewMap.Uuid, email, &cr.NewMap, cr.Field)
+		return c.DC.AppendNewMap(cr.Id, email, &cr.NewMap, cr.Field)
 		break
 		// string value
 	case 3:

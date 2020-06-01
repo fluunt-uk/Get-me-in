@@ -5,10 +5,19 @@ import (
 	"github.com/ProjectReferral/Get-me-in/payment-api/configs"
 	"github.com/ProjectReferral/Get-me-in/payment-api/lib/stripe-api/resources/models"
 	"github.com/ProjectReferral/Get-me-in/util"
+	"log"
 	"os"
 )
 
 func main() {
+
+	f, err := os.OpenFile("logs/paymentAPI_log.txt", os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+
 	//gets all the necessary configs into our object
 	//completes connections
 	//assigns connections to repos
