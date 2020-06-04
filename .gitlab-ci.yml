@@ -33,3 +33,5 @@ build:
     - go build $CI_PROJECT_DIR/queueing-api/cmd/main.go
     - go build $CI_PROJECT_DIR/payment-api/cmd/main.go
     - go build $CI_PROJECT_DIR/pkg/dynamodb/cmd/main.go
+ tags:
+    - test
