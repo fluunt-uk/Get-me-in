@@ -14,13 +14,18 @@ import (
 //Token is issued as a JSON with an expiry time of 2.5days
 //This token will allow the user to access the [/GET,/PATCH,/DELETE] endpoints for the Account-API
 func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
+	
+	                if (*req).Method == "OPTIONS" {
+                return
+        }
 
+	fmt.Println("came through")
 	//TODO: reCaptchacheck
-
 	//empty body
 	if req.ContentLength < 1 {
+		fmt.Println("came through")
 		http.Error(w, "Error parsing body", http.StatusBadRequest)
-		return
+	return
 	}
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -29,7 +34,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Error parsing body", http.StatusBadRequest)
 		return
 	}
-
+	
 	//request to account api to verify credentials
 	resp, errPost := request.Post(configs.LOGIN_ENDPOINT, body,
 		map[string]string{configs.AUTHORIZATION: req.Header.Get(configs.AUTHORIZATION)})
@@ -58,7 +63,7 @@ func VerifyCredentials(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		fmt.Sprintf(err.Error())
 	}
-
+	
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
 }
@@ -80,6 +85,24 @@ func IssueRegistrationTempToken(w http.ResponseWriter, req *http.Request) {
 
 //Response for testing purposes
 func MockResponse(w http.ResponseWriter, req *http.Request) {
-	w.Write([]byte("OK"))
+	        
+		if (*req).Method == "OPTIONS" {
+		return
+	}
+
+	body, err := ioutil.ReadAll(req.Body)
+
+        if err != nil {
+                http.Error(w, "Error parsing body", http.StatusBadRequest)
+                return
+        }
+fmt.Println("came through")
+	fmt.Println(string(body))
+fmt.Println("came through")
+	fmt.Println(req.Header.Get(configs.AUTHORIZATION))
+
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte("NOStatusBadRequesT"))
 	w.WriteHeader(http.StatusOK)
 }
